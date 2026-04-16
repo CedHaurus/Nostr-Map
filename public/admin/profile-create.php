@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/_auth.php';
+require_once '/var/www/html/api/_helpers.php';
 $admin = requireAdmin(); // modo+
 $db    = getDB();
 
@@ -53,8 +54,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'active',
         ]);
 
+        // Pré-charger les métadonnées Nostr immédiatement (sauf si l'admin les a déjà saisies)
+        if (!$cachedName && !$cachedAvatar) {
+            warmProfileCache($npub, $db);
+        }
         logActivity('create_profile', 'profile', $npub, "slug: {$slug}");
-        flash("Fiche @{$slug} créée. Récupération des données Nostr en cours…", 'info');
+        flash("Fiche @{$slug} créée.", 'success');
         redirect('/admin/profile-edit.php?npub=' . urlencode($npub) . '&nostr_refresh=1');
     }
 }

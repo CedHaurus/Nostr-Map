@@ -90,8 +90,13 @@ ob_start(); ?>
                     </div>
                 </td>
                 <td>
-                    <strong><?= h($p['requester'] ?? '—') ?></strong>
-                    <span class="badge badge-modo" style="font-size:.7rem;">modo</span>
+                    <?php if (($p['deletion_source'] ?? 'admin') === 'user'): ?>
+                        <strong>Utilisateur</strong>
+                        <span class="badge" style="font-size:.7rem;background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);">auto</span>
+                    <?php else: ?>
+                        <strong><?= h($p['requester'] ?? '—') ?></strong>
+                        <span class="badge badge-modo" style="font-size:.7rem;">modo</span>
+                    <?php endif; ?>
                 </td>
                 <td class="cell-muted"><?= $p['deletion_requested_at'] ? date('d/m/Y H:i', strtotime($p['deletion_requested_at'])) : '—' ?></td>
                 <td class="cell-muted">

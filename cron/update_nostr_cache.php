@@ -15,6 +15,7 @@
 
 declare(strict_types=1);
 require_once '/var/www/config/db.php';
+require_once '/var/www/html/api/_helpers.php';
 
 $batchSize = (int)(getenv('CRON_CACHE_BATCH') ?: 20);
 $forceAll  = (bool)(int)(getenv('CRON_CACHE_FORCE_ALL') ?: 0);
@@ -65,6 +66,11 @@ foreach ($profiles as $npub) {
         continue;
     }
 
+    // Vérifier si le nom a été verrouillé par l'utilisateur
+    $lockRow = $db->prepare('SELECT display_name_updated_at FROM profiles WHERE npub = ?');
+    $lockRow->execute([$npub]);
+    $nameLocked = (bool) $lockRow->fetchColumn();
+
     // Métadonnées + stats depuis Primal (un seul appel)
     [$meta, $stats] = fetchPrimalData($hex);
 
@@ -73,10 +79,11 @@ foreach ($profiles as $npub) {
     $params = [];
 
     if ($meta) {
-        if (!empty($meta['name']))       { array_unshift($set, 'cached_name = ?');      array_unshift($params, mb_substr($meta['name'],    0, 100)); }
-        if (!empty($meta['picture']))    { array_unshift($set, 'cached_avatar = ?');    array_unshift($params, mb_substr($meta['picture'], 0, 500)); }
-        if (!empty($meta['about']))      { array_unshift($set, 'cached_bio = ?');       array_unshift($params, mb_substr($meta['about'],   0, 2000)); }
-        if (!empty($meta['nip05']))      { array_unshift($set, 'cached_nip05 = ?');     array_unshift($params, mb_substr($meta['nip05'],   0, 200)); }
+        // Ne pas écraser le nom si l'utilisateur l'a défini manuellement
+        if (!empty($meta['name']) && !$nameLocked) { array_unshift($set, 'cached_name = ?');   array_unshift($params, mb_substr($meta['name'],    0, 100)); }
+        if (!empty($meta['picture']))              { array_unshift($set, 'cached_avatar = ?'); array_unshift($params, mb_substr($meta['picture'], 0, 500)); }
+        if (!empty($meta['about']))                { array_unshift($set, 'cached_bio = ?');    array_unshift($params, mb_substr($meta['about'],   0, 2000)); }
+        if (!empty($meta['nip05']))                { array_unshift($set, 'cached_nip05 = ?');  array_unshift($params, mb_substr($meta['nip05'],   0, 200)); }
     }
 
     if ($stats) {
@@ -102,107 +109,4 @@ foreach ($profiles as $npub) {
 }
 
 echo "[update_nostr_cache] Terminé : {$updated} mis à jour, {$errors} erreurs — " . date('Y-m-d H:i:s') . "\n";
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Récupère profil (kind:0) + stats (kind:10000105) depuis cache2.primal.net en un seul appel.
- * Retourne [meta|null, stats|null]
- */
-function fetchPrimalData(string $hex): array {
-    $payload = json_encode(['user_profile', ['pubkey' => $hex]]);
-
-    $ch = curl_init('https://cache2.primal.net/api');
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 8,
-        CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => $payload,
-        CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
-        CURLOPT_USERAGENT      => 'NostrMap-Cron/1.0 (+https://nostrmap.fr)',
-        CURLOPT_SSL_VERIFYPEER => true,
-    ]);
-    $body = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if (!$body || $code !== 200) return [null, null];
-
-    $events = json_decode($body, true);
-    if (!is_array($events)) return [null, null];
-
-    $meta  = null;
-    $stats = null;
-    $best  = null;
-
-    foreach ($events as $event) {
-        if (!is_array($event)) continue;
-
-        // kind:0 — métadonnées du profil
-        if (($event['kind'] ?? -1) === 0) {
-            if (!$best || ($event['created_at'] ?? 0) > ($best['created_at'] ?? 0)) {
-                $best = $event;
-            }
-        }
-
-        // kind:10000105 — stats Primal (followers, posts, etc.)
-        if (($event['kind'] ?? -1) === 10000105) {
-            $s = is_string($event['content'] ?? null)
-                ? json_decode($event['content'], true)
-                : null;
-            if (is_array($s)) {
-                $stats = [
-                    'followers' => max(0, (int)($s['followers_count'] ?? 0)),
-                    'posts'     => max(0, (int)($s['note_count']      ?? 0)),
-                    'joined_at' => max(0, (int)($s['time_joined']     ?? 0)),
-                ];
-            }
-        }
-    }
-
-    if ($best) {
-        $content = is_string($best['content'] ?? null)
-            ? json_decode($best['content'], true)
-            : null;
-        if (is_array($content)) {
-            $meta = [
-                'name'       => $content['name'] ?? $content['display_name'] ?? null,
-                'picture'    => $content['picture'] ?? null,
-                'about'      => $content['about'] ?? null,
-                'nip05'      => $content['nip05'] ?? null,
-            ];
-        }
-    }
-
-    return [$meta, $stats];
-}
-
-/**
- * Convertit un npub bech32 en hex
- */
-function npubToHex(string $npub): string {
-    $CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
-    $str     = strtolower($npub);
-    $sep     = strrpos($str, '1');
-    if ($sep < 1) throw new Exception('Invalid npub');
-
-    $dataStr = substr($str, $sep + 1, -6);
-    $data5   = [];
-    foreach (str_split($dataStr) as $c) {
-        $idx = strpos($CHARSET, $c);
-        if ($idx === false) throw new Exception("Invalid char: $c");
-        $data5[] = $idx;
-    }
-
-    $acc = 0; $bits = 0; $bytes = [];
-    foreach ($data5 as $v) {
-        $acc   = ($acc << 5) | $v;
-        $bits += 5;
-        while ($bits >= 8) {
-            $bits -= 8;
-            $bytes[] = ($acc >> $bits) & 0xff;
-        }
-    }
-
-    return implode('', array_map(fn($b) => sprintf('%02x', $b), $bytes));
-}
+// fetchPrimalData, npubToHex : fournis par _helpers.php (require_once ci-dessus)

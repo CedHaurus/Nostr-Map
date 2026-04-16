@@ -27,14 +27,15 @@ const PAGE = 12;
 if ($q === '' && in_array($sort, ['recent', 'actifs', 'populaires', 'random'], true)) {
     $db = getDB();
     $orderBy = match($sort) {
-        'actifs'     => 'p.nostr_posts DESC, p.registered_at DESC',
-        'populaires' => 'p.nostr_followers DESC, p.registered_at DESC',
+        'actifs'     => 'p.nostr_posts DESC',
+        'populaires' => 'p.nostr_followers DESC',
         'random'     => $seed !== null ? "RAND({$seed})" : 'RAND()',
         default      => 'p.registered_at DESC',
     };
     $stmt = $db->prepare(
         "SELECT p.npub, p.slug, p.cached_name, p.cached_avatar, p.cached_bio, p.cached_nip05,
-                p.nostr_followers, p.nostr_posts
+                p.nostr_followers, p.nostr_posts,
+                (p.last_login IS NULL) AS community_added
          FROM profiles p
          WHERE p.status = 'active'
          ORDER BY {$orderBy}
@@ -86,7 +87,8 @@ $sql = "
         p.cached_nip05,
         p.nostr_followers,
         p.nostr_posts,
-        p.registered_at
+        p.registered_at,
+        (p.last_login IS NULL) AS community_added
     FROM profiles p
     WHERE
         p.status = 'active'

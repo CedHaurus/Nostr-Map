@@ -866,14 +866,19 @@ body.is-logged-in .header-auth-out { display: none !important; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  background: #10b981;
-  color: #fff;
-  font-size: 8px;
+  color: #10b981;
+  font-size: 14px;
   font-weight: 800;
   line-height: 1;
+}
+.community-dot {
+  flex-shrink: 0;
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  opacity: .7;
 }
 .profile-slug {
   font-size: .75rem;
@@ -1370,19 +1375,30 @@ body.is-logged-in .header-auth-out { display: none !important; }
 .footer {
   margin-top: auto;
   border-top: 1px solid var(--border);
-  padding: 1.5rem;
+  padding: 1.5rem 1rem;
   text-align: center;
   color: var(--text-muted);
   font-size: .8rem;
 }
+.footer p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem 0;
+  margin: 0;
+}
 .footer a { color: var(--text-muted); }
 .footer a:hover { color: var(--primary); }
+.footer-sep { margin: 0 .35rem; }
 
 /* ─── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 480px) {
   .hero { padding: 2.5rem 1rem 2rem; }
   .hero h1 { font-size: 1.85rem; }
   .profile-hero { padding: 1.75rem 1.25rem; }
+  .footer-sep { display: none; }
+  .footer a, .footer strong { padding: 0 .4rem; }
   .modal { padding: 1.5rem; }
 }
 

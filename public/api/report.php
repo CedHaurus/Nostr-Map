@@ -20,9 +20,10 @@ if (!in_array($reason, $allowed, true))  jsonError('Motif invalide');
 $db = getDB();
 
 // Obtenir l'IP du client (Caddy pose X-Real-IP ; pas de confiance à X-Forwarded-For injectable)
-$ip = $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+$ip     = $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+$ipHash = hashIp($ip);
 
-// Vérifier IP bloquée
+// Vérifier IP bloquée (blocked_ips stocke les IPs en clair pour gestion admin)
 $blocked = $db->prepare(
     'SELECT 1 FROM blocked_ips WHERE ip = ? AND (expires_at IS NULL OR expires_at > NOW())'
 );
@@ -39,7 +40,7 @@ if ($profileRow['protected']) jsonError('Ce profil ne peut pas être signalé.',
 $rl = $db->prepare(
     'SELECT 1 FROM reports WHERE npub = ? AND reporter_ip = ? AND created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)'
 );
-$rl->execute([$npub, $ip]);
+$rl->execute([$npub, $ipHash]);
 if ($rl->fetchColumn()) jsonError('Vous avez déjà signalé ce profil récemment.', 429);
 
 // Récupérer le slug pour le log
@@ -55,7 +56,7 @@ $db->prepare(
     $slug,
     $reason,
     $details ?: null,
-    $ip,
+    $ipHash,
     $reporterNpub ?: null,
 ]);
 

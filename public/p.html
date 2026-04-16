@@ -154,7 +154,10 @@
     </div>
 
     <!-- Nom + slug -->
-    <h1 class="profile-hero-name" id="ph-name">—</h1>
+    <div style="display:flex;align-items:center;gap:.4rem;justify-content:center;margin-bottom:.25rem;">
+      <h1 class="profile-hero-name" id="ph-name" style="margin-bottom:0;">—</h1>
+      <span id="ph-verified-dot" class="verified-dot hidden" title="Profil vérifié — liens vérifiés">✓</span>
+    </div>
     <p class="profile-hero-slug" id="ph-slug"></p>
 
     <!-- Tag ajout communauté -->
@@ -404,16 +407,30 @@
       }
     }
 
-    // ── 3. Rendu immédiat avec données DB ────────────────────────────────────
-    // Toujours afficher immédiatement — les relais mettront à jour en arrière-plan
-    try { renderProfile(p, links); } catch(e) { console.error('[renderProfile]', e); }
-
-    // ── 5. Stats Nostr (NIP-45, indépendant) ─────────────────────────────────
+    // ── 3. Rendu immédiat ────────────────────────────────────────────────────
+    // Priorité : localStorage (< 1h) > DB cache
     let pubHex;
     try { pubHex = npubToHex(p.npub); } catch {}
+
+    const cachedStats = app.getCachedStats(p.npub);
+    if (cachedStats) {
+      p = { ...p,
+        nostr_followers:  cachedStats.followers  ?? p.nostr_followers,
+        nostr_posts:      cachedStats.posts       ?? p.nostr_posts,
+        nostr_created_at: cachedStats.createdAt   ?? p.nostr_created_at,
+      };
+    }
+    try { renderProfile(p, links); } catch(e) { console.error('[renderProfile]', e); }
+
+    // ── 4. Stats fraîches en arrière-plan (un seul appel) ────────────────────
     if (pubHex) {
       nostr.fetchStats(pubHex, p.nostr_created_at || null, (stats) => {
         try {
+          app.setCachedStats(p.npub, {
+            followers:  stats.followers,
+            posts:      stats.posts,
+            createdAt:  stats.createdAt || p.nostr_created_at,
+          });
           renderStats({
             nostr_created_at: stats.createdAt  || p.nostr_created_at,
             nostr_followers:  stats.followers  != null ? stats.followers : p.nostr_followers,
@@ -423,13 +440,14 @@
       });
     }
 
-    // ── 6. Mise à jour live depuis les relais ─────────────────────────────────
+    // ── 5. Mise à jour live nom/avatar/bio depuis les relais ─────────────────
     nostr.fetchProfile(p.npub, (live) => {
       if (!live) return;
-
-      // Mise à jour UI
-      if (live.name || live.display_name)
-        document.getElementById('ph-name').textContent = live.name || live.display_name;
+      if (live.display_name || live.name) {
+        const liveName = live.display_name || live.name;
+        document.getElementById('ph-name').textContent = liveName;
+        document.title = `${liveName} — Nostr Map`;
+      }
       if (live.picture) {
         const img = document.getElementById('ph-avatar-img');
         const ph  = document.getElementById('ph-avatar-placeholder');
@@ -449,21 +467,7 @@
         document.getElementById('ph-nip05').textContent = live.nip05;
         document.getElementById('ph-nip05-wrap').classList.remove('hidden');
       }
-
-      // Stats followers/posts + date d'arrivée via indexeurs
-      if (pubHex) {
-        nostr.fetchStats(pubHex, p.nostr_created_at || null, (stats) => {
-          try {
-            renderStats({
-              nostr_created_at: stats.createdAt || p.nostr_created_at,
-              nostr_followers:  stats.followers  != null ? stats.followers : p.nostr_followers,
-              nostr_posts:      stats.posts      != null ? stats.posts     : p.nostr_posts,
-            });
-          } catch(e) { console.error('[renderStats live]', e); }
-
-          // Persistance en DB gérée par le cron update_nostr_cache
-        });
-      }
+      // Pas de 2e fetchStats ici — le cache localStorage garde les valeurs stables
     });
   }
 
@@ -488,8 +492,10 @@
     }
 
     // Nom / slug
-    document.getElementById('ph-name').textContent  = p.cached_name || p.slug;
+    const displayName = p.cached_name || p.slug;
+    document.getElementById('ph-name').textContent  = displayName;
     document.getElementById('ph-slug').textContent  = '@' + p.slug;
+    document.title = `${displayName} — Nostr Map`;
 
     // Tag communauté (jamais revendiqué)
     if (p.community_added) {
@@ -518,6 +524,11 @@
     } else {
       followBtn.setAttribute('target', '_blank');
       followBtn.setAttribute('rel', 'noopener');
+    }
+
+    // Coche verte si au moins un lien vérifié
+    if (links.some(l => l.verified)) {
+      document.getElementById('ph-verified-dot').classList.remove('hidden');
     }
 
     // Liens RS
@@ -738,13 +749,13 @@
 <!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
 <footer class="footer">
   <p>
-    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone &nbsp;|&nbsp;
+    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone <span class="footer-sep">|</span>
     <a href="https://nostr.fr" target="_blank" rel="noopener">Qu'est-ce que Nostr ?</a>
-    &nbsp;|&nbsp;
+    <span class="footer-sep">|</span>
     <a href="/mentions-legales.html">Mentions légales</a>
-    &nbsp;|&nbsp;
+    <span class="footer-sep">|</span>
     <a href="/contact.html">Contacter l'équipe</a>
-    &nbsp;|&nbsp;
+    <span class="footer-sep">|</span>
     <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noopener">Code source</a>
   </p>
 </footer>

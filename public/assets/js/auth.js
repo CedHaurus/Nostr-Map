@@ -154,7 +154,15 @@ function initUI(opts = {}) {
     if (decoded) {
       loginBtn?.classList.add('hidden');
       userMenu?.classList.remove('hidden');
-      if (slugEl) slugEl.textContent = '@' + decoded.slug;
+      if (slugEl) {
+        slugEl.textContent = '@' + decoded.slug;
+        // Remplacer par le nom d'affichage dès qu'on l'a
+        fetch(`/api/profile.php?slug=${encodeURIComponent(decoded.slug)}`)
+          .then(r => r.json()).then(data => {
+            const name = data?.profile?.cached_name;
+            if (name) slugEl.textContent = name;
+          }).catch(() => {});
+      }
     } else {
       loginBtn?.classList.remove('hidden');
       userMenu?.classList.add('hidden');

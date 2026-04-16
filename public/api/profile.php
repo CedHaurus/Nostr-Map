@@ -29,7 +29,8 @@ if ($method === 'GET') {
     $stmt = $db->prepare(
         'SELECT npub, slug, cached_name, cached_avatar, cached_bio, cached_nip05,
                 nostr_created_at, nostr_followers, nostr_posts,
-                (last_login IS NULL) AS community_added
+                (last_login IS NULL) AS community_added,
+                display_name_updated_at
          FROM profiles
          WHERE slug = ? AND status = "active"'
     );
@@ -58,8 +59,9 @@ if ($method === 'GET') {
     $stmt->execute([$profile['npub']]);
     $links = $stmt->fetchAll();
 
-    // En public : masquer l'URL des liens non vérifiés
+    // En public : masquer l'URL des liens non vérifiés et infos sensibles
     if (!$isOwner) {
+        unset($profile['display_name_updated_at']);
         foreach ($links as &$link) {
             if (!$link['verified']) {
                 $link['url'] = null;
@@ -144,6 +146,41 @@ if ($method === 'POST') {
 
         $db->prepare('UPDATE social_links SET url = ? WHERE id = ?')->execute([$url, $linkId]);
         jsonOk(['success' => true]);
+    }
+
+    // Modifier le nom d'affichage (cooldown 48h)
+    if ($action === 'set_display_name') {
+        $name = mb_substr(trim($body['name'] ?? ''), 0, 100);
+        if (!$name) jsonError('Le nom ne peut pas être vide');
+
+        // Vérifier cooldown 48h
+        $row = $db->prepare('SELECT display_name_updated_at FROM profiles WHERE npub = ?');
+        $row->execute([$npub]);
+        $r = $row->fetch();
+        if ($r && $r['display_name_updated_at']) {
+            $elapsed = time() - strtotime($r['display_name_updated_at']);
+            if ($elapsed < 48 * 3600) {
+                $remaining = 48 * 3600 - $elapsed;
+                $h = floor($remaining / 3600);
+                $m = floor(($remaining % 3600) / 60);
+                jsonError("Prochain changement possible dans {$h}h{$m}m", 429);
+            }
+        }
+
+        // Vérifier l'unicité (insensible à la casse)
+        $dup = $db->prepare(
+            'SELECT npub FROM profiles
+             WHERE LOWER(cached_name) = LOWER(?) AND npub != ? AND status = "active"'
+        );
+        $dup->execute([$name, $npub]);
+        if ($dup->fetch()) jsonError('Ce nom est déjà utilisé par un autre profil', 409);
+
+        $db->prepare(
+            'UPDATE profiles SET cached_name = ?, display_name_updated_at = NOW() WHERE npub = ?'
+        )->execute([$name, $npub]);
+
+        logUserActivity($npub, 'set_display_name', 'profile', $npub, "Nom: {$name}");
+        jsonOk(['success' => true, 'name' => $name]);
     }
 
     // (legacy) Ajouter un lien RS en une fois
@@ -266,11 +303,36 @@ if ($method === 'POST') {
     jsonOk($response);
 }
 
-// ─── DELETE : supprimer un lien ───────────────────────────────────────────────
+// ─── DELETE : demande de suppression du profil ou suppression d'un lien ──────
 
 if ($method === 'DELETE') {
-    $auth   = requireAuth();
-    $npub   = $auth['sub'];
+    $auth  = requireAuth();
+    $npub  = $auth['sub'];
+
+    // ── Suppression immédiate du profil par l'utilisateur ───────────────────
+    if (($action ?? '') === 'request_deletion') {
+        $db   = getDB();
+        $stmt = $db->prepare("SELECT slug FROM profiles WHERE npub = ? AND status = 'active'");
+        $stmt->execute([$npub]);
+        $profile = $stmt->fetch();
+
+        if (!$profile) jsonError('Profil introuvable', 404);
+
+        // Tracer la suppression AVANT de supprimer (piste d'audit persistante)
+        $rawIp = $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+        logUserActivity($npub, 'self_delete', 'profile', $npub,
+            'Suppression volontaire — slug: ' . $profile['slug']
+            . ' — ip_hash: ' . hashIp($rawIp)
+        );
+
+        $db->prepare('DELETE FROM social_links WHERE npub = ?')->execute([$npub]);
+        // user_activity conservée intentionnellement : piste d'audit
+        $db->prepare('DELETE FROM profiles     WHERE npub = ?')->execute([$npub]);
+
+        jsonOk(['success' => true]);
+    }
+
+    // ── Suppression d'un lien ────────────────────────────────────────────────
     $linkId = (int)($_GET['id'] ?? 0);
 
     if ($linkId <= 0) jsonError('ID invalide');

@@ -84,6 +84,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         if ($set) {
+            // Si l'admin change le cached_name, verrouiller pour protéger du cron
+            if (isset($_POST['cached_name'])) {
+                $set[]    = 'display_name_updated_at = NOW()';
+            }
             $params[] = $npub;
             $db->prepare('UPDATE profiles SET ' . implode(', ', $set) . ' WHERE npub = ?')
                ->execute($params);

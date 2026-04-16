@@ -89,6 +89,8 @@ if (!$profile) {
     $stmt->execute([$npub, $slug]);
     $profile = ['npub' => $npub, 'slug' => $slug, 'status' => 'active'];
     logUserActivity($npub, 'register', 'profile', $npub, "Slug: {$slug}");
+    // Pré-charger les métadonnées Nostr immédiatement (nom, avatar, bio, stats)
+    warmProfileCache($npub, $db);
 } else {
     if ($profile['status'] === 'banned') {
         jsonError('Ce compte est banni', 403);

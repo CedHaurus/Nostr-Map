@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/_auth.php';
+require_once '/var/www/html/api/_helpers.php';
 $admin = requireAdmin();
 $db    = getDB();
 
@@ -61,6 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         )->execute([$npub, $platform, $handle ?: null, $url, $challenge]);
                     }
                 }
+
+                // Pré-charger les métadonnées Nostr immédiatement
+                warmProfileCache($npub, $db);
 
                 // Marquer la proposition comme acceptée
                 $db->prepare('UPDATE proposals SET status="accepted" WHERE id=?')->execute([$proposalId]);

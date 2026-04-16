@@ -135,6 +135,22 @@
         <div class="panel-title"><span class="icon">👤</span> Aperçu de votre profil</div>
         <div id="preview-card-wrap"></div>
 
+        <!-- Nom d'affichage personnalisé -->
+        <div style="margin-top:1.1rem;" id="display-name-section">
+          <div class="panel-title" style="font-size:.85rem;margin-bottom:.5rem;">
+            <span class="icon">✏️</span> Nom d'affichage
+          </div>
+          <div style="display:flex;gap:.5rem;align-items:center;">
+            <input type="text" class="input" id="display-name-input" maxlength="100"
+                   placeholder="Votre nom sur Nostr Map"
+                   style="flex:1;font-size:.88rem;padding:.45rem .7rem;" />
+            <button class="btn btn-primary btn-sm" id="btn-save-display-name" style="white-space:nowrap;">
+              Sauvegarder
+            </button>
+          </div>
+          <p id="display-name-hint" style="font-size:.72rem;color:var(--text-muted);margin-top:.35rem;line-height:1.4;"></p>
+        </div>
+
         <div style="margin-top:1.25rem;">
           <div class="panel-title" style="font-size:.85rem;margin-bottom:.6rem;">
             <span class="icon">🔗</span> URL publique
@@ -167,6 +183,9 @@
           Télécharger PNG
         </button>
       </div>
+      <button id="btn-delete-profile" class="btn btn-danger w-full" style="margin-top:.75rem;">
+        Supprimer mon profil
+      </button>
     </div>
 
     <!-- ── Réseaux sociaux ───────────────────────────────────────── -->
@@ -265,6 +284,26 @@
     </div>
 
   </div>
+
+
+</div>
+
+<!-- ══ MODAL SUPPRESSION ══════════════════════════════════════════════ -->
+<div id="modal-delete-profile" class="modal-overlay hidden" style="z-index:1000;">
+  <div class="modal" style="max-width:420px;text-align:center;padding:2.5rem 2rem;">
+    <h3 style="font-size:1.15rem;font-weight:700;margin:0 0 1.25rem;">Supprimer ma fiche</h3>
+    <p style="font-size:.92rem;line-height:1.85;color:var(--text-muted);margin:0 0 2rem;">
+      Voulez-vous vraiment supprimer votre fiche sur Nostr Map ?<br>
+      L'action est définitive mais vous pourrez vous réinscrire à tout moment.
+    </p>
+    <div style="display:flex;gap:.75rem;justify-content:center;">
+      <button id="btn-delete-cancel" class="btn btn-ghost" style="min-width:110px;">Annuler</button>
+      <button id="btn-delete-confirm" class="btn btn-danger" style="min-width:110px;">
+        <span id="btn-delete-confirm-text">Supprimer</span>
+        <span id="btn-delete-confirm-spin" class="hidden"><span class="spinner" style="width:14px;height:14px;border-width:2px;"></span></span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- ══ TOASTS ════════════════════════════════════════════════════════ -->
@@ -344,7 +383,7 @@
     // ── Fonction pour rafraîchir les éléments dépendant du slug ────────────────
     function applySlug(s) {
       slug = s;
-      document.getElementById('dash-slug-title').textContent = '@' + s;
+      document.getElementById('dash-slug-title').textContent = '@' + s; // mis à jour après loadPreview
       const u = `https://nostrmap.fr/p/${s}`;
       document.getElementById('public-url-text').textContent = u;
     }
@@ -366,6 +405,7 @@
     initDashQR(slug, npub);
     initVerify({ npub, slug, onUpdate: () => loadLinks(npub, slug) });
     initAddLinkFlow(npub, slug);
+    initDeleteProfile(npub);
 
     // ── 4. Overlay chargement + fetch relais ───────────────────────────────────
     const overlay = document.getElementById('loading-overlay');
@@ -411,7 +451,7 @@
             'Authorization': 'Bearer ' + auth.getToken(),
           },
           body: JSON.stringify({
-            cached_name:   profile.name || profile.display_name || '',
+            cached_name:   profile.display_name || profile.name || '',
             cached_avatar: profile.picture || '',
             cached_bio:    profile.about || '',
             cached_nip05:  profile.nip05 || '',
@@ -463,13 +503,85 @@
 
   async function loadPreview(slug) {
     try {
-      const res  = await fetch(`/api/profile.php?slug=${slug}`);
+      const res  = await fetch(`/api/profile.php?slug=${slug}`, {
+        headers: { 'Authorization': 'Bearer ' + auth.getToken() }
+      });
       const data = await res.json();
       if (data.profile) {
         document.getElementById('preview-card-wrap').innerHTML =
           app.renderCard(data.profile, data.links || [], { compact: true });
+        initDisplayNameEditor(data.profile);
+        // Afficher le nom d'affichage dans le titre (pas le handle)
+        const displayName = data.profile.cached_name;
+        if (displayName) {
+          document.getElementById('dash-slug-title').textContent = displayName;
+        }
       }
     } catch (e) { /* silencieux */ }
+  }
+
+  function initDisplayNameEditor(profile) {
+    const input   = document.getElementById('display-name-input');
+    const btn     = document.getElementById('btn-save-display-name');
+    const hint    = document.getElementById('display-name-hint');
+
+    input.value = profile.cached_name || '';
+
+    // Afficher le cooldown si applicable
+    if (profile.display_name_updated_at) {
+      const updatedAt  = new Date(profile.display_name_updated_at.replace(' ', 'T') + 'Z');
+      const nextChange = new Date(updatedAt.getTime() + 48 * 60 * 60 * 1000);
+      const now        = new Date();
+      if (nextChange > now) {
+        const remaining = nextChange - now;
+        const h = Math.floor(remaining / 3600000);
+        const m = Math.floor((remaining % 3600000) / 60000);
+        input.disabled = true;
+        btn.disabled   = true;
+        hint.textContent = `Prochain changement possible dans ${h}h${String(m).padStart(2,'0')}m`;
+        // Débloquer automatiquement quand le cooldown expire
+        setTimeout(() => {
+          input.disabled = false;
+          btn.disabled   = false;
+          hint.textContent = 'Vous pouvez modifier votre nom d\'affichage.';
+        }, remaining);
+        return;
+      }
+    }
+    hint.textContent = 'Une fois modifié, vous devrez attendre 48h avant de changer à nouveau.';
+
+    btn.onclick = async () => {
+      const name = input.value.trim();
+      if (!name) { app.toast('Le nom ne peut pas être vide', 'warning'); return; }
+      btn.disabled = true;
+      btn.textContent = '…';
+      try {
+        const res  = await fetch('/api/profile.php?action=set_display_name', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + auth.getToken(),
+          },
+          body: JSON.stringify({ name }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          app.toast('Nom mis à jour !', 'success');
+          input.disabled = true;
+          btn.disabled   = true;
+          hint.textContent = 'Prochain changement possible dans 48h00m';
+        } else {
+          app.toast(data.error || 'Erreur', 'danger');
+          btn.disabled = false;
+        }
+      } catch {
+        app.toast('Erreur réseau', 'danger');
+        btn.disabled = false;
+      }
+      btn.textContent = 'Sauvegarder';
+      // Recharger l'aperçu pour refléter le nouveau nom
+      await loadPreview(profile.slug);
+    };
   }
 
   async function loadLinks(npub, slug) {
@@ -734,18 +846,67 @@
       link.click();
     });
   }
+
+  // ── Suppression de profil ────────────────────────────────────────────────────
+  function initDeleteProfile(npub) {
+    const modal      = document.getElementById('modal-delete-profile');
+    const btnOpen    = document.getElementById('btn-delete-profile');
+    const btnClose   = document.getElementById('btn-delete-modal-close');
+    const btnCancel  = document.getElementById('btn-delete-cancel');
+    const btnConfirm = document.getElementById('btn-delete-confirm');
+    const btnText    = document.getElementById('btn-delete-confirm-text');
+    const btnSpin    = document.getElementById('btn-delete-confirm-spin');
+
+    btnOpen?.addEventListener('click', () => modal.classList.remove('hidden'));
+    btnClose?.addEventListener('click', () => modal.classList.add('hidden'));
+    btnCancel?.addEventListener('click', () => modal.classList.add('hidden'));
+    modal?.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
+
+    btnConfirm?.addEventListener('click', async () => {
+      btnConfirm.disabled = true;
+      btnText.classList.add('hidden');
+      btnSpin.classList.remove('hidden');
+
+      try {
+        const res  = await fetch('/api/profile.php?action=request_deletion', {
+          method:  'DELETE',
+          headers: { 'Authorization': 'Bearer ' + auth.getToken() },
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          modal.classList.add('hidden');
+          app.toast('Profil supprimé.', 'success');
+          setTimeout(() => {
+            auth.logout();
+            location.href = '/';
+          }, 1500);
+        } else {
+          app.toast(data.error || 'Erreur lors de la demande.', 'danger');
+          btnConfirm.disabled = false;
+          btnText.classList.remove('hidden');
+          btnSpin.classList.add('hidden');
+        }
+      } catch {
+        app.toast('Erreur réseau.', 'danger');
+        btnConfirm.disabled = false;
+        btnText.classList.remove('hidden');
+        btnSpin.classList.add('hidden');
+      }
+    });
+  }
 </script>
 
 <!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
 <footer class="footer">
   <p>
-    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone &nbsp;|&nbsp;
+    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone <span class="footer-sep">|</span>
     <a href="https://nostr.fr" target="_blank" rel="noopener">Qu'est-ce que Nostr ?</a>
-    &nbsp;|&nbsp;
+    <span class="footer-sep">|</span>
     <a href="/mentions-legales.html">Mentions légales</a>
-    &nbsp;|&nbsp;
+    <span class="footer-sep">|</span>
     <a href="/contact.html">Contacter l'équipe</a>
-    &nbsp;|&nbsp;
+    <span class="footer-sep">|</span>
     <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noopener">Code source</a>
   </p>
 </footer>

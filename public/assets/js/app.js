@@ -139,10 +139,15 @@ function renderCard(profile, links = [], opts = {}) {
     ? `<img class="avatar" src="${esc(profile.cached_avatar)}" alt="${name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="avatar-placeholder" style="display:none;">${name[0].toUpperCase()}</div>`
     : `<div class="avatar-placeholder">${name[0].toUpperCase()}</div>`;
 
-  // Badge vérifié (au moins un lien vérifié)
+  // Coche verte si au moins un lien vérifié
   const verifiedLinks = links.filter(l => l.verified);
   const verifiedDot = verifiedLinks.length
     ? `<span class="verified-dot" title="Profil vérifié — liens vérifiés">✓</span>`
+    : '';
+
+  // Point violet si ajout communautaire (non encore revendiqué par le propriétaire)
+  const communityDot = profile.community_added
+    ? `<span class="community-dot" title="Ajout communautaire — non revendiqué"></span>`
     : '';
 
   // Badges RS
@@ -189,12 +194,13 @@ function renderCard(profile, links = [], opts = {}) {
   return `
     <div class="profile-card" data-npub="${esc(profile.npub)}" data-no-cache="${hasCached ? '' : '1'}"
          onclick="location.href='/p/${slug}'">
-      <a href="/p/${slug}" class="profile-card-body" id="card-av-${slug}" onclick="event.stopPropagation()">
-        <div class="avatar-wrap">${avatarHtml}</div>
+      <a href="/p/${slug}" class="profile-card-body" onclick="event.stopPropagation()">
+        <div class="avatar-wrap" id="card-av-${slug}">${avatarHtml}</div>
         <div class="profile-card-info">
           <div class="profile-name-row">
             <div class="profile-name" id="card-name-${slug}">${name}</div>
             ${verifiedDot}
+            ${communityDot}
           </div>
           <div class="profile-slug">@${slug}</div>
           ${statsHtml}
@@ -374,6 +380,30 @@ function closeQR() {
   document.getElementById('qr-modal')?.classList.add('hidden');
 }
 
+// ─── Stats cache (localStorage, TTL 1h) ─────────────────────────────────────
+const _STATS_TTL = 60 * 60 * 1000; // 1 heure
+
+function getCachedStats(npub) {
+  try {
+    const raw = localStorage.getItem('nm_s_' + npub);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    if (!d || Date.now() - d.t > _STATS_TTL) return null;
+    return d;
+  } catch { return null; }
+}
+
+function setCachedStats(npub, stats) {
+  try {
+    localStorage.setItem('nm_s_' + npub, JSON.stringify({
+      followers: stats.followers  ?? stats.nostr_followers  ?? 0,
+      posts:     stats.posts      ?? stats.nostr_posts      ?? 0,
+      createdAt: stats.createdAt  ?? stats.nostr_created_at ?? null,
+      t: Date.now(),
+    }));
+  } catch {}
+}
+
 // Exposer globalement pour les boutons inline dans les cards
 window._openQR = openQR;
 window._app    = { toast };
@@ -393,4 +423,6 @@ export const app = {
   getNostrProfileHref,
   getNostrWebProfileUrl,
   isMobileDevice,
+  getCachedStats,
+  setCachedStats,
 };

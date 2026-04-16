@@ -52,6 +52,13 @@ function base64url_decode(string $data): string {
     return base64_decode(strtr($data, '-_', '+/'));
 }
 
+// Hache une IP avec HMAC-SHA256 + sel secret (RGPD : données personnelles pseudonymisées)
+// Utiliser systématiquement pour tout stockage d'IP, sauf blocked_ips (gestion admin).
+function hashIp(string $ip): string {
+    $salt = getenv('JWT_SECRET') ?: 'nostrmap-ip-salt';
+    return 'h:' . hash_hmac('sha256', $ip, $salt);
+}
+
 function getBearerToken(): ?string {
     $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
     if (preg_match('/^Bearer\s+(.+)$/i', $header, $m)) {
@@ -466,4 +473,94 @@ function generateChallenge(string $npub): string {
     $short  = substr($npub, 5, 8);
     $random = substr(str_replace(['+', '/', '='], '', base64_encode(random_bytes(6))), 0, 6);
     return "nostrmap:{$short}:{$random}";
+}
+
+// ─── PRIMAL CACHE ────────────────────────────────────────────────────────────
+
+/**
+ * Récupère profil (kind:0) + stats (kind:10000105) depuis cache2.primal.net.
+ * Retourne [meta|null, stats|null]
+ */
+function fetchPrimalData(string $hex): array {
+    $ch = curl_init('https://cache2.primal.net/api');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 8,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => json_encode(['user_profile', ['pubkey' => $hex]]),
+        CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+        CURLOPT_USERAGENT      => 'NostrMap-Cache/1.0 (+https://nostrmap.fr)',
+        CURLOPT_SSL_VERIFYPEER => true,
+    ]);
+    $body = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if (!$body || $code !== 200) return [null, null];
+    $events = json_decode($body, true);
+    if (!is_array($events)) return [null, null];
+
+    $meta = null; $stats = null; $best = null;
+    foreach ($events as $event) {
+        if (!is_array($event)) continue;
+        if (($event['kind'] ?? -1) === 0) {
+            if (!$best || ($event['created_at'] ?? 0) > ($best['created_at'] ?? 0)) {
+                $best = $event;
+            }
+        }
+        if (($event['kind'] ?? -1) === 10000105) {
+            $s = is_string($event['content'] ?? null) ? json_decode($event['content'], true) : null;
+            if (is_array($s)) {
+                $stats = [
+                    'followers' => max(0, (int)($s['followers_count'] ?? 0)),
+                    'posts'     => max(0, (int)($s['note_count']      ?? 0)),
+                    'joined_at' => max(0, (int)($s['time_joined']     ?? 0)),
+                ];
+            }
+        }
+    }
+    if ($best) {
+        $c = is_string($best['content'] ?? null) ? json_decode($best['content'], true) : null;
+        if (is_array($c)) {
+            $meta = [
+                'name'    => $c['display_name'] ?? $c['name'] ?? null,
+                'picture' => $c['picture'] ?? null,
+                'about'   => $c['about']   ?? null,
+                'nip05'   => $c['nip05']   ?? null,
+            ];
+        }
+    }
+    return [$meta, $stats];
+}
+
+/**
+ * Récupère et sauvegarde immédiatement les métadonnées Nostr d'un profil.
+ * À appeler juste après la création d'une fiche.
+ */
+function warmProfileCache(string $npub, PDO $db): void {
+    $hex = npubToHex($npub);
+    if (!$hex) return;
+
+    // Ne pas écraser le nom si l'utilisateur l'a défini manuellement
+    $lockRow = $db->prepare('SELECT display_name_updated_at FROM profiles WHERE npub = ?');
+    $lockRow->execute([$npub]);
+    $nameLocked = (bool) $lockRow->fetchColumn();
+
+    [$meta, $stats] = fetchPrimalData($hex);
+
+    $set = ['last_fetch = NOW()']; $params = [];
+    if ($meta) {
+        if (!empty($meta['name']) && !$nameLocked) { array_unshift($set, 'cached_name = ?');   array_unshift($params, mb_substr($meta['name'],    0, 100)); }
+        if (!empty($meta['picture']))              { array_unshift($set, 'cached_avatar = ?'); array_unshift($params, mb_substr($meta['picture'], 0, 500)); }
+        if (!empty($meta['about']))                { array_unshift($set, 'cached_bio = ?');    array_unshift($params, mb_substr($meta['about'],   0, 2000)); }
+        if (!empty($meta['nip05']))                { array_unshift($set, 'cached_nip05 = ?');  array_unshift($params, mb_substr($meta['nip05'],   0, 200)); }
+    }
+    if ($stats) {
+        if (!empty($stats['joined_at'])) { $set[] = 'nostr_created_at = ?'; $params[] = $stats['joined_at']; }
+        if ($stats['followers'] > 0)     { $set[] = 'nostr_followers = ?';  $params[] = $stats['followers']; }
+        if ($stats['posts']     > 0)     { $set[] = 'nostr_posts = ?';      $params[] = $stats['posts']; }
+        $set[] = 'last_stats_fetch = NOW()';
+    }
+    $params[] = $npub;
+    $db->prepare('UPDATE profiles SET ' . implode(', ', $set) . ' WHERE npub = ?')->execute($params);
 }

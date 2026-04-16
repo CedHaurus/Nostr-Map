@@ -498,6 +498,36 @@
         </p>
       </div>
     </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggle(this)">
+        Pourquoi je ne peux pas me connecter, soumettre une fiche ou modifier mon profil sur mobile ?
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="faq-answer">
+        <p>
+          Nostr Map utilise le standard <strong>NIP-07</strong> pour l'authentification.
+          Ce standard définit une interface JavaScript (<code>window.nostr</code>) que les
+          extensions de navigateur exposent pour signer des messages cryptographiques
+          <strong>sans jamais transmettre votre clé privée</strong> à un site tiers.
+        </p>
+        <p>
+          Le problème : les navigateurs mobiles (Safari iOS, Chrome Android…)
+          <strong>n'autorisent pas les extensions</strong>. Il est donc techniquement impossible
+          d'installer nos2x, Alby ou tout autre signer NIP-07 sur mobile — l'interface
+          <code>window.nostr</code> n'existe tout simplement pas.
+        </p>
+        <p>
+          Sans cette interface, Nostr Map n'a aucun moyen de vous identifier ni de vous faire
+          signer une requête d'authentification. Toutes les actions qui nécessitent d'être
+          connecté — soumettre une fiche, modifier son profil, ajouter ou vérifier des liens —
+          sont donc <strong>impossibles sur mobile, quelle que soit l'application utilisée</strong>.
+        </p>
+        <p>
+          La consultation de l'annuaire et des fiches individuelles fonctionne parfaitement sur mobile.
+          Pour les actions de gestion, rendez-vous sur un ordinateur.
+        </p>
+      </div>
+    </div>
   </div>
 
   <!-- ── SOUMETTRE & VÉRIFIER ───────────────────────────── -->
@@ -637,10 +667,14 @@
         <ol>
           <li>Connectez-vous via votre extension Nostr</li>
           <li>Accédez à <a href="/mon-profil.html">Mon Profil</a></li>
-          <li>Une option de demande de suppression est disponible en bas de page</li>
+          <li>Faites défiler jusqu'à la <strong>Zone danger</strong> en bas de page</li>
+          <li>Cliquez sur <strong>"Supprimer mon profil"</strong> et confirmez</li>
         </ol>
         <p>
-          Si vous n'avez pas accès à votre extension, utilisez le bouton
+          La suppression est <strong>immédiate et définitive</strong>. Vous pourrez vous réinscrire à tout moment.
+        </p>
+        <p>
+          Si vous n'avez pas accès à votre extension Nostr, utilisez le bouton
           <strong>"Signaler ce profil"</strong> avec le motif <em>"Demande de retrait"</em>
           sur votre page de profil.
         </p>
@@ -793,13 +827,13 @@ if (hash) {
 <!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
 <footer class="footer">
   <p>
-    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone &nbsp;|&nbsp;
+    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone <span class="footer-sep">|</span>
     <a href="https://nostr.fr" target="_blank" rel="noopener">Qu'est-ce que Nostr ?</a>
-    &nbsp;|&nbsp;
+    <span class="footer-sep">|</span>
     <a href="/mentions-legales.html">Mentions légales</a>
-    &nbsp;|&nbsp;
+    <span class="footer-sep">|</span>
     <a href="/contact.html">Contacter l'équipe</a>
-    &nbsp;|&nbsp;
+    <span class="footer-sep">|</span>
     <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noopener">Code source</a>
   </p>
 </footer>

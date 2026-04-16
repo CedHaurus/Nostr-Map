@@ -39,7 +39,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="/assets/css/app2.css?v=20260416-3" />
+  <link rel="stylesheet" href="/assets/css/app2.css?v=20260416-5" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 </head>
 <body>
@@ -141,7 +141,7 @@
 <!-- ══ HERO / RECHERCHE ═════════════════════════════════════════════ -->
 <section class="hero fade-in">
   <h1><span class="gradient-text">Trouvez</span> vos amis<br>sur Nostr</h1>
-  <p>L'annuaire des utilisateurs Nostr francophones.</p>
+  <p>L'annuaire des utilisateurs Nostr francophones.<br><span style="font-size:.85rem;color:var(--text-muted);">Pensez à revendiquer votre fiche en cliquant dessus !</span></p>
 
   <div class="search-wrap">
     <span class="search-icon">
@@ -272,13 +272,13 @@
 <!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
 <footer class="footer">
   <p>
-    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone &nbsp;|&nbsp;
+    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone <span class="footer-sep">|</span>
     <a href="https://nostr.fr" target="_blank" rel="noopener">Qu'est-ce que Nostr ?</a>
-    &nbsp;|&nbsp;
+    <span class="footer-sep">|</span>
     <a href="/mentions-legales.html">Mentions légales</a>
-    &nbsp;|&nbsp;
+    <span class="footer-sep">|</span>
     <a href="/contact.html">Contacter l'équipe</a>
-    &nbsp;|&nbsp;
+    <span class="footer-sep">|</span>
     <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noopener">Code source</a>
   </p>
 </footer>
@@ -313,10 +313,10 @@
       if (!live) return;
       const nameEl = document.getElementById('card-name-' + slug);
       const avEl   = document.getElementById('card-av-' + slug);
-      if (nameEl && (live.name || live.display_name))
-        nameEl.textContent = live.name || live.display_name;
+      if (nameEl && (live.display_name || live.name))
+        nameEl.textContent = live.display_name || live.name;
       if (avEl && live.picture) {
-        const letter = (live.name || live.display_name || slug)[0].toUpperCase();
+        const letter = (live.display_name || live.name || slug)[0].toUpperCase();
         avEl.innerHTML = `<img class="avatar" src="${live.picture}" alt="" loading="lazy"
           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
           <div class="avatar-placeholder" style="display:none;">${letter}</div>`;
@@ -346,11 +346,27 @@
   initQR();
 
   // ── Rafraîchissement silencieux en arrière-plan ──────────────────
-  // Appelle nostr.band, met à jour l'UI et persiste en DB côté serveur
   async function refreshGridStats(profiles) {
     if (!profiles || !profiles.length) return;
     await Promise.all(profiles.map(async (p) => {
       if (!p.npub || !p.slug) return;
+
+      // 1. Appliquer immédiatement le cache localStorage si frais
+      const cached = app.getCachedStats(p.npub);
+      if (cached) {
+        const fEl = document.getElementById('card-followers-' + p.slug);
+        const pEl = document.getElementById('card-posts-'     + p.slug);
+        if (fEl && cached.followers > 0) fEl.textContent = app.fmtNum(cached.followers) + ' abon.';
+        if (pEl && cached.posts     > 0) pEl.textContent = app.fmtNum(cached.posts)     + ' notes';
+        // Mettre à jour les data attributes pour le tri live
+        const wrap = grid.querySelector(`[data-slug="${p.slug}"]`);
+        if (wrap) {
+          if (cached.followers > 0) wrap.dataset.liveFollowers = cached.followers;
+          if (cached.posts     > 0) wrap.dataset.livePosts     = cached.posts;
+        }
+      }
+
+      // 2. Fetch nostr.band en arrière-plan pour rafraîchir le cache
       let hex;
       try { hex = npubToHex(p.npub); } catch { return; }
       try {
@@ -361,14 +377,52 @@
         if (!s) return;
         const followers = s.followers_pubkey_count ?? 0;
         const posts     = s.note_count ?? 0;
-        // 1. Mise à jour UI (si la carte est encore dans le DOM)
+        // Sauvegarder en localStorage
+        app.setCachedStats(p.npub, { followers, posts });
+        // Mettre à jour le DOM et les data attributes
         const fEl = document.getElementById('card-followers-' + p.slug);
         const pEl = document.getElementById('card-posts-'     + p.slug);
         if (fEl) fEl.textContent = followers > 0 ? app.fmtNum(followers) + ' abon.' : '';
         if (pEl) pEl.textContent = posts     > 0 ? app.fmtNum(posts)     + ' notes' : '';
-        // Persistance en DB gérée par le cron update_nostr_cache
+        const wrap = grid.querySelector(`[data-slug="${p.slug}"]`);
+        if (wrap) {
+          wrap.dataset.liveFollowers = followers;
+          wrap.dataset.livePosts     = posts;
+        }
       } catch {}
     }));
+
+    // Re-trier le DOM selon les valeurs live si on est en mode classement
+    if (['actifs', 'populaires'].includes(_currentSort)) {
+      resortGrid();
+    }
+  }
+
+  function resortGrid() {
+    const key   = _currentSort === 'actifs' ? 'livePosts' : 'liveFollowers';
+    const wraps = [...grid.querySelectorAll('[data-slug]')];
+    wraps.sort((a, b) => (parseInt(b.dataset[key]) || 0) - (parseInt(a.dataset[key]) || 0));
+
+    // Retirer les badges existants
+    grid.querySelectorAll('.rank-badge').forEach(el => el.remove());
+    grid.querySelectorAll('.profile-card').forEach(el => {
+      el.classList.remove('rank-1', 'rank-2', 'rank-3');
+    });
+
+    // Réinsérer dans le bon ordre + rebadger le podium
+    wraps.forEach((wrap, i) => {
+      grid.appendChild(wrap);
+      if (i < 3) {
+        const card = wrap.querySelector('.profile-card');
+        if (card) {
+          card.classList.add(`rank-${i + 1}`);
+          const badge = document.createElement('div');
+          badge.className = `rank-badge rank-badge-${i + 1}`;
+          badge.textContent = i + 1;
+          card.appendChild(badge);
+        }
+      }
+    });
   }
 
   // ── Infinite scroll ──────────────────────────────────────────────
@@ -435,6 +489,9 @@
         const links = (p.verified_platforms || []).map(pl => ({ platform: pl, verified: true }));
         const wrap  = document.createElement('div');
         wrap.className = 'fade-in';
+        wrap.dataset.slug        = p.slug;
+        wrap.dataset.livePosts     = p.nostr_posts     || 0;
+        wrap.dataset.liveFollowers = p.nostr_followers || 0;
         wrap.innerHTML = app.renderCard(p, links);
 
         // Badge podium sur les 3 premiers (uniquement 1ère page, onglets classés)
