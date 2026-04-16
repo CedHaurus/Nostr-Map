@@ -195,11 +195,41 @@ function fetchProfile(npub, callback) {
   }, 6000);
 }
 
-// ─── fetchStats (nostr.band REST API + WebSocket NIP-45 en parallèle) ────────
+// ─── fetchStats (Primal + nostr.band + WebSocket NIP-45) ─────────────────────
 // Retourne : { followers, posts, createdAt }
-// createdAt est le unix timestamp du kind:0 (passé en paramètre depuis fetchProfile)
+// createdAt représente la date d'arrivée sur Nostr (ex: time_joined),
+// pas le created_at du dernier event kind:0 du profil.
 
 async function fetchStats(pubkeyHex, createdAt, callback) {
+  async function tryPrimalApi() {
+    try {
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 6000);
+      const res = await fetch('https://cache2.primal.net/api', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(['user_profile', { pubkey: pubkeyHex }]),
+        signal: ctrl.signal,
+      });
+      clearTimeout(tid);
+      if (!res.ok) return null;
+
+      const events = await res.json();
+      if (!Array.isArray(events)) return null;
+
+      for (const event of events) {
+        if (event?.kind !== 10000105 || typeof event.content !== 'string') continue;
+        const s = JSON.parse(event.content);
+        return {
+          followers: s?.followers_count ?? null,
+          posts: s?.note_count ?? null,
+          createdAt: s?.time_joined ?? null,
+        };
+      }
+    } catch {}
+    return null;
+  }
+
   // API REST nostr.band (CORS permissif)
   async function tryRestApi() {
     try {
@@ -213,8 +243,11 @@ async function fetchStats(pubkeyHex, createdAt, callback) {
       if (res.ok) {
         const d = await res.json();
         const s = d?.stats?.[pubkeyHex];
-        if (s && (s.followers_pubkey_count > 0 || s.note_count > 0)) {
-          return { followers: s.followers_pubkey_count ?? 0, posts: s.note_count ?? 0 };
+        if (s) {
+          return {
+            followers: s.followers_pubkey_count ?? 0,
+            posts: s.note_count ?? 0,
+          };
         }
       }
     } catch {}
@@ -261,16 +294,18 @@ async function fetchStats(pubkeyHex, createdAt, callback) {
     });
   }
 
-  // Lancer REST API + tous les relais WS en parallèle, prendre les maximums
-  const allPromises = [tryRestApi(), ...countRelays.map(tryCountRelay)];
+  // Lancer les sources HTTP + tous les relais WS en parallèle, prendre les maximums
+  const allPromises = [tryPrimalApi(), tryRestApi(), ...countRelays.map(tryCountRelay)];
   Promise.all(allPromises).then(results => {
     let bestF = 0, bestP = 0;
+    let bestCreatedAt = createdAt ?? null;
     for (const r of results) {
       if (!r) continue;
-      if (r.followers > bestF) bestF = r.followers;
-      if (r.posts     > bestP) bestP = r.posts;
+      if (typeof r.followers === 'number' && r.followers > bestF) bestF = r.followers;
+      if (typeof r.posts === 'number' && r.posts > bestP) bestP = r.posts;
+      if (typeof r.createdAt === 'number' && r.createdAt > 0) bestCreatedAt = r.createdAt;
     }
-    callback({ followers: bestF, posts: bestP, createdAt: createdAt ?? null });
+    callback({ followers: bestF, posts: bestP, createdAt: bestCreatedAt });
   });
 }
 

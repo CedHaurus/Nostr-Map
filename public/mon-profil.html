@@ -390,7 +390,7 @@
       let statsPayload = {};
       if (pubkeyHex) {
         await new Promise(resolve => {
-          nostr.fetchStats(pubkeyHex, profile._created_at || null, (stats) => {
+          nostr.fetchStats(pubkeyHex, null, (stats) => {
             statsPayload = {
               nostr_created_at: stats.createdAt  || 0,
               nostr_followers:  stats.followers  || 0,

@@ -199,14 +199,17 @@ if ($method === 'POST') {
                 'nostr_created_at', 'nostr_followers', 'nostr_posts'];
     $update  = [];
     $params  = [];
+    $statsFields = ['nostr_created_at', 'nostr_followers', 'nostr_posts'];
+    $hasStatsUpdate = false;
 
     foreach ($allowed as $field) {
         if (array_key_exists($field, $body)) {
             $val = $body[$field];
             if ($val !== null) {
                 // Champs numériques
-            if (in_array($field, ['nostr_created_at', 'nostr_followers', 'nostr_posts'])) {
+            if (in_array($field, $statsFields, true)) {
                 $val = max(0, (int)$val);
+                $hasStatsUpdate = true;
             } else {
                 $val = mb_substr((string)$val, 0, match($field) {
                     'cached_name'   => 100,
@@ -235,6 +238,10 @@ if ($method === 'POST') {
             $update[] = 'slug = ?';
             $params[]  = $newSlug;
         }
+    }
+
+    if ($hasStatsUpdate) {
+        $update[] = 'last_stats_fetch = NOW()';
     }
 
     $update[]  = 'last_fetch = NOW()';

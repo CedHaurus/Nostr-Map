@@ -324,7 +324,7 @@
 
       // Stats live (affichage seulement, pas de persistance côté public)
       if (pubHex) {
-        nostr.fetchStats(pubHex, live._created_at || null, (stats) => {
+        nostr.fetchStats(pubHex, null, (stats) => {
           const fEl = document.getElementById('card-followers-' + slug);
           const pEl = document.getElementById('card-posts-'     + slug);
           if (fEl && stats.followers > 0) fEl.textContent = app.fmtNum(stats.followers) + ' abon.';

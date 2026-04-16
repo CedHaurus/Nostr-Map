@@ -450,23 +450,12 @@
         document.getElementById('ph-nip05-wrap').classList.remove('hidden');
       }
 
-      // Date de création : afficher immédiatement depuis l'event relay (sans attendre fetchStats)
-      if (live._created_at) {
-        try {
-          renderStats({
-            nostr_created_at: live._created_at,
-            nostr_followers:  p.nostr_followers,
-            nostr_posts:      p.nostr_posts,
-          });
-        } catch(e) {}
-      }
-
-      // Stats followers/posts via proxy serveur
+      // Stats followers/posts + date d'arrivée via indexeurs
       if (pubHex) {
-        nostr.fetchStats(pubHex, live._created_at || null, (stats) => {
+        nostr.fetchStats(pubHex, p.nostr_created_at || null, (stats) => {
           try {
             renderStats({
-              nostr_created_at: live._created_at || stats.createdAt || p.nostr_created_at,
+              nostr_created_at: stats.createdAt || p.nostr_created_at,
               nostr_followers:  stats.followers  != null ? stats.followers : p.nostr_followers,
               nostr_posts:      stats.posts      != null ? stats.posts     : p.nostr_posts,
             });

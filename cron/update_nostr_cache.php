@@ -3,7 +3,8 @@
 /**
  * cron/update_nostr_cache.php
  * Met à jour cached_name, cached_avatar, cached_bio, cached_nip05
- * pour tous les profils actifs dont last_fetch est NULL ou > 6h.
+ * pour tous les profils actifs dont les métadonnées ou les stats sont absentes
+ * ou datent de plus de 6h.
  *
  * Source : cache2.primal.net (accessible depuis le serveur)
  * Note : followers/posts sont mis à jour côté navigateur via nostr-cache.php
@@ -16,17 +17,33 @@ declare(strict_types=1);
 require_once '/var/www/config/db.php';
 
 $batchSize = (int)(getenv('CRON_CACHE_BATCH') ?: 20);
+$forceAll  = (bool)(int)(getenv('CRON_CACHE_FORCE_ALL') ?: 0);
 $db        = getDB();
 
 // Profils à rafraîchir : jamais mis à jour ou > 6h
-$stmt = $db->prepare(
-    "SELECT npub FROM profiles
-     WHERE status = 'active'
-       AND (last_fetch IS NULL OR last_fetch < DATE_SUB(NOW(), INTERVAL 6 HOUR))
-     ORDER BY last_fetch ASC
-     LIMIT ?"
-);
-$stmt->execute([$batchSize]);
+if ($forceAll) {
+    $stmt = $db->prepare(
+        "SELECT npub FROM profiles
+         WHERE status = 'active'
+         ORDER BY COALESCE(last_stats_fetch, last_fetch, registered_at) ASC
+         LIMIT ?"
+    );
+    $stmt->execute([$batchSize]);
+} else {
+    $stmt = $db->prepare(
+        "SELECT npub FROM profiles
+         WHERE status = 'active'
+           AND (
+               last_fetch IS NULL
+               OR last_fetch < DATE_SUB(NOW(), INTERVAL 6 HOUR)
+               OR last_stats_fetch IS NULL
+               OR last_stats_fetch < DATE_SUB(NOW(), INTERVAL 6 HOUR)
+           )
+         ORDER BY COALESCE(last_stats_fetch, last_fetch, registered_at) ASC
+         LIMIT ?"
+    );
+    $stmt->execute([$batchSize]);
+}
 $profiles = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 if (empty($profiles)) {
@@ -60,10 +77,10 @@ foreach ($profiles as $npub) {
         if (!empty($meta['picture']))    { array_unshift($set, 'cached_avatar = ?');    array_unshift($params, mb_substr($meta['picture'], 0, 500)); }
         if (!empty($meta['about']))      { array_unshift($set, 'cached_bio = ?');       array_unshift($params, mb_substr($meta['about'],   0, 2000)); }
         if (!empty($meta['nip05']))      { array_unshift($set, 'cached_nip05 = ?');     array_unshift($params, mb_substr($meta['nip05'],   0, 200)); }
-        if (!empty($meta['created_at'])) { array_unshift($set, 'nostr_created_at = ?'); array_unshift($params, (int)$meta['created_at']); }
     }
 
     if ($stats) {
+        if (!empty($stats['joined_at'])) { $set[] = 'nostr_created_at = ?'; $params[] = $stats['joined_at']; }
         if ($stats['followers'] > 0) { $set[] = 'nostr_followers = ?'; $params[] = $stats['followers']; }
         if ($stats['posts']     > 0) { $set[] = 'nostr_posts = ?';     $params[] = $stats['posts']; }
         $set[] = 'last_stats_fetch = NOW()';
@@ -137,6 +154,7 @@ function fetchPrimalData(string $hex): array {
                 $stats = [
                     'followers' => max(0, (int)($s['followers_count'] ?? 0)),
                     'posts'     => max(0, (int)($s['note_count']      ?? 0)),
+                    'joined_at' => max(0, (int)($s['time_joined']     ?? 0)),
                 ];
             }
         }
@@ -152,7 +170,6 @@ function fetchPrimalData(string $hex): array {
                 'picture'    => $content['picture'] ?? null,
                 'about'      => $content['about'] ?? null,
                 'nip05'      => $content['nip05'] ?? null,
-                'created_at' => $best['created_at'] ?? null,
             ];
         }
     }

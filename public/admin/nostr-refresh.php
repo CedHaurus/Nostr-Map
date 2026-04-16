@@ -34,12 +34,15 @@ if (!$exists->fetchColumn()) {
 $allowed = ['cached_name', 'cached_avatar', 'cached_bio', 'cached_nip05',
             'nostr_created_at', 'nostr_followers', 'nostr_posts'];
 $set = []; $params = [];
+$statsFields = ['nostr_created_at', 'nostr_followers', 'nostr_posts'];
+$hasStatsUpdate = false;
 
 foreach ($allowed as $f) {
     if (!array_key_exists($f, $body) || $body[$f] === null || $body[$f] === '') continue;
     $val = $body[$f];
-    if (in_array($f, ['nostr_created_at', 'nostr_followers', 'nostr_posts'])) {
+    if (in_array($f, $statsFields, true)) {
         $val = max(0, (int)$val);
+        $hasStatsUpdate = true;
     } else {
         $val = mb_substr((string)$val, 0, match($f) {
             'cached_name'   => 100,
@@ -53,6 +56,9 @@ foreach ($allowed as $f) {
 }
 
 if ($set) {
+    if ($hasStatsUpdate) {
+        $set[] = 'last_stats_fetch = NOW()';
+    }
     $set[]    = 'last_fetch = NOW()';
     $params[] = $npub;
     $db->prepare('UPDATE profiles SET ' . implode(', ', $set) . ' WHERE npub = ?')

@@ -461,17 +461,14 @@ window.startNostrRefresh = async function() {
       if (live.picture)                   data.cached_avatar = live.picture;
       if (live.about)                     data.cached_bio    = live.about;
       if (live.nip05)                     data.cached_nip05  = live.nip05;
-      // Sauvegarder la date de création directement depuis l\'event kind:0
-      if (live._created_at)               data.nostr_created_at = live._created_at;
 
       if (pubHex && !profileDone) {
         profileDone = true;
         clearTimeout(gTimeout); // éviter race condition : gTimeout ne doit pas résoudre avant fetchStats
-        nostr.fetchStats(pubHex, live._created_at || null, (stats) => {
+        nostr.fetchStats(pubHex, null, (stats) => {
           if (stats.followers != null)  data.nostr_followers  = stats.followers;
           if (stats.posts != null)      data.nostr_posts      = stats.posts;
-          // createdAt déjà défini plus haut — ne pas écraser si stats n\'a pas de valeur
-          if (stats.createdAt && !data.nostr_created_at) data.nostr_created_at = stats.createdAt;
+          if (stats.createdAt)          data.nostr_created_at = stats.createdAt;
           resolve();
         });
       }
