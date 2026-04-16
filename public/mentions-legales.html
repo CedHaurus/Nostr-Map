@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Mentions légales de Nostr Map — éditeur, hébergeur, contact." />
+  <title>Mentions légales — Nostr Map</title>
+  <meta name="robots" content="noindex, follow" />
+  <link rel="stylesheet" href="/assets/css/app.css" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    .ml-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+    .ml-back {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      color: var(--text-muted);
+      font-size: .83rem;
+      margin-bottom: 2rem;
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .ml-back:hover { color: var(--text); }
+    .ml-title {
+      font-size: 1.7rem;
+      font-weight: 800;
+      margin-bottom: .4rem;
+    }
+    .ml-subtitle {
+      color: var(--text-muted);
+      font-size: .9rem;
+      margin-bottom: 2.5rem;
+    }
+    .ml-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .ml-section h2 {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    .ml-section p, .ml-section li {
+      font-size: .9rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: .5rem;
+    }
+    .ml-section p:last-child { margin-bottom: 0; }
+    .ml-section strong { color: var(--text); }
+    .ml-section a { color: var(--primary); text-decoration: none; }
+    .ml-section a:hover { text-decoration: underline; }
+    .ml-section ul { padding-left: 1.2rem; margin: 0; }
+    .ml-contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(139,92,246,.08);
+      border: 1px solid rgba(139,92,246,.2);
+      border-radius: 8px;
+      padding: .55rem 1rem;
+      font-size: .88rem;
+      color: var(--primary);
+      cursor: pointer;
+      transition: all .15s;
+      margin-top: .5rem;
+      font-family: inherit;
+    }
+    .ml-contact-link:hover {
+      background: rgba(139,92,246,.15);
+      border-color: var(--primary);
+    }
+    @media (max-width: 640px) {
+      .ml-section {
+        padding: 1.15rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <a href="/" class="logo">Nostr Map ✦</a>
+      <span class="tagline">Annuaire Nostr Francophone</span>
+    </div>
+    <div class="header-actions">
+      <a href="/faq.html" class="btn btn-ghost btn-sm header-desktop-only">FAQ</a>
+      <a href="/connexion?from=ajouter" class="btn btn-primary btn-sm header-desktop-only header-auth-out">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Ajouter mon profil
+      </a>
+
+      <!-- Soumettre un profil -->
+      <a href="/soumettre.html" class="btn btn-outline btn-sm header-desktop-only">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Soumettre
+      </a>
+      <div id="user-menu" class="header-user-menu hidden">
+        <a href="/mon-profil.html" class="nav-user-chip" id="user-menu-btn">
+          <span class="nav-user-avatar" id="user-avatar-mini">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+          </span>
+          <span id="user-slug-display"></span>
+        </a>
+        <button id="btn-logout" class="btn btn-danger btn-sm header-desktop-only">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Déconnexion
+        </button>
+      </div>
+      <button id="btn-login" class="btn btn-primary btn-sm header-login-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Se connecter
+      </button>
+
+      <!-- Hamburger mobile -->
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ MOBILE NAV ═══════════════════════════════════════════════════ -->
+<div class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-logo">Nostr Map ✦</span>
+      <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+    </div>
+    <a href="/" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Accueil
+    </a>
+    <a href="/faq.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      FAQ
+    </a>
+    <a href="/soumettre.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Soumettre un profil
+    </a>
+    <div class="mobile-nav-divider"></div>
+    <a href="/connexion?from=ajouter" class="mobile-nav-item mobile-nav-auth-out" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="10"/></svg>
+      Ajouter mon profil
+    </a>
+    <a href="/mon-profil.html" class="mobile-nav-item mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Mon profil
+    </a>
+    <button id="mobile-btn-logout" class="mobile-nav-item mobile-nav-btn-danger mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Déconnexion
+    </button>
+    <button id="mobile-btn-login" class="mobile-nav-item mobile-nav-btn-primary mobile-nav-auth-out">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Se connecter
+    </button>
+  </div>
+</div>
+
+<!-- ══ CONTENU ══════════════════════════════════════════════════════ -->
+<main class="ml-wrap">
+
+  <a href="/" class="ml-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Retour à l'accueil
+  </a>
+
+  <h1 class="ml-title">Mentions légales</h1>
+  <p class="ml-subtitle">Conformément à la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN).</p>
+
+  <!-- Éditeur -->
+  <div class="ml-section">
+    <h2>Éditeur du site</h2>
+    <p><strong>Responsable de la publication :</strong> Christophe Boutry</p>
+    <p>
+      <strong>Site personnel :</strong>
+      <a href="https://christopheboutry.com" target="_blank" rel="noopener">christopheboutry.com</a>
+    </p>
+    <p><strong>Contact :</strong></p>
+    <button class="ml-contact-link" id="reveal-email" onclick="revealEmail(this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+        <polyline points="22,6 12,13 2,6"/>
+      </svg>
+      Afficher l'adresse e-mail
+    </button>
+  </div>
+
+  <!-- Hébergement -->
+  <div class="ml-section">
+    <h2>Hébergement</h2>
+    <p><strong>OVH SAS</strong></p>
+    <p>2 rue Kellermann — 59100 Roubaix, France</p>
+    <p>
+      <a href="https://www.ovhcloud.com" target="_blank" rel="noopener">ovhcloud.com</a>
+    </p>
+  </div>
+
+  <!-- Données personnelles -->
+  <div class="ml-section">
+    <h2>Données personnelles &amp; cookies</h2>
+    <p>
+      Nostr Map ne collecte <strong>aucune donnée personnelle</strong> au sens classique du terme.
+      Aucun formulaire d'inscription, aucun cookie tiers, aucun tracker analytique.
+    </p>
+    <p>
+      Les profils affichés sur l'annuaire sont des données <strong>publiques</strong> issues
+      du protocole Nostr (nom, avatar, bio, npub). Elles peuvent être retirées sur simple demande
+      à l'adresse de contact ci-dessus.
+    </p>
+    <p>
+      Un <strong>jeton JWT</strong> est stocké dans le <code>localStorage</code> de votre navigateur
+      uniquement si vous vous connectez via une extension Nostr. Il expire sous 24 h et ne contient
+      aucune donnée sensible (uniquement votre npub public).
+    </p>
+  </div>
+
+  <!-- Propriété intellectuelle -->
+  <div class="ml-section">
+    <h2>Propriété intellectuelle</h2>
+    <p>
+      L'ensemble du code source, des textes et du design de Nostr Map est la propriété de
+      <strong>Christophe Boutry</strong>, sauf mention contraire.
+    </p>
+    <p>
+      Les données de profil (noms, avatars, biographies) appartiennent à leurs auteurs respectifs
+      et sont publiées sous les termes du protocole Nostr.
+    </p>
+  </div>
+
+  <!-- Responsabilité -->
+  <div class="ml-section">
+    <h2>Limitation de responsabilité</h2>
+    <p>
+      Nostr Map est un annuaire communautaire. L'éditeur s'efforce d'assurer l'exactitude
+      des informations publiées mais ne peut garantir leur exhaustivité ni leur mise à jour
+      en temps réel.
+    </p>
+    <p>
+      Les liens hypertextes pointant vers des sites tiers sont fournis à titre indicatif.
+      Nostr Map ne saurait être tenu responsable du contenu de ces sites externes.
+    </p>
+  </div>
+
+  <!-- Droit applicable -->
+  <div class="ml-section">
+    <h2>Droit applicable</h2>
+    <p>
+      Les présentes mentions légales sont soumises au droit français.
+      En cas de litige, les tribunaux français seront seuls compétents.
+    </p>
+  </div>
+
+</main>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <p>
+    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone &nbsp;|&nbsp;
+    <a href="https://nostr.fr" target="_blank" rel="noopener">Qu'est-ce que Nostr ?</a>
+    &nbsp;|&nbsp;
+    <a href="/contact.html">Contacter l'équipe</a>
+    &nbsp;|&nbsp;
+    <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noopener">Code source</a>
+  </p>
+</footer>
+
+<script src="/assets/js/app.js" type="module"></script>
+<script type="module">
+import { auth } from '/assets/js/auth.js';
+if (auth.getToken()) {
+  document.querySelectorAll('.header-auth-out').forEach(el => el.style.display = 'none');
+}
+</script>
+<script>
+// Révélation progressive de l'e-mail — résistant au scraping
+function revealEmail(btn) {
+  const u = ['contact', 'christopheboutry', 'com'];
+  const addr = u[0] + '\u0040' + u[1] + '\u002E' + u[2];
+  const a = document.createElement('a');
+  a.href = 'mailto:' + addr;
+  a.textContent = addr;
+  a.style.cssText = 'color:var(--primary);font-size:.9rem;';
+  btn.replaceWith(a);
+}
+</script>
+
+</body>
+</html>

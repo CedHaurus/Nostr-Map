@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon profil — Nostr Map</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <!-- Open Graph (page privée — pas de partage souhaité) -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="Mon profil — Nostr Map" />
+  <meta property="og:description" content="Gérez votre fiche sur l'annuaire Nostr francophone." />
+  <meta property="og:image"       content="https://nostrmap.fr/og-image.php?title=Mon+profil&sub=Annuaire+Nostr+Map" />
+  <meta property="og:site_name"   content="Nostr Map" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="/assets/css/app.css" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <a href="/" class="logo">Nostr Map ✦</a>
+      <span class="tagline">Annuaire Nostr Francophone</span>
+    </div>
+    <div class="header-actions">
+      <a href="/faq.html" class="btn btn-ghost btn-sm header-desktop-only">FAQ</a>
+      <a href="/connexion?from=ajouter" class="btn btn-primary btn-sm header-desktop-only header-auth-out">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Ajouter mon profil
+      </a>
+
+      <!-- Soumettre un profil -->
+      <a href="/soumettre.html" class="btn btn-outline btn-sm header-desktop-only">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Soumettre
+      </a>
+      <a href="/" class="btn btn-ghost btn-sm">← Annuaire</a>
+      <button id="btn-logout" class="btn btn-danger btn-sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+        </svg>
+        Déconnexion
+      </button>
+
+      <!-- Hamburger mobile -->
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ MOBILE NAV ═══════════════════════════════════════════════════ -->
+<div class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-logo">Nostr Map ✦</span>
+      <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+    </div>
+    <a href="/" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Accueil
+    </a>
+    <a href="/faq.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      FAQ
+    </a>
+    <a href="/soumettre.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Soumettre un profil
+    </a>
+    <div class="mobile-nav-divider"></div>
+    <a href="/connexion?from=ajouter" class="mobile-nav-item mobile-nav-auth-out" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="10"/></svg>
+      Ajouter mon profil
+    </a>
+    <a href="/mon-profil.html" class="mobile-nav-item mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Mon profil
+    </a>
+    <button id="mobile-btn-logout" class="mobile-nav-item mobile-nav-btn-danger mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Déconnexion
+    </button>
+    <button id="mobile-btn-login" class="mobile-nav-item mobile-nav-btn-primary mobile-nav-auth-out">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Se connecter
+    </button>
+  </div>
+</div>
+
+<!-- ══ AUTH GATE ════════════════════════════════════════════════════ -->
+<div id="auth-gate" class="auth-gate hidden">
+  <div style="font-size:3rem;">🔐</div>
+  <h2>Connexion requise</h2>
+  <p id="auth-gate-desc">Connectez-vous avec votre extension Nostr pour accéder à votre dashboard.</p>
+  <button id="btn-login-gate" class="btn btn-primary btn-lg">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+    </svg>
+    Se connecter avec Nostr
+  </button>
+</div>
+
+<!-- ══ OVERLAY CHARGEMENT ════════════════════════════════════════════ -->
+<div id="loading-overlay" class="hidden" style="
+  position:fixed;inset:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1rem;
+  background:rgba(10,10,15,.7);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  transition:opacity .4s ease;">
+  <div style="width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;"></div>
+  <p id="loading-label" style="color:var(--text-muted);font-size:.95rem;letter-spacing:.03em;">Connexion aux relais Nostr…</p>
+</div>
+
+<!-- ══ DASHBOARD ════════════════════════════════════════════════════ -->
+<div id="dashboard" class="dashboard hidden">
+
+  <div class="dashboard-header fade-in">
+    <h1>Mon profil <span class="gradient-text" id="dash-slug-title"></span></h1>
+    <p class="text-muted" style="margin-top:.35rem;font-size:.9rem;">Gérez vos liens et votre présence sur Nostr Map.</p>
+  </div>
+
+  <div class="dashboard-grid">
+
+    <!-- ── Aperçu de la card ──────────────────────────────────────── -->
+    <div>
+      <div class="panel fade-in fade-in-delay-1">
+        <div class="panel-title"><span class="icon">👤</span> Aperçu de votre profil</div>
+        <div id="preview-card-wrap"></div>
+
+        <div style="margin-top:1.25rem;">
+          <div class="panel-title" style="font-size:.85rem;margin-bottom:.6rem;">
+            <span class="icon">🔗</span> URL publique
+          </div>
+          <div class="copy-url-wrap">
+            <span class="copy-url-text" id="public-url-text"></span>
+            <button class="btn btn-ghost btn-sm" id="btn-copy-url" title="Copier">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── QR Code ────────────────────────────────────────────── -->
+      <div class="panel fade-in fade-in-delay-2" style="margin-top:1rem;text-align:center;">
+        <div class="panel-title"><span class="icon">📱</span> Mon QR Code</div>
+        <div class="qr-container" style="display:inline-block;margin-bottom:1rem;">
+          <div id="dash-qr-canvas"></div>
+        </div>
+        <div class="qr-toggle" style="margin-bottom:1rem;">
+          <button class="qr-toggle-btn active" id="dash-qr-mode-url">Profil</button>
+          <button class="qr-toggle-btn" id="dash-qr-mode-nostr">nostr:npub</button>
+        </div>
+        <button class="btn btn-outline btn-sm w-full" id="dash-qr-download">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          Télécharger PNG
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Réseaux sociaux ───────────────────────────────────────── -->
+    <div>
+      <div class="panel fade-in fade-in-delay-1">
+        <div class="panel-title"><span class="icon">🌐</span> Mes réseaux sociaux</div>
+
+        <!-- Liste des liens existants -->
+        <div class="links-list" id="links-list">
+          <div class="skeleton" style="height:58px;border-radius:8px;"></div>
+          <div class="skeleton" style="height:58px;border-radius:8px;"></div>
+        </div>
+
+        <!-- Formulaire ajout lien — 2 étapes -->
+        <div style="margin-top:1.5rem;">
+          <div class="panel-title" style="font-size:.88rem;margin-bottom:.75rem;">
+            <span class="icon">➕</span> Ajouter un lien
+          </div>
+
+          <!-- Étape 1 : plateforme + handle -->
+          <div id="add-step-1" class="add-link-form">
+            <div class="add-link-form-row">
+              <select class="input" id="link-platform" style="width:130px;">
+                <option value="x">𝕏 / Twitter</option>
+                <option value="mastodon">Mastodon</option>
+                <option value="bluesky">Bluesky</option>
+                <option value="youtube">YouTube</option>
+              </select>
+              <input type="text" class="input" id="link-handle" placeholder="@pseudonyme (optionnel)" />
+            </div>
+            <button class="btn btn-primary w-full" id="btn-get-challenge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              Obtenir mon code challenge
+            </button>
+          </div>
+
+          <!-- Étape 2 : code + URL -->
+          <div id="add-step-2" class="add-link-form hidden">
+            <div class="challenge-box">
+              <div class="challenge-label">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span id="challenge-label-text">Ton code challenge — colle-le dans ta bio</span>
+              </div>
+              <div class="challenge-code-row">
+                <span class="challenge-code" id="new-challenge-code"></span>
+                <button class="btn btn-ghost btn-sm" id="btn-copy-challenge" title="Copier">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <p style="font-size:.78rem;color:var(--text-muted);margin:.25rem 0;" id="link-url-label">
+              Une fois collé dans ta bio, entre l'URL de ton profil :
+            </p>
+            <input type="url" class="input" id="link-url" placeholder="https://bsky.app/profile/..." />
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+              <button class="btn btn-outline btn-sm" id="btn-cancel-step2">← Annuler</button>
+              <button class="btn btn-primary w-full" id="btn-confirm-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Confirmer et vérifier
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Instructions vérification ──────────────────────────── -->
+      <div class="panel fade-in fade-in-delay-2" style="margin-top:1rem;">
+        <div class="panel-title"><span class="icon">✅</span> Comment vérifier ?</div>
+        <ol style="font-size:.85rem;color:var(--text-muted);line-height:1.9;padding-left:1.25rem;">
+          <li>Choisis la plateforme et clique <strong style="color:var(--text);">Obtenir mon code challenge</strong>.</li>
+          <li>Copie le code et colle-le dans ta bio (ou dans un post pour X).</li>
+          <li>Entre l'URL et clique <strong style="color:var(--text);">Confirmer et vérifier</strong>.</li>
+          <li>Une fois vérifié, tu peux retirer le code de ta bio.</li>
+        </ol>
+        <div style="margin-top:.75rem;display:flex;flex-direction:column;gap:.5rem;">
+          <div style="padding:.6rem .9rem;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:.6rem;font-size:.8rem;color:var(--text-muted);line-height:1.6;">
+            <strong style="color:#c4b5fd;">𝕏 Twitter / X</strong> — Postez un tweet public contenant le code et collez l'URL du tweet (ex : <code style="color:var(--text);">https://x.com/vous/status/123…</code>).
+          </div>
+          <div style="padding:.6rem .9rem;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.18);border-radius:.6rem;font-size:.8rem;color:var(--text-muted);line-height:1.6;">
+            <strong style="color:#67e8f9;">Bluesky</strong> — Collez le code dans votre bio Bluesky, puis entrez l'URL de votre profil (ex : <code style="color:var(--text);">https://bsky.app/profile/vous.bsky.social</code>).
+          </div>
+          <div style="padding:.6rem .9rem;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);border-radius:.6rem;font-size:.8rem;color:var(--text-muted);line-height:1.6;">
+            <strong style="color:#fca5a5;">YouTube</strong> — Collez le code dans la description de votre chaîne, puis entrez l'URL (ex : <code style="color:var(--text);">https://youtube.com/@votre-chaine</code>).
+          </div>
+          <div style="padding:.6rem .9rem;background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.18);border-radius:.6rem;font-size:.8rem;color:var(--text-muted);line-height:1.6;">
+            <strong style="color:#a5b4fc;">Mastodon</strong> — Collez le code dans votre bio, puis entrez l'URL de votre profil (ex : <code style="color:var(--text);">https://mastodon.social/@vous</code>).
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ TOASTS ════════════════════════════════════════════════════════ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════ -->
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script type="module">
+  import { auth }       from '/assets/js/auth.js';
+  import { app }        from '/assets/js/app.js';
+  import { nostr }      from '/assets/js/nostr.js';
+  import { initVerify } from '/assets/js/verify.js';
+
+  const token    = auth.getToken();
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+                || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent));
+
+  // Masquer "Ajouter mon profil" si connecté
+  if (token) {
+    document.querySelectorAll('.header-auth-out').forEach(el => el.style.display = 'none');
+  }
+
+  if (!token) {
+    const gate     = document.getElementById('auth-gate');
+    const gateBtn  = document.getElementById('btn-login-gate');
+    const gateDesc = document.getElementById('auth-gate-desc');
+
+    gate.classList.remove('hidden');
+
+    if (isMobile) {
+      // Sur mobile : remplacer le contenu de l'auth gate par le message bureau
+      gate.innerHTML = `
+        <div style="font-size:3rem;margin-bottom:1.25rem;">🖥️</div>
+        <h2>Connectez-vous depuis un ordinateur</h2>
+        <p style="color:var(--text-muted);font-size:.95rem;line-height:1.75;max-width:380px;margin:0 auto 1.5rem;">
+          La connexion et la gestion de votre profil nécessitent une extension Nostr, disponible uniquement sur navigateur de bureau.
+        </p>
+        <div style="
+          display:inline-flex;align-items:flex-start;gap:1rem;
+          background:var(--surface);border:1px solid var(--border);
+          border-radius:var(--radius);padding:1.1rem 1.4rem;
+          text-align:left;max-width:360px;width:100%;
+        ">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="flex-shrink:0;margin-top:.1rem;">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+          </svg>
+          <div style="font-size:.88rem;color:var(--text-muted);line-height:1.65;">
+            Ouvrez <strong style="color:var(--text);">nostrmap.fr</strong> depuis Chrome, Firefox ou Edge sur votre ordinateur et connectez-vous avec l'extension <strong style="color:var(--text);">nos2x</strong> ou <strong style="color:var(--text);">nos2x-fox</strong>.
+          </div>
+        </div>`;
+    } else {
+      gateDesc.textContent = 'Connectez-vous avec votre extension Nostr pour accéder à votre dashboard.';
+      gateBtn.addEventListener('click', async () => {
+        const ok = await auth.login();
+        if (ok) location.reload();
+      });
+    }
+  } else {
+    initDashboard();
+  }
+
+  document.getElementById('btn-logout')?.addEventListener('click', () => {
+    auth.logout();
+    location.href = '/';
+  });
+
+  async function initDashboard() {
+    const decoded = auth.getDecoded();
+    if (!decoded) { auth.logout(); location.href = '/'; return; }
+
+    document.getElementById('dashboard').classList.remove('hidden');
+    let { npub, slug } = decoded;
+
+    // ── Fonction pour rafraîchir les éléments dépendant du slug ────────────────
+    function applySlug(s) {
+      slug = s;
+      document.getElementById('dash-slug-title').textContent = '@' + s;
+      const u = `https://nostrmap.fr/p/${s}`;
+      document.getElementById('public-url-text').textContent = u;
+    }
+
+    // Titre + URL publique (slug actuel du JWT)
+    applySlug(slug);
+    document.getElementById('btn-copy-url').addEventListener('click', () => {
+      navigator.clipboard.writeText(`https://nostrmap.fr/p/${slug}`)
+        .then(() => app.toast('URL copiée !', 'success'));
+    });
+
+    // ── 1. Charger l'aperçu immédiatement depuis la DB ──────────────────────────
+    await loadPreview(slug);
+
+    // ── 2. Charger les liens ────────────────────────────────────────────────────
+    await loadLinks(npub, slug);
+
+    // ── 3. QR Code, vérification, ajout lien ──────────────────────────────────
+    initDashQR(slug, npub);
+    initVerify({ npub, slug, onUpdate: () => loadLinks(npub, slug) });
+    initAddLinkFlow(npub, slug);
+
+    // ── 4. Overlay chargement + fetch relais ───────────────────────────────────
+    const overlay = document.getElementById('loading-overlay');
+    const loadingLabel = document.getElementById('loading-label');
+    overlay.classList.remove('hidden');
+    overlay.style.opacity = '1';
+
+    // Convertir npub → hex pour fetchStats
+    let pubkeyHex = null;
+    try { pubkeyHex = _npubToHex(npub); } catch {}
+
+    nostr.fetchProfile(npub, async (profile) => {
+      if (!profile) {
+        // Aucun relay n'a répondu → masquer overlay silencieusement
+        _hideOverlay(overlay);
+        return;
+      }
+
+      loadingLabel.textContent = 'Récupération des statistiques…';
+
+      // Fetch stats (followers, posts) si on a la clé hex
+      let statsPayload = {};
+      if (pubkeyHex) {
+        await new Promise(resolve => {
+          nostr.fetchStats(pubkeyHex, profile._created_at || null, (stats) => {
+            statsPayload = {
+              nostr_created_at: stats.createdAt  || 0,
+              nostr_followers:  stats.followers  || 0,
+              nostr_posts:      stats.posts      || 0,
+            };
+            resolve();
+          });
+        });
+      }
+
+      loadingLabel.textContent = 'Mise à jour du profil…';
+
+      try {
+        const res = await fetch('/api/profile.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + auth.getToken(),
+          },
+          body: JSON.stringify({
+            cached_name:   profile.name || profile.display_name || '',
+            cached_avatar: profile.picture || '',
+            cached_bio:    profile.about || '',
+            cached_nip05:  profile.nip05 || '',
+            ...statsPayload,
+          }),
+        });
+
+        const data = await res.json();
+
+        // Nouveau slug (NIP-05 vient d'être enregistré) → mettre à jour le token
+        if (data.newToken && data.newSlug) {
+          auth.setToken(data.newToken);
+          applySlug(data.newSlug);
+          app.toast('Slug mis à jour : @' + data.newSlug, 'success');
+        }
+      } catch {}
+
+      // Masquer l'overlay et recharger l'aperçu avec les données fraîches
+      _hideOverlay(overlay);
+      await loadPreview(slug);
+    });
+  }
+
+  function _hideOverlay(overlay) {
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.classList.add('hidden'), 400);
+  }
+
+  // Copie locale de npubToHex pour éviter un import supplémentaire
+  function _npubToHex(npub) {
+    const CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+    const str = npub.toLowerCase();
+    const sep = str.lastIndexOf('1');
+    if (sep < 1) throw new Error('Invalid npub');
+    const dataStr = str.slice(sep + 1, -6);
+    const data5   = Array.from(dataStr).map(c => {
+      const idx = CHARSET.indexOf(c);
+      if (idx < 0) throw new Error('Invalid char');
+      return idx;
+    });
+    let acc = 0, bits = 0;
+    const bytes = [];
+    for (const v of data5) {
+      acc = (acc << 5) | v; bits += 5;
+      while (bits >= 8) { bits -= 8; bytes.push((acc >> bits) & 0xff); }
+    }
+    return bytes.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function loadPreview(slug) {
+    try {
+      const res  = await fetch(`/api/profile.php?slug=${slug}`);
+      const data = await res.json();
+      if (data.profile) {
+        document.getElementById('preview-card-wrap').innerHTML =
+          app.renderCard(data.profile, data.links || [], { compact: true });
+      }
+    } catch (e) { /* silencieux */ }
+  }
+
+  async function loadLinks(npub, slug) {
+    try {
+      const res  = await fetch(`/api/profile.php?slug=${slug}`);
+      const data = await res.json();
+      renderLinks(data.links || [], npub, slug);
+    } catch (e) {
+      document.getElementById('links-list').innerHTML =
+        '<p class="text-muted" style="font-size:.85rem;">Erreur de chargement.</p>';
+    }
+  }
+
+  // Échappe les caractères HTML dangereux pour éviter les injections XSS
+  function esc(s) {
+    return String(s ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function renderLinks(links, npub, slug) {
+    const container = document.getElementById('links-list');
+
+    if (!links.length) {
+      container.innerHTML = `
+        <div class="empty-state" style="padding:1.5rem 0;">
+          <div class="empty-state-icon">🔗</div>
+          <p>Aucun réseau social ajouté.</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = links.map(link => `
+      <div class="link-row" id="link-row-${esc(link.id)}">
+        <span class="link-platform-icon platform-${esc(link.platform)}">
+          ${app.platformIcon(link.platform)}
+        </span>
+        <div class="link-row-info">
+          <div style="font-weight:600;font-size:.88rem;">
+            ${esc(link.display_handle) || esc(app.platformName(link.platform))}
+          </div>
+          <div class="link-row-url">${esc(link.url)}</div>
+          ${!link.verified ? `
+          <div class="challenge-box" id="challenge-${esc(link.id)}">
+            <div class="challenge-label">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Code challenge — à coller dans votre bio
+            </div>
+            <div class="challenge-code-row">
+              <span class="challenge-code">${esc(link.challenge)}</span>
+              <button class="btn btn-ghost btn-sm" title="Copier" data-copy="${esc(link.challenge)}">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              </button>
+            </div>
+          </div>` : ''}
+        </div>
+        <div class="link-row-actions">
+          ${link.verified
+            ? `<span class="badge badge-verified">✓ Vérifié</span>`
+            : `<button class="btn btn-outline btn-sm" data-verify="${esc(link.id)}">Vérifier</button>`
+          }
+          <button class="btn btn-danger btn-sm" data-delete="${esc(link.id)}" title="Supprimer">✕</button>
+        </div>
+      </div>
+    `).join('');
+
+    // Boutons copier le challenge
+    container.querySelectorAll('[data-copy]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        navigator.clipboard.writeText(btn.dataset.copy)
+          .then(() => app.toast('Code copié !', 'success'));
+      });
+    });
+
+    // Boutons vérifier
+    container.querySelectorAll('[data-verify]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = parseInt(btn.dataset.verify);
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>';
+        await window._verifyLink(id);
+        await loadLinks(npub, slug);
+      });
+    });
+
+    // Boutons supprimer
+    container.querySelectorAll('[data-delete]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Supprimer ce lien ?')) return;
+        const id = parseInt(btn.dataset.delete);
+        try {
+          await fetch(`/api/profile.php?action=delete_link&id=${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + auth.getToken() },
+          });
+          await loadLinks(npub, slug);
+          app.toast('Lien supprimé.', 'info');
+        } catch(e) {
+          app.toast('Erreur lors de la suppression.', 'error');
+        }
+      });
+    });
+  }
+
+  function initAddLinkFlow(npub, slug) {
+    let pendingLinkId = null;
+
+    const step1    = document.getElementById('add-step-1');
+    const step2    = document.getElementById('add-step-2');
+    const btnGet   = document.getElementById('btn-get-challenge');
+    const btnConfirm = document.getElementById('btn-confirm-link');
+    const btnCancel  = document.getElementById('btn-cancel-step2');
+    const btnCopy    = document.getElementById('btn-copy-challenge');
+
+    // Étape 1 → générer le code
+    btnGet.addEventListener('click', async () => {
+      const platform = document.getElementById('link-platform').value;
+      const handle   = document.getElementById('link-handle').value.trim();
+
+      btnGet.disabled = true;
+      btnGet.innerHTML = '<span class="spinner"></span>';
+
+      try {
+        const res  = await fetch('/api/profile.php?action=generate_challenge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.getToken() },
+          body: JSON.stringify({ platform, display_handle: handle }),
+        });
+        const data = await res.json();
+        if (data.error) { app.toast(data.error, 'error'); return; }
+
+        pendingLinkId = data.link_id;
+        document.getElementById('new-challenge-code').textContent = data.challenge;
+
+        // Adapter les instructions selon la plateforme
+        const placeholders = {
+          x:        ['Ton code challenge — poste-le dans un tweet public',
+                     'Colle ici l\'URL du tweet contenant le code :',
+                     'https://x.com/toi/status/123456789…'],
+          bluesky:  ['Ton code challenge — colle-le dans ta bio Bluesky',
+                     'Entre l\'URL de ton profil Bluesky :',
+                     'https://bsky.app/profile/toi.bsky.social'],
+          mastodon: ['Ton code challenge — colle-le dans ta bio Mastodon',
+                     'Entre l\'URL de ton profil Mastodon :',
+                     'https://mastodon.social/@toi'],
+          youtube:  ['Ton code challenge — colle-le dans la description de ta chaîne',
+                     'Entre l\'URL de ta chaîne YouTube :',
+                     'https://youtube.com/@ta-chaine'],
+        };
+        const [labelText, urlLabel, urlPlaceholder] = placeholders[platform] || placeholders.mastodon;
+        document.getElementById('challenge-label-text').textContent = labelText;
+        document.getElementById('link-url-label').textContent = urlLabel;
+        document.getElementById('link-url').placeholder = urlPlaceholder;
+
+        step1.classList.add('hidden');
+        step2.classList.remove('hidden');
+      } catch(e) {
+        app.toast('Erreur réseau.', 'error');
+      } finally {
+        btnGet.disabled = false;
+        btnGet.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Obtenir mon code challenge`;
+      }
+    });
+
+    // Copier le code
+    btnCopy.addEventListener('click', () => {
+      const code = document.getElementById('new-challenge-code').textContent;
+      navigator.clipboard.writeText(code).then(() => app.toast('Code copié !', 'success'));
+    });
+
+    // Annuler étape 2
+    btnCancel.addEventListener('click', () => {
+      step2.classList.add('hidden');
+      step1.classList.remove('hidden');
+      document.getElementById('link-url').value = '';
+      pendingLinkId = null;
+      loadLinks(npub, slug);
+    });
+
+    // Étape 2 → enregistrer URL + vérifier
+    btnConfirm.addEventListener('click', async () => {
+      const url = document.getElementById('link-url').value.trim();
+      if (!url) { app.toast('Entre l\'URL de ton profil.', 'error'); return; }
+      if (!pendingLinkId) return;
+
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = '<span class="spinner"></span> Vérification…';
+
+      try {
+        // Enregistrer l'URL
+        const setRes = await fetch('/api/profile.php?action=set_url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.getToken() },
+          body: JSON.stringify({ link_id: pendingLinkId, url }),
+        });
+        const setData = await setRes.json();
+        if (setData.error) { app.toast(setData.error, 'error'); return; }
+
+        // Lancer la vérification
+        await window._verifyLink(pendingLinkId);
+
+        // Reset
+        step2.classList.add('hidden');
+        step1.classList.remove('hidden');
+        document.getElementById('link-url').value    = '';
+        document.getElementById('link-handle').value = '';
+        pendingLinkId = null;
+        await loadLinks(npub, slug);
+      } catch(e) {
+        app.toast('Erreur réseau.', 'error');
+      } finally {
+        btnConfirm.disabled = false;
+        btnConfirm.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Confirmer et vérifier`;
+      }
+    });
+  }
+
+  function initDashQR(slug, npub) {
+    const { QRCode: qr } = window;
+    if (!qr) return;
+
+    const canvas = document.getElementById('dash-qr-canvas');
+    let mode = 'url';
+    let qrInstance = null;
+
+    function makeQR() {
+      canvas.innerHTML = '';
+      const content = mode === 'url'
+        ? `https://nostrmap.fr/p/${slug}`
+        : `nostr:${npub}`;
+      qrInstance = new qr(canvas, {
+        text: content, width: 200, height: 200,
+        colorDark: '#ffffff', colorLight: '#13131a',
+        correctLevel: qr.CorrectLevel.M,
+      });
+    }
+    makeQR();
+
+    document.getElementById('dash-qr-mode-url').addEventListener('click', function() {
+      mode = 'url';
+      this.classList.add('active');
+      document.getElementById('dash-qr-mode-nostr').classList.remove('active');
+      makeQR();
+    });
+    document.getElementById('dash-qr-mode-nostr').addEventListener('click', function() {
+      mode = 'nostr';
+      this.classList.add('active');
+      document.getElementById('dash-qr-mode-url').classList.remove('active');
+      makeQR();
+    });
+    document.getElementById('dash-qr-download').addEventListener('click', () => {
+      const cvs = canvas.querySelector('canvas');
+      if (!cvs) return;
+      const link = document.createElement('a');
+      link.download = `nostrmap-${slug}-qr.png`;
+      link.href = cvs.toDataURL('image/png');
+      link.click();
+    });
+  }
+</script>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <p>
+    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone &nbsp;|&nbsp;
+    <a href="https://nostr.fr" target="_blank" rel="noopener">Qu'est-ce que Nostr ?</a>
+    &nbsp;|&nbsp;
+    <a href="/mentions-legales.html">Mentions légales</a>
+    &nbsp;|&nbsp;
+    <a href="/contact.html">Contacter l'équipe</a>
+    &nbsp;|&nbsp;
+    <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noopener">Code source</a>
+  </p>
+</footer>
+
+</body>
+</html>

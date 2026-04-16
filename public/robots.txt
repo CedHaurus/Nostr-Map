@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /api/
+Disallow: /storage/
+Disallow: /og-image.php
+
+Sitemap: https://nostrmap.fr/sitemap.xml

@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Guide de connexion à Nostr Map via une extension navigateur Nostr (nos2x, Alby, Amber…). Sans mot de passe, sans email — juste votre clé publique Nostr." />
+  <title>Se connecter — Nostr Map</title>
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://nostrmap.fr/connexion" />
+  <meta property="og:title"       content="Se connecter — Nostr Map" />
+  <meta property="og:description" content="Connectez-vous à Nostr Map via votre extension Nostr (nos2x, Alby, Amber…). Aucun mot de passe, aucun email." />
+  <meta property="og:image"       content="https://nostrmap.fr/og-image.php?title=Se+connecter&sub=Via+votre+extension+Nostr" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height"content="630" />
+  <meta property="og:image:alt"   content="Se connecter à Nostr Map via une extension Nostr" />
+  <meta property="og:site_name"   content="Nostr Map" />
+  <meta property="og:locale"      content="fr_FR" />
+  <meta name="twitter:card"       content="summary_large_image" />
+  <meta name="twitter:title"      content="Se connecter — Nostr Map" />
+  <meta name="twitter:description"content="Connectez-vous à Nostr Map via votre extension Nostr. Aucun mot de passe." />
+  <meta name="twitter:image"      content="https://nostrmap.fr/og-image.php?title=Se+connecter&sub=Via+votre+extension+Nostr" />
+  <meta name="twitter:image:alt"  content="Se connecter à Nostr Map via une extension Nostr" />
+  <link rel="canonical"           href="https://nostrmap.fr/connexion" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="/assets/css/app.css" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    .cx-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+    .cx-back {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      color: var(--text-muted);
+      font-size: .83rem;
+      margin-bottom: 1.75rem;
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .cx-back:hover { color: var(--text); }
+    .cx-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .cx-icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 1rem;
+    }
+    .cx-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: .75rem;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .cx-header p {
+      color: var(--text-muted);
+      font-size: .95rem;
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .cx-why {
+      background: rgba(139,92,246,.07);
+      border: 1px solid rgba(139,92,246,.2);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 2.5rem;
+      font-size: .9rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .cx-why strong { color: var(--text); }
+    /* ─ Steps ─ */
+    .cx-steps { display: flex; flex-direction: column; gap: 2.5rem; margin-bottom: 2rem; }
+    .cx-step { display: flex; gap: 1.1rem; align-items: flex-start; }
+    .cx-step-num {
+      flex-shrink: 0;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--gradient);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 800; color: #fff;
+      box-shadow: 0 0 16px rgba(139,92,246,.4);
+      margin-top: .1rem;
+    }
+    .cx-step-body { flex: 1; min-width: 0; }
+    .cx-step-body > h2 {
+      font-size: 1.05rem; font-weight: 700; margin-bottom: .5rem;
+    }
+    .cx-step-body > p {
+      font-size: .875rem; color: var(--text-muted); line-height: 1.7; margin-bottom: .6rem;
+    }
+    /* ─ Boutons extension ─ */
+    .cx-ext-links { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .65rem; margin-bottom: 1.5rem; }
+    .cx-ext-btn {
+      display: inline-flex; align-items: center; gap: .45rem;
+      padding: .5rem 1rem; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: var(--surface-hover);
+      color: var(--text); font-size: .83rem; font-weight: 600;
+      text-decoration: none; transition: all .15s;
+    }
+    .cx-ext-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(139,92,246,.08); }
+    .cx-ext-btn-primary { background: var(--gradient) !important; border: none !important; color: #fff !important; }
+    .cx-ext-btn-primary:hover { opacity: .85; color: #fff !important; }
+    .cx-browser-badge {
+      font-size: .68rem; background: rgba(255,255,255,.15);
+      padding: .15rem .4rem; border-radius: 4px; font-weight: 500;
+    }
+    .cx-ext-btn-primary .cx-browser-badge { background: rgba(0,0,0,.2); }
+    /* ─ Guide illustré par extension ─ */
+    .cx-ext-guides { display: flex; flex-direction: column; gap: 1rem; }
+    .cx-ext-guide {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .cx-ext-guide-header {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .85rem 1.1rem;
+      background: var(--surface-hover);
+      cursor: pointer;
+      user-select: none;
+    }
+    .cx-ext-guide-header h3 { font-size: .9rem; font-weight: 700; flex: 1; }
+    .cx-ext-badge {
+      font-size: .7rem; font-weight: 600;
+      padding: .2rem .55rem; border-radius: 99px;
+      background: rgba(139,92,246,.15); color: var(--primary);
+    }
+    .cx-ext-badge.recommended {
+      background: rgba(139,92,246,.25); color: var(--primary);
+    }
+    .cx-ext-guide-chevron {
+      transition: transform .2s;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .cx-ext-guide.open .cx-ext-guide-chevron { transform: rotate(180deg); }
+    .cx-ext-guide-body {
+      display: none;
+      padding: 1.25rem 1.1rem;
+      border-top: 1px solid var(--border);
+    }
+    .cx-ext-guide.open .cx-ext-guide-body { display: block; }
+    /* ─ Sous-étapes illustrées ─ */
+    .cx-sub-steps { display: flex; flex-direction: column; gap: 1.25rem; }
+    .cx-sub-step { display: flex; gap: .75rem; align-items: flex-start; }
+    .cx-sub-num {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--surface-hover); border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; font-weight: 700; color: var(--text-muted);
+      margin-top: .15rem;
+    }
+    .cx-sub-body { flex: 1; min-width: 0; }
+    .cx-sub-body p {
+      font-size: .84rem; color: var(--text-muted); line-height: 1.65; margin-bottom: .5rem;
+    }
+    .cx-sub-body p strong { color: var(--text); }
+    .cx-sub-body p:last-child { margin-bottom: 0; }
+    /* ─ Screenshots ─ */
+    .cx-screenshot-wrap {
+      margin: .6rem 0 .25rem;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+    .cx-screenshot-wrap img {
+      display: block; width: 100%; height: auto;
+    }
+    .cx-screenshot-caption {
+      font-size: .75rem; color: var(--text-muted);
+      padding: .4rem .6rem;
+      background: var(--surface-hover);
+      border-top: 1px solid var(--border);
+      font-style: italic;
+    }
+    /* ─ Callout ─ */
+    .cx-callout {
+      background: rgba(139,92,246,.06);
+      border-left: 3px solid var(--primary);
+      padding: .55rem .85rem;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: .82rem; color: var(--text-muted); line-height: 1.6;
+      margin: .4rem 0;
+    }
+    .cx-callout strong { color: var(--text); }
+    /* ─ Nostr.fr ─ */
+    .cx-nostr-fr {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .5rem 1rem; border-radius: var(--radius-sm);
+      background: rgba(6,182,212,.1); border: 1px solid rgba(6,182,212,.25);
+      color: var(--accent); font-size: .85rem; font-weight: 600;
+      text-decoration: none; transition: all .15s; margin-top: .5rem;
+    }
+    .cx-nostr-fr:hover { background: rgba(6,182,212,.18); color: var(--accent); }
+    /* ─ Séparateur ─ */
+    .cx-separator { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    /* ─ Sécurité ─ */
+    .cx-security {
+      background: rgba(16,185,129,.05); border: 1px solid rgba(16,185,129,.2);
+      border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 2rem;
+    }
+    .cx-security h3 {
+      font-size: .85rem; font-weight: 700; color: var(--success);
+      margin-bottom: .6rem; display: flex; align-items: center; gap: .4rem;
+    }
+    .cx-security ul { list-style: none; display: flex; flex-direction: column; gap: .4rem; }
+    .cx-security li {
+      font-size: .83rem; color: var(--text-muted);
+      padding-left: 1.2rem; position: relative; line-height: 1.55;
+    }
+    .cx-security li::before { content: '✓'; position: absolute; left: 0; color: var(--success); font-weight: 700; }
+    /* ─ Bouton connexion ─ */
+    .cx-connect-btn { width: 100%; font-size: 1rem; padding: .9rem 1rem; }
+    .cx-no-ext-msg { margin-top: .85rem; font-size: .82rem; text-align: center; }
+    @media (max-width: 640px) {
+      .cx-step {
+        gap: .85rem;
+      }
+      .cx-ext-guide-header,
+      .cx-ext-guide-body,
+      .cx-why,
+      .cx-security {
+        padding-left: .95rem;
+        padding-right: .95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <a href="/" class="logo">Nostr Map ✦</a>
+      <span class="tagline">Annuaire Nostr Francophone</span>
+    </div>
+    <div class="header-actions">
+      <a href="/faq.html" class="btn btn-ghost btn-sm header-desktop-only">FAQ</a>
+      <a href="/soumettre.html" class="btn btn-outline btn-sm header-desktop-only">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Soumettre
+      </a>
+      <div id="user-menu" class="header-user-menu hidden">
+        <a href="/mon-profil.html" class="nav-user-chip" id="user-menu-btn">
+          <span class="nav-user-avatar" id="user-avatar-mini">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+          </span>
+          <span id="user-slug-display"></span>
+        </a>
+        <button id="btn-logout" class="btn btn-danger btn-sm header-desktop-only">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Déconnexion
+        </button>
+      </div>
+      <button id="btn-login-header" class="btn btn-primary btn-sm header-login-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Se connecter
+      </button>
+
+      <!-- Hamburger mobile -->
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ MOBILE NAV ═══════════════════════════════════════════════════ -->
+<div class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-logo">Nostr Map ✦</span>
+      <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+    </div>
+    <a href="/" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Accueil
+    </a>
+    <a href="/faq.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      FAQ
+    </a>
+    <a href="/soumettre.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Soumettre un profil
+    </a>
+    <div class="mobile-nav-divider"></div>
+    <a href="/connexion?from=ajouter" class="mobile-nav-item mobile-nav-auth-out" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="10"/></svg>
+      Ajouter mon profil
+    </a>
+    <a href="/mon-profil.html" class="mobile-nav-item mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Mon profil
+    </a>
+    <button id="mobile-btn-logout" class="mobile-nav-item mobile-nav-btn-danger mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Déconnexion
+    </button>
+    <button id="mobile-btn-login" class="mobile-nav-item mobile-nav-btn-primary mobile-nav-auth-out">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Se connecter
+    </button>
+  </div>
+</div>
+
+<!-- ══ CONTENU ═════════════════════════════════════════════════════ -->
+<div class="cx-wrap">
+
+  <a href="/" class="cx-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <path d="M19 12H5M12 5l-7 7 7 7"/>
+    </svg>
+    Retour à l'accueil
+  </a>
+
+  <!-- Bandeau contextuel "Ajouter mon profil" -->
+  <div id="cx-ajouter-banner" style="display:none;
+    background: rgba(139,92,246,.1);
+    border: 1px solid rgba(139,92,246,.3);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.75rem;
+    align-items: flex-start;
+    gap: .85rem;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="flex-shrink:0;margin-top:.1rem;">
+      <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+    </svg>
+    <div>
+      <strong style="font-size:.95rem;">Pour ajouter votre profil Nostr à l'annuaire</strong>
+      <p style="color:var(--text-muted);font-size:.875rem;margin:.25rem 0 0;line-height:1.6;">
+        Connectez-vous avec votre compte Nostr — votre profil sera automatiquement importé et visible dans l'annuaire.
+      </p>
+    </div>
+  </div>
+
+  <div class="cx-header">
+    <span class="cx-icon">⚡</span>
+    <h1>Se connecter avec Nostr</h1>
+    <p>Nostr est un protocole de réseau social décentralisé. Votre identité vous appartient entièrement — aucun mot de passe, aucun serveur central.</p>
+  </div>
+
+  <!-- ══ SECTION DESKTOP (extension NIP-07) ═══════════════════════════════ -->
+  <div id="cx-desktop">
+
+    <div class="cx-why">
+      Pour <strong>accéder à votre profil Nostr Map</strong>, gérer vos liens sociaux vérifiés ou <strong>proposer un utilisateur</strong> à l'annuaire, vous avez besoin d'un compte Nostr et d'une extension installée dans votre navigateur.
+    </div>
+
+    <div class="cx-steps">
+
+      <!-- ─ Étape 1 : Extension ──────────────────────────────────── -->
+      <div class="cx-step">
+        <div class="cx-step-num">1</div>
+        <div class="cx-step-body">
+          <h2>Installer une extension Nostr</h2>
+          <p>L'extension stocke votre clé privée localement dans votre navigateur. Elle signe les requêtes à votre place sans jamais transmettre votre clé à un site externe.</p>
+
+          <div class="cx-ext-links" id="ext-links"></div>
+
+          <!-- Guides illustrés par extension -->
+          <div class="cx-ext-guides" id="ext-guides">
+
+            <!-- Firefox : nos2x-fox -->
+            <div class="cx-ext-guide" id="guide-firefox">
+              <div class="cx-ext-guide-header" onclick="toggleGuide('guide-firefox')">
+                <h3>nos2x-fox <span style="font-weight:400;color:var(--text-muted)">— Firefox</span></h3>
+                <span class="cx-ext-badge" id="badge-firefox">Firefox</span>
+                <svg class="cx-ext-guide-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              <div class="cx-ext-guide-body">
+                <div class="cx-sub-steps">
+
+                  <div class="cx-sub-step">
+                    <div class="cx-sub-num">1</div>
+                    <div class="cx-sub-body">
+                      <p>Installez <strong>nos2x-fox</strong> depuis le bouton ci-dessus, puis cliquez sur son icône dans la barre d'outils Firefox et ouvrez les <strong>Préférences</strong>.</p>
+                    </div>
+                  </div>
+
+                  <div class="cx-sub-step">
+                    <div class="cx-sub-num">2</div>
+                    <div class="cx-sub-body">
+                      <p>Dans la section <strong>Profile</strong>, cliquez sur <strong>New</strong> pour créer un nouveau profil, ou sur <strong>Import</strong> si vous avez déjà un compte Nostr.</p>
+                      <div class="cx-screenshot-wrap">
+                        <img src="/assets/img/ext-nos2x-fox-keys.png" alt="nos2x-fox — section Profile et Keys" loading="lazy" />
+                        <div class="cx-screenshot-caption">Section Profile : New pour créer, Import pour importer une clé existante</div>
+                      </div>
+                      <div class="cx-callout">
+                        La section <strong>Keys</strong> affiche le champ <em>Private key</em>. Collez-y votre clé <code style="font-size:.8rem;background:var(--surface-hover);padding:.1rem .3rem;border-radius:4px;color:var(--primary)">nsec…</code> ou cliquez <strong>Generate</strong> pour en créer une nouvelle.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="cx-sub-step">
+                    <div class="cx-sub-num">3</div>
+                    <div class="cx-sub-body">
+                      <p>Cliquez sur <strong>Save key</strong> pour enregistrer. Vous pouvez activer la <strong>PIN Protection</strong> pour sécuriser vos clés avec un code.</p>
+                      <div class="cx-screenshot-wrap">
+                        <img src="/assets/img/ext-nos2x-fox-save.png" alt="nos2x-fox — Save key et PIN Protection" loading="lazy" />
+                        <div class="cx-screenshot-caption">Cliquez Save key, puis activez PIN Protection si vous le souhaitez</div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Chrome/Edge : nos2x -->
+            <div class="cx-ext-guide" id="guide-chrome">
+              <div class="cx-ext-guide-header" onclick="toggleGuide('guide-chrome')">
+                <h3>nos2x <span style="font-weight:400;color:var(--text-muted)">— Chrome / Edge</span></h3>
+                <span class="cx-ext-badge" id="badge-chrome">Chrome / Edge</span>
+                <svg class="cx-ext-guide-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              <div class="cx-ext-guide-body">
+                <div class="cx-sub-steps">
+
+                  <div class="cx-sub-step">
+                    <div class="cx-sub-num">1</div>
+                    <div class="cx-sub-body">
+                      <p>Installez <strong>nos2x</strong> depuis le bouton ci-dessus, puis cliquez sur son icône dans la barre d'outils pour ouvrir les options.</p>
+                    </div>
+                  </div>
+
+                  <div class="cx-sub-step">
+                    <div class="cx-sub-num">2</div>
+                    <div class="cx-sub-body">
+                      <p>Collez votre clé privée (<code style="font-size:.8rem;background:var(--surface-hover);padding:.1rem .3rem;border-radius:4px;color:var(--primary)">nsec…</code>) dans le champ <strong>private key</strong>, puis cliquez sur <strong>save</strong>.</p>
+                      <div class="cx-screenshot-wrap">
+                        <img src="/assets/img/ext-nos2x.png" alt="nos2x — champ private key et bouton save" loading="lazy" />
+                        <div class="cx-screenshot-caption">Collez votre nsec… dans le champ private key et cliquez save</div>
+                      </div>
+                      <div class="cx-callout">
+                        Les boutons <strong>browse your profile</strong> et <strong>edit your profile</strong> vous redirigent vers nosta.me pour consulter et modifier votre profil Nostr.
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /cx-ext-guides -->
+        </div>
+      </div>
+
+      <!-- ─ Étape 2 : Compte Nostr ───────────────────────────────── -->
+      <div class="cx-step">
+        <div class="cx-step-num">2</div>
+        <div class="cx-step-body">
+          <h2>Vous n'avez pas encore de compte Nostr ?</h2>
+          <p>Rendez-vous sur <strong>nostr.fr</strong> — la meilleure ressource en français pour apprendre à utiliser Nostr, créer son identité et découvrir les applications disponibles.</p>
+          <p>Une fois votre compte créé, revenez ici et importez votre clé privée dans l'extension (étape 1).</p>
+          <a href="https://nostr.fr" target="_blank" rel="noopener" class="cx-nostr-fr">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+            </svg>
+            Apprendre à utiliser Nostr sur nostr.fr
+          </a>
+        </div>
+      </div>
+
+      <!-- ─ Étape 3 : Connexion ──────────────────────────────────── -->
+      <div class="cx-step">
+        <div class="cx-step-num">3</div>
+        <div class="cx-step-body">
+          <h2>Se connecter sur Nostr Map</h2>
+          <p>Extension installée et configurée ? Cliquez sur le bouton ci-dessous. L'extension vous demandera d'approuver la connexion — cliquez <em>Autoriser</em>.</p>
+          <p>Votre profil Nostr existant est automatiquement importé sur Nostr Map.</p>
+        </div>
+      </div>
+
+    </div><!-- /cx-steps -->
+
+    <hr class="cx-separator" />
+
+    <div class="cx-security">
+      <h3>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Votre sécurité
+      </h3>
+      <ul>
+        <li>Votre clé privée ne quitte jamais votre appareil</li>
+        <li>Nostr Map ne stocke que votre clé publique, jamais votre clé privée</li>
+        <li>La connexion utilise une signature cryptographique (NIP-07/NIP-98) — aucun mot de passe n'est jamais transmis</li>
+        <li>Vous pouvez révoquer l'accès à tout moment depuis les paramètres de l'extension</li>
+      </ul>
+    </div>
+
+    <button id="btn-connect" class="btn btn-primary cx-connect-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+      </svg>
+      Se connecter
+    </button>
+    <p class="cx-no-ext-msg text-muted" id="cx-status">
+      Extension installée ? Si le bouton ne répond pas, rechargez la page.
+    </p>
+
+  </div><!-- /cx-desktop -->
+
+  <!-- ══ SECTION MOBILE ═══════════════════════════════════════════════════════ -->
+  <div id="cx-mobile" style="display:none;text-align:center;padding:2rem 0 3rem;">
+    <div style="font-size:3rem;margin-bottom:1.25rem;">🖥️</div>
+    <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:.75rem;">Connectez-vous depuis un ordinateur</h2>
+    <p style="color:var(--text-muted);font-size:.95rem;line-height:1.75;max-width:400px;margin:0 auto 1.5rem;">
+      La connexion, la modification de profil et la soumission de fiches nécessitent une extension Nostr disponible uniquement sur navigateur de bureau.
+    </p>
+    <div style="
+      display:inline-flex;align-items:flex-start;gap:1rem;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);padding:1.1rem 1.4rem;
+      text-align:left;max-width:380px;width:100%;
+    ">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="flex-shrink:0;margin-top:.1rem;">
+        <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+      </svg>
+      <div style="font-size:.88rem;color:var(--text-muted);line-height:1.65;">
+        Ouvrez <strong style="color:var(--text);">nostrmap.fr</strong> depuis Chrome, Firefox ou Edge sur votre ordinateur, installez l'extension <strong style="color:var(--text);">nos2x</strong> ou <strong style="color:var(--text);">nos2x-fox</strong>, et connectez-vous en un clic.
+      </div>
+    </div>
+  </div><!-- /cx-mobile -->
+
+</div>
+
+<!-- ══ TOASTS ════════════════════════════════════════════════════════ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════ -->
+<script>
+  // Accordion guides (desktop)
+  function toggleGuide(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
+</script>
+
+<script type="module">
+  import { auth } from '/assets/js/auth.js';
+  import { app }  from '/assets/js/app.js';
+
+  // Auth header
+  auth.initUI({
+    loginBtn:  document.getElementById('btn-login-header'),
+    logoutBtn: document.getElementById('btn-logout'),
+    userMenu:  document.getElementById('user-menu'),
+    slugEl:    document.getElementById('user-slug-display'),
+  });
+
+  // Valide que `next` est un chemin interne (jamais une URL externe)
+  function safeNext(raw) {
+    return (raw && /^\/[^/]/.test(raw)) ? raw : '/mon-profil';
+  }
+
+  // Redirection si déjà connecté
+  if (auth.isLoggedIn()) {
+    location.href = safeNext(new URLSearchParams(location.search).get('next'));
+  }
+
+  // Bandeau contextuel "Ajouter mon profil"
+  if (new URLSearchParams(location.search).get('from') === 'ajouter') {
+    document.getElementById('cx-ajouter-banner').style.display = 'flex';
+  }
+
+  // ── Détection mobile / tablette ─────────────────────────────────
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+                || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent));
+
+  if (isMobile) {
+    // ── Vue MOBILE : message bureau uniquement ────────────────────────
+    document.getElementById('cx-mobile').style.display  = '';
+    document.getElementById('cx-desktop').style.display = 'none';
+
+  } else {
+    // ── Vue DESKTOP ───────────────────────────────────────────────────
+    document.getElementById('cx-desktop').style.display = '';
+    document.getElementById('cx-mobile').style.display  = 'none';
+
+    const isFirefox = /Firefox\/\d/i.test(navigator.userAgent);
+    const isEdge    = /Edg\//i.test(navigator.userAgent);
+    const browser   = isFirefox ? 'Firefox' : isEdge ? 'Edge' : 'Chrome';
+
+    const ffUrl  = 'https://addons.mozilla.org/fr/firefox/addon/nos2x-fox/';
+    const chrUrl = 'https://chromewebstore.google.com/detail/kpgefcfmnafjgpblomihpgmejjdanjjp?utm_source=item-share-cb';
+
+    const extLinks = document.getElementById('ext-links');
+    if (isFirefox) {
+      extLinks.innerHTML = `
+        <a href="${ffUrl}" target="_blank" rel="noopener" class="cx-ext-btn cx-ext-btn-primary">
+          nos2x-fox <span class="cx-browser-badge">Firefox</span> ↗
+        </a>
+        <a href="${chrUrl}" target="_blank" rel="noopener" class="cx-ext-btn">
+          nos2x <span class="cx-browser-badge">Chrome / Edge</span> ↗
+        </a>`;
+    } else {
+      extLinks.innerHTML = `
+        <a href="${chrUrl}" target="_blank" rel="noopener" class="cx-ext-btn cx-ext-btn-primary">
+          nos2x <span class="cx-browser-badge">${browser}</span> ↗
+        </a>
+        <a href="${ffUrl}" target="_blank" rel="noopener" class="cx-ext-btn">
+          nos2x-fox <span class="cx-browser-badge">Firefox</span> ↗
+        </a>`;
+    }
+
+    const detectedGuide = isFirefox ? 'guide-firefox' : 'guide-chrome';
+    const detectedBadge = isFirefox ? 'badge-firefox'  : 'badge-chrome';
+    document.getElementById(detectedGuide).classList.add('open');
+    document.getElementById(detectedBadge).textContent = (isFirefox ? 'Firefox' : browser) + ' — votre navigateur';
+    document.getElementById(detectedBadge).classList.add('recommended');
+
+    const btn    = document.getElementById('btn-connect');
+    const status = document.getElementById('cx-status');
+
+    btn.addEventListener('click', async () => {
+      if (!window.nostr) {
+        status.innerHTML = '<strong style="color:var(--warning)">⚠ Extension non détectée.</strong> Installez l\'extension (étape 1) puis rechargez cette page.';
+        return;
+      }
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Connexion…';
+      status.textContent = '';
+
+      const result = await auth.login();
+      if (result) {
+        app.toast('Connecté ! Bienvenue 🎉', 'success');
+        setTimeout(() => {
+          location.href = safeNext(new URLSearchParams(location.search).get('next'));
+        }, 800);
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg> Se connecter`;
+      }
+    });
+
+    window.addEventListener('nostr:no-extension', () => {
+      status.innerHTML = '<strong style="color:var(--warning)">⚠ Extension non détectée.</strong> Installez l\'extension (étape 1) puis rechargez cette page.';
+    });
+  }
+</script>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <p>
+    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone &nbsp;|&nbsp;
+    <a href="https://nostr.fr" target="_blank" rel="noopener">Qu'est-ce que Nostr ?</a>
+    &nbsp;|&nbsp;
+    <a href="/mentions-legales.html">Mentions légales</a>
+    &nbsp;|&nbsp;
+    <a href="/contact.html">Contacter l'équipe</a>
+    &nbsp;|&nbsp;
+    <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noopener">Code source</a>
+  </p>
+</footer>
+
+</body>
+</html>
