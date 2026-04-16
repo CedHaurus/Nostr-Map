@@ -19,9 +19,8 @@ if (!in_array($reason, $allowed, true))  jsonError('Motif invalide');
 
 $db = getDB();
 
-// Obtenir l'IP du client
-$ip = $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
-$ip = trim(explode(',', $ip)[0]);
+// Obtenir l'IP du client (Caddy pose X-Real-IP ; pas de confiance à X-Forwarded-For injectable)
+$ip = $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
 
 // Vérifier IP bloquée
 $blocked = $db->prepare(
