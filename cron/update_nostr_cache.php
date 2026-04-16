@@ -80,10 +80,11 @@ foreach ($profiles as $npub) {
 
     if ($meta) {
         // Ne pas écraser le nom si l'utilisateur l'a défini manuellement
-        if (!empty($meta['name']) && !$nameLocked) { array_unshift($set, 'cached_name = ?');   array_unshift($params, mb_substr($meta['name'],    0, 100)); }
-        if (!empty($meta['picture']))              { array_unshift($set, 'cached_avatar = ?'); array_unshift($params, mb_substr($meta['picture'], 0, 500)); }
-        if (!empty($meta['about']))                { array_unshift($set, 'cached_bio = ?');    array_unshift($params, mb_substr($meta['about'],   0, 2000)); }
-        if (!empty($meta['nip05']))                { array_unshift($set, 'cached_nip05 = ?');  array_unshift($params, mb_substr($meta['nip05'],   0, 200)); }
+        if (!empty($meta['name']) && !$nameLocked) { array_unshift($set, 'cached_name = ?');   array_unshift($params, mb_substr($meta['name'],       0, 100)); }
+        if (!empty($meta['nostr_name']))            { array_unshift($set, 'nostr_name = ?');    array_unshift($params, mb_substr($meta['nostr_name'], 0, 100)); }
+        if (!empty($meta['picture']))               { array_unshift($set, 'cached_avatar = ?'); array_unshift($params, mb_substr($meta['picture'],    0, 500)); }
+        if (!empty($meta['about']))                 { array_unshift($set, 'cached_bio = ?');    array_unshift($params, mb_substr($meta['about'],      0, 2000)); }
+        if (!empty($meta['nip05']))                 { array_unshift($set, 'cached_nip05 = ?');  array_unshift($params, mb_substr($meta['nip05'],      0, 200)); }
     }
 
     if ($stats) {

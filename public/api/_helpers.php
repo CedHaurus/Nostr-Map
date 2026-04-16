@@ -523,10 +523,11 @@ function fetchPrimalData(string $hex): array {
         $c = is_string($best['content'] ?? null) ? json_decode($best['content'], true) : null;
         if (is_array($c)) {
             $meta = [
-                'name'    => $c['display_name'] ?? $c['name'] ?? null,
-                'picture' => $c['picture'] ?? null,
-                'about'   => $c['about']   ?? null,
-                'nip05'   => $c['nip05']   ?? null,
+                'name'       => $c['display_name'] ?? $c['name'] ?? null,
+                'nostr_name' => $c['name'] ?? null,   // handle Nostr brut, pour la recherche
+                'picture'    => $c['picture'] ?? null,
+                'about'      => $c['about']   ?? null,
+                'nip05'      => $c['nip05']   ?? null,
             ];
         }
     }
@@ -550,10 +551,11 @@ function warmProfileCache(string $npub, PDO $db): void {
 
     $set = ['last_fetch = NOW()']; $params = [];
     if ($meta) {
-        if (!empty($meta['name']) && !$nameLocked) { array_unshift($set, 'cached_name = ?');   array_unshift($params, mb_substr($meta['name'],    0, 100)); }
-        if (!empty($meta['picture']))              { array_unshift($set, 'cached_avatar = ?'); array_unshift($params, mb_substr($meta['picture'], 0, 500)); }
-        if (!empty($meta['about']))                { array_unshift($set, 'cached_bio = ?');    array_unshift($params, mb_substr($meta['about'],   0, 2000)); }
-        if (!empty($meta['nip05']))                { array_unshift($set, 'cached_nip05 = ?');  array_unshift($params, mb_substr($meta['nip05'],   0, 200)); }
+        if (!empty($meta['name']) && !$nameLocked) { array_unshift($set, 'cached_name = ?');   array_unshift($params, mb_substr($meta['name'],       0, 100)); }
+        if (!empty($meta['nostr_name']))            { array_unshift($set, 'nostr_name = ?');    array_unshift($params, mb_substr($meta['nostr_name'], 0, 100)); }
+        if (!empty($meta['picture']))               { array_unshift($set, 'cached_avatar = ?'); array_unshift($params, mb_substr($meta['picture'],    0, 500)); }
+        if (!empty($meta['about']))                 { array_unshift($set, 'cached_bio = ?');    array_unshift($params, mb_substr($meta['about'],      0, 2000)); }
+        if (!empty($meta['nip05']))                 { array_unshift($set, 'cached_nip05 = ?');  array_unshift($params, mb_substr($meta['nip05'],      0, 200)); }
     }
     if ($stats) {
         if (!empty($stats['joined_at'])) { $set[] = 'nostr_created_at = ?'; $params[] = $stats['joined_at']; }

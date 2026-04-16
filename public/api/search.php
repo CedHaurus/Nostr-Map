@@ -93,12 +93,15 @@ $sql = "
     WHERE
         p.status = 'active'
         AND (
-            p.cached_name  LIKE ? COLLATE utf8mb4_unicode_ci
+            p.cached_name   LIKE ? COLLATE utf8mb4_unicode_ci
+            OR p.nostr_name LIKE ? COLLATE utf8mb4_unicode_ci
             OR p.slug       LIKE ? COLLATE utf8mb4_unicode_ci
+            OR p.npub       LIKE ? COLLATE utf8mb4_unicode_ci
             OR p.cached_nip05 LIKE ? COLLATE utf8mb4_unicode_ci
             OR p.npub IN (
                 SELECT npub FROM social_links
                 WHERE display_handle LIKE ? COLLATE utf8mb4_unicode_ci
+                   OR url            LIKE ? COLLATE utf8mb4_unicode_ci
             )
         )
     ORDER BY p.registered_at DESC
@@ -106,7 +109,7 @@ $sql = "
 ";
 
 $stmt = $db->prepare($sql);
-$stmt->execute([$like, $like, $like, $like, $limit]);
+$stmt->execute([$like, $like, $like, $like, $like, $like, $like, $limit]);
 $results = $stmt->fetchAll();
 
 // Pour chaque profil, récupérer les badges vérifiés
