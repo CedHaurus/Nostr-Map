@@ -15,7 +15,6 @@ CREATE TABLE IF NOT EXISTS profiles (
   last_stats_fetch     DATETIME,
   registered_at        DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_login           DATETIME,
-  score                INT DEFAULT 0,
   status               ENUM('active','pending','banned','pending_deletion') DEFAULT 'active',
   banned_reason        TEXT,
   nostr_created_at     INT,
@@ -52,7 +51,6 @@ CREATE TABLE IF NOT EXISTS proposals (
 
 -- Index pour les recherches
 CREATE INDEX idx_profiles_slug       ON profiles(slug);
-CREATE INDEX idx_profiles_score      ON profiles(score DESC);
 CREATE INDEX idx_profiles_status     ON profiles(status);
 CREATE INDEX idx_profiles_registered ON profiles(registered_at DESC);
 CREATE INDEX idx_social_npub         ON social_links(npub);

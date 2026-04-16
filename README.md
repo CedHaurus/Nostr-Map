@@ -121,8 +121,6 @@ Ajouter au crontab de l'hôte (`crontab -e`) :
 # Revérification des liens sociaux vérifiés — chaque nuit à 4h
 0 4 * * * docker exec nostrmap_php php /var/www/cron/recheck_links.php >> /var/log/nostrmap_recheck.log 2>&1
 
-# Mise à jour des scores — chaque nuit à 3h
-0 3 * * * docker exec nostrmap_php php /var/www/cron/update_scores.php >> /var/log/nostrmap_scores.log 2>&1
 ```
 
 ---
@@ -160,7 +158,6 @@ docker compose down -v
 | `/api/profile.php?action=delete_link&id=N` | DELETE | ✓ | Supprimer un lien |
 | `/api/search.php?q=X` | GET | — | Recherche full-text |
 | `/api/search.php?sort=recent` | GET | — | Derniers inscrits |
-| `/api/search.php?sort=score` | GET | — | Mieux référencés |
 | `/api/verify.php` | POST | ✓ | Vérifier un lien RS |
 
 ---
@@ -187,19 +184,6 @@ Le flux complet NIP-07 + NIP-98 :
 4. Si trouvé → `verified = true` avec timestamp
 
 Le cron `recheck_links.php` revérifie quotidiennement les liens déjà validés.
-
----
-
-## Score
-
-Calculé chaque nuit par `update_scores.php` :
-
-```
-score = (liens vérifiés × 15)
-      + (NIP-05 renseigné × 20)
-      + (last_fetch < 30j × 10)
-      + (ancienneté en mois × 2, max 24 mois)
-```
 
 ---
 
@@ -244,6 +228,6 @@ score = (liens vérifiés × 15)
 │       ├── search.php
 │       └── verify.php
 └── cron/
-    ├── update_scores.php
+    ├── update_nostr_cache.php
     └── recheck_links.php
 ```
