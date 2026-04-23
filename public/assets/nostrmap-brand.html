@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<!--
+  nostrmap-brand.html
+  Référence complète pour reproduire le nom et le logo de Nostr Map ailleurs.
+  Copiez le bloc <style> + le bloc HTML qui vous convient, c'est tout.
+-->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Nostr Map – Kit identité visuelle</title>
+  <style>
+    body {
+      margin: 0;
+      background: #13131a;
+      color: #e2e2f0;
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+      padding: 3rem 2rem;
+    }
+    section { border-bottom: 1px solid #2a2a3a; padding-bottom: 2rem; }
+    h2 { color: #8b5cf6; font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 1.25rem; }
+    pre {
+      background: #1a1a24;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-size: .8rem;
+      overflow-x: auto;
+      white-space: pre;
+      color: #a5b4fc;
+      margin: 1rem 0 0;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       VARIABLES – coller dans :root de votre feuille CSS
+       ═══════════════════════════════════════════════════════ */
+    :root {
+      --primary:  #8b5cf6;   /* violet */
+      --accent:   #06b6d4;   /* cyan   */
+      --gradient: linear-gradient(135deg, #8b5cf6, #06b6d4);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       LOGO – variante nav (petite, 1.25 rem)
+       ═══════════════════════════════════════════════════════ */
+    .nm-logo {
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -.01em;
+      line-height: 1;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       LOGO – variante héro (grande, responsive)
+       ═══════════════════════════════════════════════════════ */
+    .nm-logo-hero {
+      display: inline-block;
+      font-size: clamp(2.45rem, 10.5vw, 3.1rem);
+      font-weight: 800;
+      letter-spacing: -.055em;
+      line-height: .92;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       TAGLINE – sous le logo héro
+       ═══════════════════════════════════════════════════════ */
+    .nm-tagline {
+      color: #6b7280;
+      font-size: .8rem;
+      margin-left: .25rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       FAVICON inline SVG (32×32)
+       ═══════════════════════════════════════════════════════ */
+    .nm-favicon-preview {
+      width: 32px;
+      height: 32px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── APERÇU ──────────────────────────────────────────── -->
+
+  <section>
+    <h2>Logo nav (petite taille)</h2>
+    <span class="nm-logo">Nostr Map ✦</span>
+    <pre>&lt;span class="nm-logo"&gt;Nostr Map ✦&lt;/span&gt;
+
+/* CSS */
+.nm-logo {
+  font-size: 1.25rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -.01em;
+  line-height: 1;
+}</pre>
+  </section>
+
+  <section>
+    <h2>Logo héro (grande taille, responsive) + tagline</h2>
+    <div>
+      <span class="nm-logo-hero">Nostr Map ✦</span>
+      <span class="nm-tagline">Annuaire Nostr Francophone</span>
+    </div>
+    <pre>&lt;span class="nm-logo-hero"&gt;Nostr Map ✦&lt;/span&gt;
+&lt;span class="nm-tagline"&gt;Annuaire Nostr Francophone&lt;/span&gt;
+
+/* CSS */
+.nm-logo-hero {
+  display: inline-block;
+  font-size: clamp(2.45rem, 10.5vw, 3.1rem);
+  font-weight: 800;
+  letter-spacing: -.055em;
+  line-height: .92;
+  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.nm-tagline {
+  color: #6b7280;
+  font-size: .8rem;
+  margin-left: .25rem;
+}</pre>
+  </section>
+
+  <section>
+    <h2>Favicon SVG (32×32) – aussi utilisé comme icône inline</h2>
+    <svg class="nm-favicon-preview" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+      <defs>
+        <linearGradient id="nm-g" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#8b5cf6"/>
+          <stop offset="100%" stop-color="#06b6d4"/>
+        </linearGradient>
+      </defs>
+      <rect width="32" height="32" rx="8" fill="#13131a"/>
+      <text x="16" y="23" text-anchor="middle" font-size="20" font-family="serif" fill="url(#nm-g)">✦</text>
+    </svg>
+    <pre>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;
+  &lt;defs&gt;
+    &lt;linearGradient id="nm-g" x1="0%" y1="0%" x2="100%" y2="100%"&gt;
+      &lt;stop offset="0%"  stop-color="#8b5cf6"/&gt;
+      &lt;stop offset="100%" stop-color="#06b6d4"/&gt;
+    &lt;/linearGradient&gt;
+  &lt;/defs&gt;
+  &lt;rect width="32" height="32" rx="8" fill="#13131a"/&gt;
+  &lt;text x="16" y="23" text-anchor="middle"
+        font-size="20" font-family="serif" fill="url(#nm-g)"&gt;✦&lt;/text&gt;
+&lt;/svg&gt;
+
+/* En tant que favicon dans &lt;head&gt; : */
+&lt;link rel="icon" href="/favicon.svg" type="image/svg+xml"&gt;</pre>
+  </section>
+
+  <section>
+    <h2>Variables CSS à inclure dans :root</h2>
+    <pre>:root {
+  --primary:  #8b5cf6;   /* violet */
+  --accent:   #06b6d4;   /* cyan   */
+  --gradient: linear-gradient(135deg, #8b5cf6, #06b6d4);
+}</pre>
+  </section>
+
+  <section>
+    <h2>Nom officiel</h2>
+    <p style="margin:0;font-size:.9rem;color:#9ca3af;">
+      <strong style="color:#e2e2f0;">Nostr Map ✦</strong> — avec l'espace avant ✦, majuscule sur N et M.<br>
+      Tagline : <em>Annuaire Nostr Francophone</em>
+    </p>
+  </section>
+
+</body>
+</html>

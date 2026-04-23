@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Relay Nostr public francophone — wss://relay.nostrmap.net. Ouvert à tous, anti-spam, TLS automatique, IP anonymisées. Ajoutez-le à votre client Nostr." />
+  <title>Relay Nostr Map — wss://relay.nostrmap.net</title>
+  <link rel="canonical" href="https://nostrmap.fr/relay" />
+
+  <!-- Open Graph -->
+  <meta property="og:type"         content="website" />
+  <meta property="og:url"          content="https://nostrmap.fr/relay" />
+  <meta property="og:title"        content="Relay Nostr Map — wss://relay.nostrmap.net" />
+  <meta property="og:description"  content="Relay Nostr public francophone. Ouvert à tous, anti-spam, vie privée respectée. Ajoutez-le à votre client Nostr." />
+  <meta property="og:image"        content="https://nostrmap.fr/og-image.php?title=Relay+Nostr+Map&sub=wss%3A%2F%2Frelay.nostrmap.net" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt"    content="Relay Nostr Map — wss://relay.nostrmap.net" />
+  <meta property="og:site_name"    content="Nostr Map" />
+  <meta property="og:locale"       content="fr_FR" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="Relay Nostr Map — wss://relay.nostrmap.net" />
+  <meta name="twitter:description" content="Relay Nostr public francophone. Anti-spam, TLS, IP anonymisées. Gratuit et ouvert." />
+  <meta name="twitter:image"       content="https://nostrmap.fr/og-image.php?title=Relay+Nostr+Map&sub=wss%3A%2F%2Frelay.nostrmap.net" />
+  <meta name="twitter:image:alt"   content="Relay Nostr Map — wss://relay.nostrmap.net" />
+
+  <!-- Robots -->
+  <meta name="robots" content="index, follow" />
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Relay Nostr Map",
+    "url": "https://nostrmap.fr/relay",
+    "description": "Relay Nostr public francophone basé sur strfry. Ouvert à tous, anti-spam, IP anonymisées.",
+    "applicationCategory": "CommunicationApplication",
+    "operatingSystem": "Web",
+    "author": { "@type": "Organization", "name": "Nostr Map", "url": "https://nostrmap.fr" },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="/assets/css/app.css?v=20260423-modal" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <style>
+    .relay-wrap {
+      max-width: 760px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+      box-sizing: border-box;
+    }
+
+    /* ─ Hero ─ */
+    .relay-hero {
+      text-align: center;
+      padding: 1.5rem 0 2.5rem;
+    }
+    .relay-hero-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .relay-hero h1 {
+      font-size: clamp(1.7rem, 5.5vw, 2.4rem);
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: .5rem;
+      line-height: 1.15;
+    }
+    .relay-hero-sub {
+      color: var(--text-muted);
+      font-size: .95rem;
+      line-height: 1.7;
+      max-width: 500px;
+      margin: 0 auto 2rem;
+    }
+
+    /* ─ URL du relay ─ */
+    .relay-url-card {
+      background: var(--surface);
+      border: 2px solid rgba(139,92,246,.3);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 0 auto 2.5rem;
+      max-width: 520px;
+      box-shadow: 0 0 24px rgba(139,92,246,.12);
+    }
+    .relay-url-icon {
+      flex-shrink: 0;
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: rgba(139,92,246,.12);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .relay-url-text {
+      flex: 1;
+      min-width: 0;
+    }
+    .relay-url-label {
+      font-size: .7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-muted);
+      margin-bottom: .2rem;
+    }
+    .relay-url-value {
+      font-family: monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: .02em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .relay-copy-btn {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .55rem 1rem;
+      border-radius: var(--radius-sm);
+      background: var(--gradient);
+      color: #fff;
+      font-size: .82rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all .18s;
+      white-space: nowrap;
+    }
+    .relay-copy-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+    .relay-copy-btn.copied {
+      background: var(--success);
+      box-shadow: 0 2px 12px rgba(16,185,129,.3);
+    }
+
+    /* ─ Section titre ─ */
+    .relay-section-title {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--primary);
+      margin: 2.5rem 0 1rem;
+    }
+
+    /* ─ Comment ajouter ─ */
+    .relay-how {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    .relay-how-intro {
+      padding: 1.1rem 1.25rem;
+      font-size: .88rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: rgba(139,92,246,.04);
+    }
+    .relay-how-intro strong { color: var(--text); }
+    .relay-clients {
+      display: flex;
+      flex-direction: column;
+    }
+    .relay-client {
+      display: flex;
+      align-items: flex-start;
+      gap: .9rem;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .relay-client:last-child { border-bottom: none; }
+    .relay-client-name {
+      flex-shrink: 0;
+      width: 90px;
+      font-weight: 700;
+      font-size: .88rem;
+      padding-top: .1rem;
+    }
+    .relay-client-steps {
+      flex: 1;
+      font-size: .84rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .relay-client-steps code {
+      font-family: monospace;
+      background: var(--surface-hover);
+      padding: .1rem .35rem;
+      border-radius: 4px;
+      color: var(--primary);
+      font-size: .82rem;
+    }
+    .relay-client-platform {
+      font-size: .7rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: .15rem;
+    }
+
+    /* ─ Features ─ */
+    .relay-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .relay-feature {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.25rem;
+      transition: border-color .15s;
+    }
+    .relay-feature:hover { border-color: rgba(139,92,246,.35); }
+    .relay-feature-icon { font-size: 1.35rem; margin-bottom: .5rem; }
+    .relay-feature h3 { font-size: .9rem; font-weight: 700; margin-bottom: .3rem; }
+    .relay-feature p { font-size: .82rem; color: var(--text-muted); line-height: 1.55; margin: 0; }
+
+    /* ─ Stack ─ */
+    .relay-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-bottom: 2rem;
+    }
+    .relay-stack-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .4rem .85rem;
+      border-radius: 99px;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .relay-stack-tag span { color: var(--primary); }
+
+    /* ─ CTA ─ */
+    .relay-cta {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      background: rgba(139,92,246,.06);
+      border: 1px solid rgba(139,92,246,.2);
+      border-radius: var(--radius);
+      margin-top: 2rem;
+    }
+    .relay-cta h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: .4rem; }
+    .relay-cta p { color: var(--text-muted); font-size: .88rem; margin-bottom: 1.25rem; }
+
+    @media (max-width: 560px) {
+      .relay-features { grid-template-columns: 1fr; }
+      .relay-url-card { flex-wrap: wrap; }
+      .relay-url-value { font-size: .88rem; }
+      .relay-client { flex-direction: column; gap: .4rem; }
+      .relay-client-name { width: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <a href="/" class="logo">Nostr Map ✦</a>
+      <span class="tagline">Annuaire Nostr Francophone</span>
+    </div>
+    <div class="header-actions">
+      <a href="/faq.html" class="btn btn-ghost btn-sm header-desktop-only">FAQ</a>
+      <a href="/extension.html" class="btn btn-ghost btn-sm header-desktop-only">Extension</a>
+      <a href="/relay.html" class="btn btn-ghost btn-sm header-desktop-only" style="color:var(--primary);">Relay</a>
+      <a href="/soumettre.html" class="btn btn-outline btn-sm header-desktop-only">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Soumettre
+      </a>
+      <div id="user-menu" class="header-user-menu hidden">
+        <a href="/mon-profil.html" class="nav-user-chip" id="user-menu-btn">
+          <span class="nav-user-avatar" id="user-avatar-mini">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </span>
+          <span id="user-slug-display"></span>
+        </a>
+        <button id="btn-logout" class="btn btn-danger btn-sm header-desktop-only">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Déconnexion
+        </button>
+      </div>
+      <button id="btn-login" class="btn btn-primary btn-sm header-login-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Se connecter
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ MOBILE NAV ═══════════════════════════════════════════════════ -->
+<div class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-logo">Nostr Map ✦</span>
+      <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+    </div>
+    <a href="/" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Accueil
+    </a>
+    <a href="/faq.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      FAQ
+    </a>
+    <a href="/extension.html" class="mobile-nav-item" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Nostr Map Signer
+    </a>
+    <a href="/relay.html" class="mobile-nav-item" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M6.3 6.3a8 8 0 0 0 0 11.4M17.7 6.3a8 8 0 0 1 0 11.4M3.5 3.5a12 12 0 0 0 0 17M20.5 3.5a12 12 0 0 1 0 17"/></svg>
+      Relay Nostr Map
+    </a>
+    <div class="mobile-nav-divider"></div>
+    <a href="/connexion?from=ajouter" class="mobile-nav-item mobile-nav-auth-out" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Ajouter mon profil
+    </a>
+    <a href="/soumettre.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Soumettre un profil
+    </a>
+    <div class="mobile-nav-divider"></div>
+    <a href="/mon-profil.html" class="mobile-nav-item mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Mon profil
+    </a>
+    <button id="mobile-btn-logout" class="mobile-nav-item mobile-nav-btn-danger mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Déconnexion
+    </button>
+    <button id="mobile-btn-login" class="mobile-nav-item mobile-nav-btn-primary mobile-nav-auth-out">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Se connecter
+    </button>
+    <div class="mobile-nav-divider"></div>
+    <a href="https://nostr.fr" class="mobile-nav-item mobile-nav-secondary" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Qu'est-ce que Nostr ?
+    </a>
+    <a href="/mentions-legales.html" class="mobile-nav-item mobile-nav-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Mentions légales
+    </a>
+    <a href="/contact.html" class="mobile-nav-item mobile-nav-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Contacter l'équipe
+    </a>
+    <a href="https://github.com/CedHaurus/Nostr-Map" class="mobile-nav-item mobile-nav-secondary" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      GitHub
+    </a>
+  </div>
+</div>
+
+<!-- ══ CONTENU ═════════════════════════════════════════════════════ -->
+<div class="relay-wrap">
+
+  <a href="/" style="display:inline-flex;align-items:center;gap:.35rem;color:var(--text-muted);font-size:.83rem;margin-bottom:1.5rem;text-decoration:none;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Retour à l'annuaire
+  </a>
+
+  <!-- Hero -->
+  <div class="relay-hero">
+    <span class="relay-hero-icon">📡</span>
+    <h1>Relay Nostr Map</h1>
+    <p class="relay-hero-sub">
+      Un relay Nostr public francophone, ouvert à tous, sans inscription. Contribuez à la décentralisation du réseau Nostr en l'ajoutant à votre client.
+    </p>
+
+    <!-- URL + bouton copier -->
+    <div class="relay-url-card">
+      <div class="relay-url-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M6.3 6.3a8 8 0 0 0 0 11.4M17.7 6.3a8 8 0 0 1 0 11.4"/></svg>
+      </div>
+      <div class="relay-url-text">
+        <div class="relay-url-label">Adresse du relay</div>
+        <div class="relay-url-value" id="relay-url-display">wss://relay.nostrmap.net</div>
+      </div>
+      <button class="relay-copy-btn" id="btn-copy-relay" onclick="copyRelay()">
+        <svg id="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <svg id="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:none;"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="copy-label">Copier</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Comment ajouter -->
+  <p class="relay-section-title">Comment l'ajouter à mon client Nostr</p>
+  <div class="relay-how">
+    <div class="relay-how-intro">
+      Dans votre client Nostr, rendez-vous dans les paramètres de relays et ajoutez l'adresse <strong>wss://relay.nostrmap.net</strong>. Voici les étapes selon votre application :
+    </div>
+    <div class="relay-clients">
+      <div class="relay-client">
+        <div>
+          <div class="relay-client-name">Primal</div>
+          <div class="relay-client-platform">Web · iOS · Android</div>
+        </div>
+        <div class="relay-client-steps">
+          Paramètres → <strong>Relays</strong> → <strong>Add relay</strong> → coller <code>wss://relay.nostrmap.net</code> → Confirmer
+        </div>
+      </div>
+      <div class="relay-client">
+        <div>
+          <div class="relay-client-name">Damus</div>
+          <div class="relay-client-platform">iOS</div>
+        </div>
+        <div class="relay-client-steps">
+          Profil → <strong>Relays</strong> → icône <strong>+</strong> → coller <code>wss://relay.nostrmap.net</code>
+        </div>
+      </div>
+      <div class="relay-client">
+        <div>
+          <div class="relay-client-name">Amethyst</div>
+          <div class="relay-client-platform">Android</div>
+        </div>
+        <div class="relay-client-steps">
+          Paramètres → <strong>Network</strong> → <strong>Relays</strong> → <strong>Add a relay</strong> → coller <code>wss://relay.nostrmap.net</code>
+        </div>
+      </div>
+      <div class="relay-client">
+        <div>
+          <div class="relay-client-name">Snort</div>
+          <div class="relay-client-platform">Web</div>
+        </div>
+        <div class="relay-client-steps">
+          Paramètres → <strong>Relays</strong> → champ d'ajout → coller <code>wss://relay.nostrmap.net</code> → <strong>Add</strong>
+        </div>
+      </div>
+      <div class="relay-client">
+        <div>
+          <div class="relay-client-name">Coracle</div>
+          <div class="relay-client-platform">Web</div>
+        </div>
+        <div class="relay-client-steps">
+          Menu → <strong>Relays</strong> → <strong>Add relay</strong> → coller <code>wss://relay.nostrmap.net</code>
+        </div>
+      </div>
+      <div class="relay-client">
+        <div>
+          <div class="relay-client-name">Autres clients</div>
+          <div class="relay-client-platform">Tous</div>
+        </div>
+        <div class="relay-client-steps">
+          Cherchez la section <strong>Relays</strong> ou <strong>Serveurs</strong> dans les paramètres et ajoutez <code>wss://relay.nostrmap.net</code>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <p class="relay-section-title">Caractéristiques</p>
+  <div class="relay-features">
+    <div class="relay-feature">
+      <div class="relay-feature-icon">🌐</div>
+      <h3>Ouvert à tous</h3>
+      <p>Aucune inscription, aucun compte requis. Le relay accepte tous les types d'événements Nostr sans restriction.</p>
+    </div>
+    <div class="relay-feature">
+      <div class="relay-feature-icon">🛡</div>
+      <h3>Anti-spam</h3>
+      <p>Filtrage des événements via une politique Python pour maintenir la qualité du réseau et limiter les abus.</p>
+    </div>
+    <div class="relay-feature">
+      <div class="relay-feature-icon">🔒</div>
+      <h3>TLS automatique</h3>
+      <p>Connexion chiffrée via WebSocket sécurisé (wss://). Certificats TLS gérés automatiquement par Caddy.</p>
+    </div>
+    <div class="relay-feature">
+      <div class="relay-feature-icon">👁</div>
+      <h3>Vie privée respectée</h3>
+      <p>Adresses IP anonymisées dans les logs — masque /24 IPv4, /48 IPv6. Aucun profilage des utilisateurs.</p>
+    </div>
+    <div class="relay-feature">
+      <div class="relay-feature-icon">⚡</div>
+      <h3>Haute performance</h3>
+      <p>Basé sur <strong>strfry</strong>, relay écrit en C++ avec architecture LMDB — conçu pour la vitesse et la scalabilité.</p>
+    </div>
+    <div class="relay-feature">
+      <div class="relay-feature-icon">🗜</div>
+      <h3>Compression WebSocket</h3>
+      <p>Permessage-deflate activé pour réduire la bande passante et améliorer la réactivité de la connexion.</p>
+    </div>
+  </div>
+
+  <!-- Stack technique -->
+  <p class="relay-section-title">Stack technique</p>
+  <div class="relay-stack">
+    <span class="relay-stack-tag"><span>⚙</span> strfry (C++ / LMDB)</span>
+    <span class="relay-stack-tag"><span>🔀</span> Caddy v2</span>
+    <span class="relay-stack-tag"><span>🐍</span> Python (filtrage)</span>
+    <span class="relay-stack-tag"><span>🐳</span> Docker Compose</span>
+    <span class="relay-stack-tag"><span>🔒</span> TLS automatique</span>
+    <span class="relay-stack-tag"><span>🔏</span> IP anonymisées</span>
+  </div>
+
+  <!-- CTA -->
+  <div class="relay-cta">
+    <h2>Ajoutez le relay dès maintenant</h2>
+    <p>Gratuit, ouvert, francophone. Chaque relay supplémentaire renforce la résilience du réseau Nostr.</p>
+    <button class="relay-copy-btn" style="margin:0 auto;" onclick="copyRelay()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copier wss://relay.nostrmap.net
+    </button>
+    <p style="margin-top:1rem;font-size:.78rem;">
+      <a href="https://github.com/CedHaurus/relay-nostrmap" target="_blank" rel="noopener" style="color:var(--text-muted);text-decoration:underline;">
+        Code source sur GitHub →
+      </a>
+    </p>
+  </div>
+
+</div>
+
+<!-- ══ TOASTS ════════════════════════════════════════════════════════ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════ -->
+<script>
+function copyRelay() {
+  navigator.clipboard.writeText('wss://relay.nostrmap.net').then(() => {
+    const btn   = document.getElementById('btn-copy-relay');
+    const label = document.getElementById('copy-label');
+    const copyI = document.getElementById('copy-icon');
+    const checkI= document.getElementById('check-icon');
+    if (btn) {
+      btn.classList.add('copied');
+      if (label)  label.textContent = 'Copié !';
+      if (copyI)  copyI.style.display = 'none';
+      if (checkI) checkI.style.display = '';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        if (label)  label.textContent = 'Copier';
+        if (copyI)  copyI.style.display = '';
+        if (checkI) checkI.style.display = 'none';
+      }, 2000);
+    }
+  });
+}
+</script>
+<script type="module">
+  import { auth } from '/assets/js/auth.js?v=20260423-modal';
+  import { app }  from '/assets/js/app.js?v=20260423-modal';
+  auth.initUI({
+    loginBtn:  document.getElementById('btn-login'),
+    logoutBtn: document.getElementById('btn-logout'),
+    userMenu:  document.getElementById('user-menu'),
+    slugEl:    document.getElementById('user-slug-display'),
+  });
+</script>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <p>
+    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone <span class="footer-sep">|</span>
+    <a href="https://nostr.fr" target="_blank" rel="noopener">Qu'est-ce que Nostr ?</a>
+    <span class="footer-sep">|</span>
+    <a href="/mentions-legales.html">Mentions légales</a>
+    <span class="footer-sep">|</span>
+    <a href="/contact.html">Contacter l'équipe</a>
+    <span class="footer-sep">|</span>
+    <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noopener">Code source</a>
+  </p>
+</footer>
+
+</body>
+</html>

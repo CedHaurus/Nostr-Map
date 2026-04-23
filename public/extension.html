@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Nostr Map Signer — extension navigateur Nostr officielle. Gérez vos clés en sécurité, signez vos connexions et intégrez Lightning. Chrome, Firefox, Edge, Brave." />
+  <title>Nostr Map Signer — Extension navigateur Nostr</title>
+  <link rel="canonical" href="https://nostrmap.fr/extension" />
+
+  <!-- Open Graph -->
+  <meta property="og:type"         content="website" />
+  <meta property="og:url"          content="https://nostrmap.fr/extension" />
+  <meta property="og:title"        content="Nostr Map Signer — Extension navigateur Nostr" />
+  <meta property="og:description"  content="Gérez votre identité Nostr et votre portefeuille Lightning directement depuis votre navigateur. Sécurisé par AES-256 et code PIN." />
+  <meta property="og:image"        content="https://nostrmap.fr/og-image.php?title=Nostr+Map+Signer&sub=Extension+navigateur+Nostr+officielle" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt"    content="Nostr Map Signer — Extension navigateur Nostr" />
+  <meta property="og:site_name"    content="Nostr Map" />
+  <meta property="og:locale"       content="fr_FR" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="Nostr Map Signer — Extension navigateur Nostr" />
+  <meta name="twitter:description" content="Gérez votre identité Nostr et votre portefeuille Lightning depuis votre navigateur. Sécurisé, open source, sans collecte de données." />
+  <meta name="twitter:image"       content="https://nostrmap.fr/og-image.php?title=Nostr+Map+Signer&sub=Extension+navigateur+Nostr+officielle" />
+  <meta name="twitter:image:alt"   content="Nostr Map Signer — Extension navigateur Nostr" />
+
+  <!-- Robots -->
+  <meta name="robots" content="index, follow" />
+
+  <!-- Schema.org SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Nostr Map Signer",
+    "applicationCategory": "BrowserApplication",
+    "operatingSystem": "Chrome, Firefox, Edge, Brave",
+    "description": "Extension navigateur Nostr officielle de Nostr Map. Signature NIP-07, gestion des clés chiffrées AES-256, portefeuille Lightning via NWC.",
+    "url": "https://nostrmap.fr/extension",
+    "downloadUrl": "https://chromewebstore.google.com/detail/nostr-map-signer/hceiololfodfnhcaehnfijplkhbepbhd",
+    "author": { "@type": "Organization", "name": "Nostr Map", "url": "https://nostrmap.fr" },
+    "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="/assets/css/app.css?v=20260423-modal" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <style>
+    .ext-wrap {
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+      box-sizing: border-box;
+    }
+
+    /* ─ Hero ─ */
+    .ext-hero {
+      text-align: center;
+      padding: 2rem 0 3rem;
+    }
+    .ext-hero-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: 1.5rem;
+    }
+    .ext-hero-logo img {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      box-shadow: 0 0 24px rgba(139,92,246,.4);
+    }
+    .ext-hero h1 {
+      font-size: clamp(1.8rem, 6vw, 2.6rem);
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.15;
+      margin-bottom: .5rem;
+    }
+    .ext-hero-sub {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      line-height: 1.7;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ─ Boutons download ─ */
+    .ext-dl-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      justify-content: center;
+      margin-bottom: .75rem;
+    }
+    .ext-dl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .7rem 1.4rem;
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all .18s;
+    }
+    .ext-dl-btn-primary {
+      background: var(--gradient);
+      color: #fff;
+      box-shadow: 0 2px 16px rgba(139,92,246,.4);
+    }
+    .ext-dl-btn-primary:hover { filter: brightness(1.12); color: #fff; transform: translateY(-1px); }
+    .ext-dl-btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1.5px solid var(--border);
+    }
+    .ext-dl-btn-outline:hover { border-color: var(--primary); color: var(--primary); background: rgba(139,92,246,.07); transform: translateY(-1px); }
+    .ext-dl-badge {
+      font-size: .7rem;
+      font-weight: 500;
+      background: rgba(255,255,255,.18);
+      padding: .15rem .45rem;
+      border-radius: 4px;
+    }
+    .ext-dl-btn-outline .ext-dl-badge { background: var(--surface-hover); }
+    .ext-opensource {
+      font-size: .78rem;
+      color: var(--text-muted);
+      margin-top: .25rem;
+    }
+    .ext-opensource a { color: var(--text-muted); text-decoration: underline; }
+    .ext-opensource a:hover { color: var(--primary); }
+
+    /* ─ Screenshots ─ */
+    .ext-screens {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 2.5rem 0;
+    }
+    .ext-screen {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .ext-screen img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .ext-screen-caption {
+      font-size: .72rem;
+      color: var(--text-muted);
+      padding: .4rem .65rem;
+      background: var(--surface-hover);
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* ─ Features ─ */
+    .ext-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .ext-feature {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      transition: border-color .15s;
+    }
+    .ext-feature:hover { border-color: rgba(139,92,246,.35); }
+    .ext-feature-icon {
+      font-size: 1.5rem;
+      margin-bottom: .6rem;
+    }
+    .ext-feature h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      margin-bottom: .4rem;
+    }
+    .ext-feature p {
+      font-size: .83rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ─ Compatibilité ─ */
+    .ext-compat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .ext-compat h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .ext-compat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+    }
+    .ext-compat-item {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+      padding: .85rem 1rem;
+      background: var(--surface-hover);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+    .ext-compat-store {
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .ext-compat-browsers {
+      font-size: .78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .ext-compat-browsers strong { color: var(--text); }
+
+    /* ─ Section titre ─ */
+    .ext-section-title {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--primary);
+      margin: 2.5rem 0 1rem;
+    }
+
+    /* ─ CTA bas ─ */
+    .ext-cta {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+      background: rgba(139,92,246,.06);
+      border: 1px solid rgba(139,92,246,.2);
+      border-radius: var(--radius);
+      margin-top: 2.5rem;
+    }
+    .ext-cta h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: .5rem;
+    }
+    .ext-cta p {
+      color: var(--text-muted);
+      font-size: .9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .ext-screens { grid-template-columns: 1fr; max-width: 280px; margin-left: auto; margin-right: auto; }
+      .ext-features { grid-template-columns: 1fr; }
+      .ext-compat-grid { grid-template-columns: 1fr; }
+      .ext-hero h1 { font-size: 1.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <a href="/" class="logo">Nostr Map ✦</a>
+      <span class="tagline">Annuaire Nostr Francophone</span>
+    </div>
+    <div class="header-actions">
+      <a href="/faq.html" class="btn btn-ghost btn-sm header-desktop-only">FAQ</a>
+      <a href="/extension.html" class="btn btn-ghost btn-sm header-desktop-only" style="color:var(--primary);">Extension</a>
+      <a href="/soumettre.html" class="btn btn-outline btn-sm header-desktop-only">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Soumettre
+      </a>
+      <div id="user-menu" class="header-user-menu hidden">
+        <a href="/mon-profil.html" class="nav-user-chip" id="user-menu-btn">
+          <span class="nav-user-avatar" id="user-avatar-mini">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </span>
+          <span id="user-slug-display"></span>
+        </a>
+        <button id="btn-logout" class="btn btn-danger btn-sm header-desktop-only">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Déconnexion
+        </button>
+      </div>
+      <button id="btn-login" class="btn btn-primary btn-sm header-login-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Se connecter
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ MOBILE NAV ═══════════════════════════════════════════════════ -->
+<div class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-logo">Nostr Map ✦</span>
+      <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+    </div>
+
+    <a href="/" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Accueil
+    </a>
+    <a href="/faq.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      FAQ
+    </a>
+    <a href="/extension.html" class="mobile-nav-item" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Nostr Map Signer
+    </a>
+    <a href="/relay.html" class="mobile-nav-item" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M6.3 6.3a8 8 0 0 0 0 11.4M17.7 6.3a8 8 0 0 1 0 11.4M3.5 3.5a12 12 0 0 0 0 17M20.5 3.5a12 12 0 0 1 0 17"/></svg>
+      Relay Nostr Map
+    </a>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="/connexion?from=ajouter" class="mobile-nav-item mobile-nav-auth-out" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Ajouter mon profil
+    </a>
+    <a href="/soumettre.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Soumettre un profil
+    </a>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="/mon-profil.html" class="mobile-nav-item mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Mon profil
+    </a>
+    <button id="mobile-btn-logout" class="mobile-nav-item mobile-nav-btn-danger mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Déconnexion
+    </button>
+    <button id="mobile-btn-login" class="mobile-nav-item mobile-nav-btn-primary mobile-nav-auth-out">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Se connecter
+    </button>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="https://nostr.fr" class="mobile-nav-item mobile-nav-secondary" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Qu'est-ce que Nostr ?
+    </a>
+    <a href="/mentions-legales.html" class="mobile-nav-item mobile-nav-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Mentions légales
+    </a>
+    <a href="/contact.html" class="mobile-nav-item mobile-nav-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Contacter l'équipe
+    </a>
+    <a href="https://github.com/CedHaurus/Nostr-Map" class="mobile-nav-item mobile-nav-secondary" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      GitHub
+    </a>
+  </div>
+</div>
+
+<!-- ══ CONTENU ═════════════════════════════════════════════════════ -->
+<div class="ext-wrap">
+
+  <a href="/" class="faq-back" style="display:inline-flex;align-items:center;gap:.35rem;color:var(--text-muted);font-size:.83rem;margin-bottom:1.5rem;text-decoration:none;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Retour à l'annuaire
+  </a>
+
+  <!-- Hero -->
+  <div class="ext-hero">
+    <div class="ext-hero-logo">
+      <img src="/assets/img/icon-128.png" alt="Nostr Map Signer" />
+    </div>
+    <h1>Nostr Map Signer</h1>
+    <p class="ext-hero-sub">
+      L'extension navigateur officielle de Nostr Map — signez vos connexions Nostr, gérez vos clés en toute sécurité et connectez votre portefeuille Lightning.
+    </p>
+
+    <div class="ext-dl-btns">
+      <a href="https://chromewebstore.google.com/detail/nostr-map-signer/hceiololfodfnhcaehnfijplkhbepbhd" target="_blank" rel="noopener" class="ext-dl-btn ext-dl-btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+        Chrome Web Store
+        <span class="ext-dl-badge">Chrome · Edge · Brave · Opera</span>
+      </a>
+      <a href="https://addons.mozilla.org/fr/firefox/addon/nostr-map-signer/" target="_blank" rel="noopener" class="ext-dl-btn ext-dl-btn-outline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+        Firefox Add-ons
+        <span class="ext-dl-badge">Firefox</span>
+      </a>
+    </div>
+    <p class="ext-opensource">
+      Open source · Licence GPL-3.0 ·
+      <a href="https://github.com/CedHaurus/Nostr-map-signer" target="_blank" rel="noopener">Voir le code source</a>
+    </p>
+  </div>
+
+  <!-- Screenshots -->
+  <p class="ext-section-title">Aperçu</p>
+  <div class="ext-screens">
+    <div class="ext-screen">
+      <img src="/assets/img/ext-nostrmap-signer.png" alt="Nostr Map Signer — vue principale avec identité et wallet" loading="lazy" />
+      <div class="ext-screen-caption">Identité Nostr et wallet Lightning</div>
+    </div>
+    <div class="ext-screen">
+      <img src="/assets/img/ext-signer-connexion.png" alt="Nostr Map Signer — popup de connexion NIP-07" loading="lazy" />
+      <div class="ext-screen-caption">Approbation de connexion NIP-07</div>
+    </div>
+    <div class="ext-screen">
+      <img src="/assets/img/ext-signer-pin.png" alt="Nostr Map Signer — protection par code PIN" loading="lazy" />
+      <div class="ext-screen-caption">Protection par code PIN</div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <p class="ext-section-title">Fonctionnalités</p>
+  <div class="ext-features">
+    <div class="ext-feature">
+      <div class="ext-feature-icon">🔏</div>
+      <h3>Signature NIP-07</h3>
+      <p>Signez vos connexions et événements Nostr directement depuis le navigateur. Compatible avec tous les clients Nostr majeurs (Primal, Snort, Coracle…).</p>
+    </div>
+    <div class="ext-feature">
+      <div class="ext-feature-icon">⚡</div>
+      <h3>Wallet Lightning intégré</h3>
+      <p>Connectez votre portefeuille via Nostr Wallet Connect (NIP-47) pour envoyer des zaps. Compatible Alby Hub, Mutiny, Phoenix.</p>
+    </div>
+    <div class="ext-feature">
+      <div class="ext-feature-icon">🔒</div>
+      <h3>Sécurité avancée</h3>
+      <p>Chiffrement AES-256-GCM avec PBKDF2-SHA256 (250 000 itérations). Code PIN ou phrase secrète. Verrouillage automatique après 2h d'inactivité.</p>
+    </div>
+    <div class="ext-feature">
+      <div class="ext-feature-icon">🛡</div>
+      <h3>Zéro collecte de données</h3>
+      <p>Vos clés ne quittent jamais votre appareil. Aucun tracking, aucune télémétrie, aucune donnée transmise à des serveurs tiers.</p>
+    </div>
+    <div class="ext-feature">
+      <div class="ext-feature-icon">🔑</div>
+      <h3>Gestion des permissions</h3>
+      <p>Contrôlez site par site quelles applications peuvent demander vos signatures. Historique des transactions avec vérification cryptographique.</p>
+    </div>
+    <div class="ext-feature">
+      <div class="ext-feature-icon">📱</div>
+      <h3>Écran de verrouillage</h3>
+      <p>Verrouillez l'extension d'un clic. Elle se verrouille automatiquement et demande votre PIN pour reprendre — même si quelqu'un accède à votre navigateur.</p>
+    </div>
+  </div>
+
+  <!-- Compatibilité -->
+  <p class="ext-section-title">Compatibilité</p>
+  <div class="ext-compat">
+    <h2>Navigateurs supportés</h2>
+    <div class="ext-compat-grid">
+      <div class="ext-compat-item">
+        <span class="ext-compat-store">Chrome Web Store</span>
+        <span class="ext-compat-browsers">
+          <strong>Chrome</strong>, <strong>Edge</strong>, <strong>Brave</strong>, <strong>Opera</strong>
+          et tous les navigateurs basés sur Chromium
+        </span>
+      </div>
+      <div class="ext-compat-item">
+        <span class="ext-compat-store">Firefox Add-ons</span>
+        <span class="ext-compat-browsers">
+          <strong>Firefox</strong>
+        </span>
+      </div>
+    </div>
+    <p style="font-size:.78rem;color:var(--text-muted);margin-top:.85rem;">
+      Les navigateurs mobiles (Safari iOS, Chrome Android) ne supportent pas les extensions — connectez-vous depuis un ordinateur pour bénéficier de Nostr Map Signer.
+    </p>
+  </div>
+
+  <!-- Screenshot verrouillé -->
+  <div style="display:flex;justify-content:center;margin:2rem 0;">
+    <div style="max-width:280px;width:100%;">
+      <div class="ext-screen">
+        <img src="/assets/img/ext-signer-verrouille.png" alt="Nostr Map Signer — écran verrouillé" loading="lazy" />
+        <div class="ext-screen-caption">Écran verrouillé — protection PIN active</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA bas -->
+  <div class="ext-cta">
+    <h2>Installez Nostr Map Signer</h2>
+    <p>Gratuit, open source, sans compte. Gérez votre identité Nostr en toute souveraineté.</p>
+    <div class="ext-dl-btns">
+      <a href="https://chromewebstore.google.com/detail/nostr-map-signer/hceiololfodfnhcaehnfijplkhbepbhd" target="_blank" rel="noopener" class="ext-dl-btn ext-dl-btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+        Chrome / Edge / Brave
+      </a>
+      <a href="https://addons.mozilla.org/fr/firefox/addon/nostr-map-signer/" target="_blank" rel="noopener" class="ext-dl-btn ext-dl-btn-outline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+        Firefox
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ TOASTS ════════════════════════════════════════════════════════ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════ -->
+<script type="module">
+  import { auth } from '/assets/js/auth.js?v=20260423-modal';
+  import { app }  from '/assets/js/app.js?v=20260423-modal';
+  auth.initUI({
+    loginBtn:  document.getElementById('btn-login'),
+    logoutBtn: document.getElementById('btn-logout'),
+    userMenu:  document.getElementById('user-menu'),
+    slugEl:    document.getElementById('user-slug-display'),
+  });
+</script>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <p>
+    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone <span class="footer-sep">|</span>
+    <a href="https://nostr.fr" target="_blank" rel="noopener">Qu'est-ce que Nostr ?</a>
+    <span class="footer-sep">|</span>
+    <a href="/mentions-legales.html">Mentions légales</a>
+    <span class="footer-sep">|</span>
+    <a href="/contact.html">Contacter l'équipe</a>
+    <span class="footer-sep">|</span>
+    <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noopener">Code source</a>
+  </p>
+</footer>
+
+</body>
+</html>

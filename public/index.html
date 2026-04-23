@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Nostr Map est l'annuaire des utilisateurs Nostr francophones. Retrouvez sur Nostr les personnes que vous suivez sur Twitter/X, Mastodon, YouTube ou Bluesky." />
+  <title>Nostr Map ✦ Annuaire Nostr Francophone</title>
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://nostrmap.fr/" />
+  <meta property="og:title"       content="Nostr Map ✦ Annuaire Nostr Francophone" />
+  <meta property="og:description" content="Retrouvez sur Nostr les comptes que vous suivez déjà sur d'autres réseaux. Annuaire collaboratif francophone." />
+  <meta property="og:image"       content="https://nostrmap.fr/og-image.php" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height"content="630" />
+  <meta property="og:image:alt"   content="Nostr Map — Annuaire Nostr Francophone" />
+  <meta property="og:site_name"   content="Nostr Map" />
+  <meta property="og:locale"      content="fr_FR" />
+  <meta name="twitter:card"       content="summary_large_image" />
+  <meta name="twitter:title"      content="Nostr Map ✦ Annuaire Nostr Francophone" />
+  <meta name="twitter:description"content="Retrouvez sur Nostr les comptes que vous suivez déjà sur d'autres réseaux. Annuaire francophone." />
+  <meta name="twitter:image"      content="https://nostrmap.fr/og-image.php" />
+  <meta name="twitter:image:alt"  content="Nostr Map — Annuaire Nostr Francophone" />
+  <link rel="canonical"           href="https://nostrmap.fr/" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Nostr Map",
+    "url": "https://nostrmap.fr/",
+    "description": "Annuaire collaboratif des utilisateurs Nostr francophones",
+    "inLanguage": "fr",
+    "publisher": {
+      "@type": "Person",
+      "name": "Christophe Boutry",
+      "url": "https://christopheboutry.com"
+    }
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="/assets/css/app.css?v=20260423-modal" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <a href="/" class="logo">Nostr Map ✦</a>
+      <span class="tagline">Annuaire Nostr Francophone</span>
+    </div>
+
+    <div class="header-actions">
+      <!-- FAQ -->
+      <a href="/faq.html" class="btn btn-ghost btn-sm header-desktop-only">FAQ</a>
+
+      <!-- Ajouter mon profil (non connecté) -->
+      <a href="/connexion?from=ajouter" class="btn btn-primary btn-sm header-desktop-only header-auth-out">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Ajouter mon profil
+      </a>
+
+      <!-- Soumettre un profil -->
+      <a href="/soumettre.html" class="btn btn-outline btn-sm header-desktop-only">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Soumettre
+      </a>
+
+      <!-- État connecté -->
+      <div id="user-menu" class="header-user-menu hidden">
+        <a href="/mon-profil.html" class="nav-user-chip" id="user-menu-btn">
+          <span class="nav-user-avatar" id="user-avatar-mini">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+          </span>
+          <span id="user-slug-display"></span>
+        </a>
+        <button id="btn-logout" class="btn btn-danger btn-sm header-desktop-only">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Déconnexion
+        </button>
+      </div>
+
+      <!-- Bouton connexion -->
+      <button id="btn-login" class="btn btn-primary btn-sm header-login-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Se connecter
+      </button>
+
+      <!-- Hamburger mobile -->
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ MOBILE NAV ═══════════════════════════════════════════════════ -->
+<div class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-logo">Nostr Map ✦</span>
+      <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+    </div>
+
+    <a href="/" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Accueil
+    </a>
+    <a href="/faq.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      FAQ
+    </a>
+    <a href="/extension.html" class="mobile-nav-item" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Nostr Map Signer
+    </a>
+    <a href="/relay.html" class="mobile-nav-item" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M6.3 6.3a8 8 0 0 0 0 11.4M17.7 6.3a8 8 0 0 1 0 11.4M3.5 3.5a12 12 0 0 0 0 17M20.5 3.5a12 12 0 0 1 0 17"/></svg>
+      Relay Nostr Map
+    </a>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="/connexion?from=ajouter" class="mobile-nav-item mobile-nav-auth-out" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Ajouter mon profil
+    </a>
+    <a href="/soumettre.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Soumettre un profil
+    </a>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="/mon-profil.html" class="mobile-nav-item mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Mon profil
+    </a>
+    <button id="mobile-btn-logout" class="mobile-nav-item mobile-nav-btn-danger mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Déconnexion
+    </button>
+    <button id="mobile-btn-login" class="mobile-nav-item mobile-nav-btn-primary mobile-nav-auth-out">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Se connecter
+    </button>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="https://nostr.fr" class="mobile-nav-item mobile-nav-secondary" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Qu'est-ce que Nostr ?
+    </a>
+    <a href="/mentions-legales.html" class="mobile-nav-item mobile-nav-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Mentions légales
+    </a>
+    <a href="/contact.html" class="mobile-nav-item mobile-nav-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Contacter l’équipe
+    </a>
+    <a href="https://github.com/CedHaurus/Nostr-Map" class="mobile-nav-item mobile-nav-secondary" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      GitHub
+    </a>
+  </div>
+</div>
+
+<!-- ══ HERO / RECHERCHE ═════════════════════════════════════════════ -->
+<section class="hero fade-in">
+  <h1><span class="gradient-text">Trouvez</span> vos amis<br>sur Nostr</h1>
+  <p>L'annuaire des utilisateurs Nostr francophones.<br><span style="font-size:.85rem;color:var(--text-muted);">Pensez à revendiquer votre fiche en cliquant dessus !</span></p>
+
+  <div class="search-wrap">
+    <span class="search-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+    </span>
+    <input
+      type="text"
+      id="search-input"
+      class="search-input"
+      placeholder="Nom, @pseudo, npub, handle réseau social…"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button id="search-reset" type="button" class="search-reset hidden" title="Effacer la recherche" aria-label="Effacer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</section>
+
+<!-- ══ GRILLE PRINCIPALE ═════════════════════════════════════════════ -->
+<section class="section section-main" id="section-browse">
+  <div class="filter-mobile-select-wrap">
+    <div class="mob-dropdown" id="sort-dropdown" tabindex="0" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-label="Choisir le tri">
+      <span class="mob-dropdown-selected">
+        <svg class="mob-dropdown-icon" id="sort-dropdown-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span class="mob-dropdown-label" id="sort-dropdown-label">Derniers inscrits</span>
+      </span>
+      <svg class="mob-dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+    </div>
+    <ul class="mob-dropdown-list" id="sort-dropdown-list" role="listbox">
+      <li class="mob-dropdown-option active" data-sort="recent" role="option">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Derniers inscrits
+      </li>
+      <li class="mob-dropdown-option" data-sort="actifs" role="option">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Les plus actifs
+      </li>
+      <li class="mob-dropdown-option" data-sort="populaires" role="option">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Populaires
+      </li>
+      <li class="mob-dropdown-option" data-sort="random" role="option">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+        À découvrir
+      </li>
+    </ul>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn active" data-sort="recent" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      Derniers inscrits
+    </button>
+    <button class="filter-btn" data-sort="actifs" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      Les plus actifs
+    </button>
+    <button class="filter-btn" data-sort="populaires" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      Populaires
+    </button>
+    <button class="filter-btn" data-sort="random" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+      </svg>
+      À découvrir
+    </button>
+  </div>
+  <div class="profiles-grid" id="grid-main">
+    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+  </div>
+  <div id="grid-sentinel" style="height:1px;margin-top:1rem;"></div>
+</section>
+
+<!-- ══ RÉSULTATS RECHERCHE ═══════════════════════════════════════════ -->
+<section class="section section-main hidden" id="section-search">
+  <div id="search-grid" class="profiles-grid"></div>
+</section>
+
+<!-- ══ MODAL QR CODE ════════════════════════════════════════════════ -->
+<div id="qr-modal" class="modal-overlay hidden">
+  <div class="modal" style="position:relative;">
+    <button class="btn btn-ghost btn-sm modal-close" id="qr-modal-close" aria-label="Fermer">✕</button>
+    <h3 class="modal-title" id="qr-modal-title">QR Code</h3>
+    <div class="qr-container">
+      <div id="qr-canvas"></div>
+    </div>
+    <div class="qr-toggle">
+      <button class="qr-toggle-btn active" id="qr-mode-url" data-mode="url">Profil</button>
+      <button class="qr-toggle-btn" id="qr-mode-nostr" data-mode="nostr">nostr:npub</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="qr-download-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+        </svg>
+        Télécharger PNG
+      </button>
+      <button class="btn btn-ghost btn-sm" id="qr-modal-close2">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOASTS ════════════════════════════════════════════════════════ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <p>
+    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone <span class="footer-sep">|</span>
+    <a href="https://nostr.fr" target="_blank" rel="noopener">Qu'est-ce que Nostr ?</a>
+    <span class="footer-sep">|</span>
+    <a href="/mentions-legales.html">Mentions légales</a>
+    <span class="footer-sep">|</span>
+    <a href="/contact.html">Contacter l'équipe</a>
+    <span class="footer-sep">|</span>
+    <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noopener">Code source</a>
+  </p>
+</footer>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script type="module">
+  import { app }    from '/assets/js/app.js?v=20260423-modal';
+  import { auth }   from '/assets/js/auth.js?v=20260423-modal';
+  import { initQR } from '/assets/js/qr.js?v=20260423-modal';
+  import { nostr }  from '/assets/js/nostr.js';
+
+  // npub → hex (bech32 minimal)
+  function npubToHex(npub) {
+    const CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+    const str = npub.toLowerCase(), sep = str.lastIndexOf('1');
+    if (sep < 1) throw new Error('Invalid npub');
+    const data5 = Array.from(str.slice(sep + 1, -6)).map(c => {
+      const i = CHARSET.indexOf(c); if (i < 0) throw new Error('Bad char'); return i;
+    });
+    let acc = 0, bits = 0; const bytes = [];
+    for (const v of data5) { acc = (acc << 5) | v; bits += 5; while (bits >= 8) { bits -= 8; bytes.push((acc >> bits) & 0xff); } }
+    return bytes.map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  // Met à jour une carte sans cache depuis les relais Nostr + sauvegarde en DB
+  function liveUpdateCard(slug, npub) {
+    let pubHex;
+    try { pubHex = npubToHex(npub); } catch {}
+
+    nostr.fetchProfile(npub, (live) => {
+      if (!live) return;
+      const nameEl = document.getElementById('card-name-' + slug);
+      const avEl   = document.getElementById('card-av-' + slug);
+      if (nameEl && (live.display_name || live.name))
+        nameEl.textContent = live.display_name || live.name;
+      if (avEl && live.picture) {
+        const letter = (live.display_name || live.name || slug)[0].toUpperCase();
+        avEl.innerHTML = `<img class="avatar" src="${live.picture}" alt="" loading="lazy"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+          <div class="avatar-placeholder" style="display:none;">${letter}</div>`;
+      }
+
+      // Stats live (affichage seulement, pas de persistance côté public)
+      if (pubHex) {
+        nostr.fetchStats(pubHex, null, (stats) => {
+          const fEl = document.getElementById('card-followers-' + slug);
+          const pEl = document.getElementById('card-posts-'     + slug);
+          if (fEl && stats.followers > 0) fEl.textContent = app.fmtNum(stats.followers) + ' abon.';
+          if (pEl && stats.posts     > 0) pEl.textContent = app.fmtNum(stats.posts)     + ' notes';
+        });
+      }
+    });
+  }
+
+  // Init auth UI
+  auth.initUI({
+    loginBtn:  document.getElementById('btn-login'),
+    logoutBtn: document.getElementById('btn-logout'),
+    userMenu:  document.getElementById('user-menu'),
+    slugEl:    document.getElementById('user-slug-display'),
+  });
+
+  // Init QR modal
+  initQR();
+
+  // ── Rafraîchissement silencieux en arrière-plan ──────────────────
+  async function refreshGridStats(profiles) {
+    if (!profiles || !profiles.length) return;
+    await Promise.all(profiles.map(async (p) => {
+      if (!p.npub || !p.slug) return;
+
+      // 1. Appliquer immédiatement le cache localStorage si frais
+      const cached = app.getCachedStats(p.npub);
+      if (cached) {
+        const fEl = document.getElementById('card-followers-' + p.slug);
+        const pEl = document.getElementById('card-posts-'     + p.slug);
+        if (fEl && cached.followers > 0) fEl.textContent = app.fmtNum(cached.followers) + ' abon.';
+        if (pEl && cached.posts     > 0) pEl.textContent = app.fmtNum(cached.posts)     + ' notes';
+        // Mettre à jour les data attributes pour le tri live
+        const wrap = grid.querySelector(`[data-slug="${p.slug}"]`);
+        if (wrap) {
+          if (cached.followers > 0) wrap.dataset.liveFollowers = cached.followers;
+          if (cached.posts     > 0) wrap.dataset.livePosts     = cached.posts;
+        }
+      }
+
+      // 2. Fetch nostr.band en arrière-plan pour rafraîchir le cache
+      let hex;
+      try { hex = npubToHex(p.npub); } catch { return; }
+      try {
+        const res = await fetch(`https://api.nostr.band/v0/stats/profile/${hex}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const s = data?.stats?.[hex];
+        if (!s) return;
+        const followers = s.followers_pubkey_count ?? 0;
+        const posts     = s.note_count ?? 0;
+        // Sauvegarder en localStorage
+        app.setCachedStats(p.npub, { followers, posts });
+        // Mettre à jour le DOM et les data attributes
+        const fEl = document.getElementById('card-followers-' + p.slug);
+        const pEl = document.getElementById('card-posts-'     + p.slug);
+        if (fEl) fEl.textContent = followers > 0 ? app.fmtNum(followers) + ' abon.' : '';
+        if (pEl) pEl.textContent = posts     > 0 ? app.fmtNum(posts)     + ' notes' : '';
+        const wrap = grid.querySelector(`[data-slug="${p.slug}"]`);
+        if (wrap) {
+          wrap.dataset.liveFollowers = followers;
+          wrap.dataset.livePosts     = posts;
+        }
+        // Persister en DB — stats publiques, pas d'auth requise
+        fetch('/api/nostr-cache.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ npub: p.npub, nostr_followers: followers, nostr_posts: posts })
+        }).catch(() => {});
+      } catch {}
+    }));
+
+    // Re-trier le DOM selon les valeurs live si on est en mode classement
+    if (['actifs', 'populaires'].includes(_currentSort)) {
+      resortGrid();
+    }
+  }
+
+  function resortGrid() {
+    const key   = _currentSort === 'actifs' ? 'livePosts' : 'liveFollowers';
+    const wraps = [...grid.querySelectorAll('[data-slug]')];
+    wraps.sort((a, b) => (parseInt(b.dataset[key]) || 0) - (parseInt(a.dataset[key]) || 0));
+
+    // Retirer les badges existants
+    grid.querySelectorAll('.rank-badge').forEach(el => el.remove());
+    grid.querySelectorAll('.profile-card').forEach(el => {
+      el.classList.remove('rank-1', 'rank-2', 'rank-3');
+    });
+
+    // Réinsérer dans le bon ordre + rebadger le podium
+    wraps.forEach((wrap, i) => {
+      grid.appendChild(wrap);
+      if (i < 3) {
+        const card = wrap.querySelector('.profile-card');
+        if (card) {
+          card.classList.add(`rank-${i + 1}`);
+          const badge = document.createElement('div');
+          badge.className = `rank-badge rank-badge-${i + 1}`;
+          badge.textContent = i + 1;
+          card.appendChild(badge);
+        }
+      }
+    });
+  }
+
+  // ── Infinite scroll ──────────────────────────────────────────────
+  const grid     = document.getElementById('grid-main');
+  const sentinel = document.getElementById('grid-sentinel');
+
+  function mkSkeletons(n) {
+    return Array.from({length: n}, () =>
+      `<div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>`
+    ).join('');
+  }
+
+  // État par onglet
+  const tabState = {};
+  ['recent','actifs','populaires','random'].forEach(s => {
+    tabState[s] = { offset: 0, loading: false, done: false, seed: null };
+  });
+
+  function resetTab(sort) {
+    tabState[sort].offset  = 0;
+    tabState[sort].loading = false;
+    tabState[sort].done    = false;
+    tabState[sort].seed    = sort === 'random' ? Math.floor(Math.random() * 1e9) : null;
+  }
+
+  async function loadPage(sort, append) {
+    const s = tabState[sort];
+    if (s.loading || s.done) return;
+    s.loading = true;
+
+    if (!append) {
+      grid.innerHTML = mkSkeletons(8);
+    } else {
+      // Petits skeletons en bas pendant le chargement
+      const loader = document.createElement('div');
+      loader.id = 'load-more-skeletons';
+      loader.style.cssText = 'grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;';
+      loader.innerHTML = mkSkeletons(4);
+      grid.appendChild(loader);
+    }
+
+    try {
+      const params = new URLSearchParams({ sort, offset: s.offset });
+      if (s.seed !== null) params.set('seed', s.seed);
+      const res     = await fetch(`/api/search.php?${params}`);
+      const data    = await res.json();
+      const profiles = data.results || [];
+
+      // Retirer les skeletons de chargement
+      document.getElementById('load-more-skeletons')?.remove();
+
+      if (!append) grid.innerHTML = '';
+
+      if (!profiles.length && !append) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+          <div class="empty-state-icon">👻</div><p>Aucun profil pour le moment.</p></div>`;
+        s.done = true;
+        s.loading = false;
+        return;
+      }
+
+      const ranked = ['actifs', 'populaires'].includes(sort) && !append;
+      profiles.forEach((p, i) => {
+        const links = (p.verified_platforms || []).map(pl => ({ platform: pl, verified: true }));
+        const wrap  = document.createElement('div');
+        wrap.className = 'fade-in';
+        wrap.dataset.slug        = p.slug;
+        wrap.dataset.livePosts     = p.nostr_posts     || 0;
+        wrap.dataset.liveFollowers = p.nostr_followers || 0;
+        wrap.innerHTML = app.renderCard(p, links);
+
+        // Badge podium sur les 3 premiers (uniquement 1ère page, onglets classés)
+        if (ranked && i < 3) {
+          const card = wrap.querySelector('.profile-card');
+          if (card) {
+            card.classList.add(`rank-${i + 1}`);
+            const badge = document.createElement('div');
+            badge.className = `rank-badge rank-badge-${i + 1}`;
+            badge.textContent = i + 1;
+            card.appendChild(badge);
+          }
+        }
+
+        grid.appendChild(wrap);
+        if (!p.cached_name && !p.cached_avatar) liveUpdateCard(p.slug, p.npub);
+      });
+
+      // Rafraîchir les stats de tous les profils depuis nostr.band (navigateur)
+      refreshGridStats(profiles);
+
+      s.offset += profiles.length;
+      s.done    = !data.has_more;
+
+    } catch (e) {
+      document.getElementById('load-more-skeletons')?.remove();
+      if (!append) grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+        <p class="text-muted">Erreur de chargement.</p></div>`;
+    }
+    s.loading = false;
+  }
+
+  // Observer le sentinel
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) loadPage(_currentSort, true);
+  }, { rootMargin: '300px' });
+  observer.observe(sentinel);
+
+  // Barre de filtres
+  let _currentSort = 'recent';
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const sortDropdown     = document.getElementById('sort-dropdown');
+  const sortDropdownList = document.getElementById('sort-dropdown-list');
+  const sortDropdownLabel = document.getElementById('sort-dropdown-label');
+  const sortDropdownIcon  = document.getElementById('sort-dropdown-icon');
+  const sortOptions       = sortDropdownList ? sortDropdownList.querySelectorAll('.mob-dropdown-option') : [];
+
+  function syncFilterUI(sort) {
+    filterBtns.forEach(b => b.classList.toggle('active', b.dataset.sort === sort));
+    if (sortDropdownLabel) {
+      const opt = sortDropdownList.querySelector(`[data-sort="${sort}"]`);
+      if (opt) {
+        // Mettre à jour le label
+        sortDropdownLabel.textContent = opt.querySelector('svg') ? opt.textContent.trim() : opt.textContent;
+        // Mettre à jour l'icône du trigger
+        if (sortDropdownIcon) {
+          const optSvg = opt.querySelector('svg');
+          if (optSvg) {
+            sortDropdownIcon.innerHTML = optSvg.innerHTML;
+            sortDropdownIcon.setAttribute('viewBox', optSvg.getAttribute('viewBox') || '0 0 24 24');
+            sortDropdownIcon.dataset.sort = sort;
+          }
+        }
+      }
+    }
+    sortOptions.forEach(o => o.classList.toggle('active', o.dataset.sort === sort));
+  }
+
+  function applySort(sort) {
+    if (sort === _currentSort) return;
+    _currentSort = sort;
+    syncFilterUI(sort);
+    resetTab(sort);
+    loadPage(sort, false);
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => applySort(btn.dataset.sort));
+  });
+
+  // Dropdown mobile custom
+  if (sortDropdown) {
+    sortDropdown.addEventListener('click', () => {
+      const open = sortDropdownList.classList.toggle('open');
+      sortDropdown.setAttribute('aria-expanded', open);
+    });
+    sortDropdown.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const open = sortDropdownList.classList.toggle('open');
+        sortDropdown.setAttribute('aria-expanded', open);
+      } else if (e.key === 'Escape') {
+        sortDropdownList.classList.remove('open');
+        sortDropdown.setAttribute('aria-expanded', 'false');
+      }
+    });
+    sortOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        applySort(opt.dataset.sort);
+        sortDropdownList.classList.remove('open');
+        sortDropdown.setAttribute('aria-expanded', 'false');
+        sortDropdown.focus();
+      });
+    });
+    document.addEventListener('click', e => {
+      if (!sortDropdown.contains(e.target) && !sortDropdownList.contains(e.target)) {
+        sortDropdownList.classList.remove('open');
+        sortDropdown.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  // Chargement initial
+  resetTab('recent');
+  syncFilterUI('recent');
+  loadPage('recent', false);
+
+  // ── Recherche pleine page ────────────────────────────────────────
+  const searchInput   = document.getElementById('search-input');
+  const sectionBrowse = document.getElementById('section-browse');
+  const sectionSearch = document.getElementById('section-search');
+  const searchGrid    = document.getElementById('search-grid');
+  const searchReset   = document.getElementById('search-reset');
+  let   srTimer       = null;
+
+  function enterSearch() {
+    sectionBrowse.classList.add('hidden');
+    sectionSearch.classList.remove('hidden');
+    searchReset.classList.remove('hidden');
+  }
+
+  function exitSearch(clearInput) {
+    sectionSearch.classList.add('hidden');
+    sectionBrowse.classList.remove('hidden');
+    searchReset.classList.add('hidden');
+    searchGrid.innerHTML = '';
+    if (clearInput) searchInput.value = '';
+  }
+
+  async function runSearch(q) {
+    const skels = Array(6).fill('<div style="height:180px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>').join('');
+    searchGrid.innerHTML = skels;
+    try {
+      const res     = await fetch('/api/search.php?q=' + encodeURIComponent(q) + '&limit=40');
+      const data    = await res.json();
+      const results = data.results || [];
+      if (!results.length) {
+        searchGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-icon">🔍</div><p>Aucun résultat pour « ' + q.replace(/</g,'&lt;') + ' »</p></div>';
+        return;
+      }
+      const html = results.map((p, i) => {
+        const links = (p.verified_platforms || []).map(pl => ({ platform: pl, verified: true }));
+        return '<div class="fade-in fade-in-delay-' + Math.min(i+1,3) + '">' + app.renderCard(p, links) + '</div>';
+      }).join('');
+      searchGrid.innerHTML = html;
+      refreshGridStats(results);
+    } catch(e) {
+      searchGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><p>Erreur lors de la recherche.</p></div>';
+    }
+  }
+
+  searchInput.addEventListener('input', function() {
+    clearTimeout(srTimer);
+    const q = this.value.trim();
+    if (q.length < 2) { exitSearch(false); return; }
+    enterSearch();
+    srTimer = setTimeout(() => runSearch(q), 300);
+  });
+
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') exitSearch(true);
+  });
+
+  searchReset.addEventListener('click', function() { exitSearch(true); searchInput.focus(); });
+
+</script>
+
+</body>
+</html>

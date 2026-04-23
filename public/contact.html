@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Contactez l'équipe Nostr Map pour une question, un signalement ou une demande liée à l'annuaire Nostr francophone." />
+  <title>Contacter l'équipe — Nostr Map</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://nostrmap.fr/contact" />
+  <meta property="og:title"       content="Contacter l'équipe — Nostr Map" />
+  <meta property="og:description" content="Une question ou un signalement concernant l'annuaire Nostr Map ?" />
+  <meta property="og:image"       content="https://nostrmap.fr/og-image.php?title=Contact&sub=Contacter+l%27%C3%A9quipe+Nostr+Map" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height"content="630" />
+  <meta property="og:image:alt"   content="Contacter l'équipe Nostr Map" />
+  <meta property="og:site_name"   content="Nostr Map" />
+  <meta property="og:locale"      content="fr_FR" />
+  <meta name="twitter:card"       content="summary_large_image" />
+  <meta name="twitter:title"      content="Contacter l'équipe — Nostr Map" />
+  <meta name="twitter:description"content="Une question ou un signalement concernant l'annuaire Nostr Map ?" />
+  <meta name="twitter:image"      content="https://nostrmap.fr/og-image.php?title=Contact&sub=Contacter+l%27%C3%A9quipe+Nostr+Map" />
+  <meta name="twitter:image:alt"  content="Contacter l'équipe Nostr Map" />
+  <link rel="canonical"           href="https://nostrmap.fr/contact" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="/assets/css/app.css?v=20260423-modal" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "name": "Contacter l'équipe — Nostr Map",
+    "url": "https://nostrmap.fr/contact",
+    "description": "Contactez l'équipe Nostr Map pour une question ou un signalement.",
+    "inLanguage": "fr",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": "contact@christopheboutry.com"
+    }
+  }
+  </script>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <a href="/" class="logo">Nostr Map ✦</a>
+      <span class="tagline">Annuaire Nostr Francophone</span>
+    </div>
+
+    <div class="header-actions">
+      <a href="/faq.html" class="btn btn-ghost btn-sm header-desktop-only">FAQ</a>
+      <a href="/connexion?from=ajouter" class="btn btn-primary btn-sm header-desktop-only header-auth-out">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Ajouter mon profil
+      </a>
+      <a href="/soumettre.html" class="btn btn-outline btn-sm header-desktop-only">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Soumettre
+      </a>
+
+      <div id="user-menu" class="header-user-menu hidden">
+        <a href="/mon-profil.html" class="nav-user-chip" id="user-menu-btn">
+          <span class="nav-user-avatar" id="user-avatar-mini">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+          </span>
+          <span id="user-slug-display"></span>
+        </a>
+        <button id="btn-logout" class="btn btn-danger btn-sm header-desktop-only">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Déconnexion
+        </button>
+      </div>
+
+      <button id="btn-login" class="btn btn-primary btn-sm header-login-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Se connecter
+      </button>
+
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ MOBILE NAV ═══════════════════════════════════════════════════ -->
+<div class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-logo">Nostr Map ✦</span>
+      <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+    </div>
+    <a href="/" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Accueil
+    </a>
+    <a href="/faq.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      FAQ
+    </a>
+    <a href="/extension.html" class="mobile-nav-item" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Nostr Map Signer
+    </a>
+    <a href="/relay.html" class="mobile-nav-item" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M6.3 6.3a8 8 0 0 0 0 11.4M17.7 6.3a8 8 0 0 1 0 11.4M3.5 3.5a12 12 0 0 0 0 17M20.5 3.5a12 12 0 0 1 0 17"/></svg>
+      Relay Nostr Map
+    </a>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="/connexion?from=ajouter" class="mobile-nav-item mobile-nav-auth-out" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Ajouter mon profil
+    </a>
+    <a href="/soumettre.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Soumettre un profil
+    </a>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="/mon-profil.html" class="mobile-nav-item mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Mon profil
+    </a>
+    <button id="mobile-btn-logout" class="mobile-nav-item mobile-nav-btn-danger mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Déconnexion
+    </button>
+    <button id="mobile-btn-login" class="mobile-nav-item mobile-nav-btn-primary mobile-nav-auth-out">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Se connecter
+    </button>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="https://nostr.fr" class="mobile-nav-item mobile-nav-secondary" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Qu'est-ce que Nostr&nbsp;?
+    </a>
+    <a href="/mentions-legales.html" class="mobile-nav-item mobile-nav-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Mentions légales
+    </a>
+    <a href="/contact.html" class="mobile-nav-item mobile-nav-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Contacter l'équipe
+    </a>
+    <a href="https://github.com/CedHaurus/Nostr-Map" class="mobile-nav-item mobile-nav-secondary" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      GitHub
+    </a>
+  </div>
+</div>
+
+<!-- ══ MAIN ═════════════════════════════════════════════════════════ -->
+<main class="page-content" style="max-width:640px;width:100%;margin:0 auto;padding:2rem 1rem 4rem;box-sizing:border-box;overflow-x:hidden;">
+
+  <div style="text-align:center;margin-bottom:2.5rem;">
+    <div style="font-size:2.5rem;margin-bottom:.75rem;">✉️</div>
+    <h1 style="font-size:1.6rem;font-weight:800;margin-bottom:.5rem;">Contacter l'équipe</h1>
+    <p style="color:var(--text-muted);font-size:.95rem;line-height:1.7;">
+      Un problème sur votre fiche, une suggestion, un bug ? Écrivez-nous, nous répondrons via Nostr.
+    </p>
+  </div>
+
+  <!-- Auth gate (non connecté) -->
+  <div id="auth-gate-desktop" style="display:none;text-align:center;padding:2.5rem 1rem;">
+    <div style="font-size:2.5rem;margin-bottom:1rem;">🔑</div>
+    <h2 style="font-size:1.2rem;margin-bottom:.75rem;">Connexion requise</h2>
+    <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1.5rem;">
+      Connectez-vous avec votre extension Nostr pour envoyer un message à l'équipe.
+    </p>
+    <button id="btn-login-gate" class="btn btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Se connecter avec Nostr
+    </button>
+  </div>
+
+  <!-- Formulaire de contact -->
+  <div id="contact-form-wrap" style="display:none;">
+
+    <!-- Info utilisateur connecté -->
+    <div id="user-info" style="display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1.5rem;min-width:0;overflow:hidden;">
+      <img id="user-avatar" src="" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;display:none;" onerror="this.style.display='none'">
+      <div id="user-avatar-placeholder" style="width:36px;height:36px;border-radius:50%;background:var(--primary-dim);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;flex-shrink:0;"></div>
+      <div style="flex:1;min-width:0;">
+        <div id="user-name" style="font-weight:600;font-size:.9rem;"></div>
+        <div id="user-npub" style="font-size:.72rem;color:var(--text-muted);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+      </div>
+      <button id="btn-logout-inline" style="font-size:.75rem;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:.25rem .5rem;border-radius:4px;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-muted)'">Déconnexion</button>
+    </div>
+
+    <form id="contact-form">
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:.875rem;margin-bottom:.5rem;">Motif de votre message</label>
+        <select id="motif" name="motif" required style="width:100%;padding:.65rem .85rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:.9rem;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right .85rem center;">
+          <option value="">— Choisir un motif —</option>
+          <option value="correction">✏️ Corriger une erreur sur ma fiche</option>
+          <option value="retrait">🗑️ Demande de retrait de ma fiche</option>
+          <option value="suggestion">💡 Suggestion / idée d'amélioration</option>
+          <option value="bug">🐛 Signaler un bug</option>
+          <option value="autre">💬 Autre</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:1.5rem;">
+        <label style="display:block;font-weight:600;font-size:.875rem;margin-bottom:.5rem;">
+          Message <span style="font-weight:400;color:var(--text-muted);">(10–2000 caractères)</span>
+        </label>
+        <textarea id="message" name="message" rows="7" maxlength="2000" required
+          placeholder="Décrivez votre demande avec le plus de détails possible…"
+          style="width:100%;padding:.65rem .85rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:.9rem;resize:vertical;font-family:inherit;line-height:1.6;box-sizing:border-box;"></textarea>
+        <div style="text-align:right;font-size:.72rem;color:var(--text-muted);margin-top:.25rem;">
+          <span id="char-count">0</span> / 2000
+        </div>
+      </div>
+
+      <button type="submit" id="btn-submit" class="btn btn-primary w-full" style="justify-content:center;font-size:1rem;padding:.8rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Envoyer le message
+      </button>
+    </form>
+
+    <!-- Succès -->
+    <div id="contact-success" style="display:none;text-align:center;padding:2rem 1rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;">✅</div>
+      <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:.5rem;">Message envoyé !</h2>
+      <p style="color:var(--text-muted);font-size:.9rem;line-height:1.7;">
+        L'équipe a bien reçu votre message. Nous vous répondrons via Nostr dans les meilleurs délais.
+      </p>
+      <a href="/" class="btn btn-ghost" style="margin-top:1.25rem;">← Retour à l'annuaire</a>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <p>
+    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone <span class="footer-sep">|</span>
+    <a href="https://nostr.fr" target="_blank" rel="noopener">Qu'est-ce que Nostr ?</a>
+    <span class="footer-sep">|</span>
+    <a href="/mentions-legales.html">Mentions légales</a>
+    <span class="footer-sep">|</span>
+    <a href="/contact.html">Contacter l'équipe</a>
+    <span class="footer-sep">|</span>
+    <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noopener">Code source</a>
+  </p>
+</footer>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script type="module">
+import { app }  from '/assets/js/app.js?v=20260423-modal';
+import { auth } from '/assets/js/auth.js?v=20260423-modal';
+
+
+
+const token = auth.getToken();
+
+auth.initUI({
+  loginBtn:  document.getElementById('btn-login'),
+  logoutBtn: document.getElementById('btn-logout'),
+  userMenu:  document.getElementById('user-menu'),
+  slugEl:    document.getElementById('user-slug-display'),
+});
+
+// ── Gestion connexion/déconnexion ─────────────────────────────────
+document.getElementById('btn-logout-inline')?.addEventListener('click', () => {
+  auth.logout();
+  location.reload();
+});
+
+// ── Affichage conditionnel ────────────────────────────────────────
+if (!token) {
+  document.getElementById('auth-gate-desktop').style.display = 'block';
+  document.getElementById('btn-login-gate')?.addEventListener('click', async () => {
+    const ok = await auth.login();
+    if (ok) location.reload();
+  });
+} else {
+  // Connecté sur desktop → afficher le formulaire
+  document.getElementById('contact-form-wrap').style.display = 'block';
+
+  // Remplir les infos utilisateur
+  const decoded = auth.getDecoded();
+  const npubVal = decoded?.sub || '';
+  const slug    = decoded?.slug || '';
+
+  document.getElementById('user-npub').textContent = npubVal;
+
+  if (slug) {
+    try {
+      const res  = await fetch(`/api/profile.php?slug=${encodeURIComponent(slug)}`);
+      const data = await res.json();
+      if (data.profile) {
+        const name   = data.profile.cached_name || slug;
+        const avatar = data.profile.cached_avatar || '';
+        document.getElementById('user-name').textContent = name;
+        if (avatar) {
+          const img = document.getElementById('user-avatar');
+          img.src = avatar;
+          img.style.display = 'block';
+          document.getElementById('user-avatar-placeholder').style.display = 'none';
+        } else {
+          document.getElementById('user-avatar-placeholder').textContent = name.charAt(0).toUpperCase() || '?';
+        }
+      }
+    } catch (e) {
+      document.getElementById('user-name').textContent = slug;
+      document.getElementById('user-avatar-placeholder').textContent = slug.charAt(0).toUpperCase() || '?';
+    }
+  }
+
+  // Compteur de caractères
+  const textarea = document.getElementById('message');
+  const counter  = document.getElementById('char-count');
+  textarea.addEventListener('input', () => {
+    counter.textContent = textarea.value.length;
+  });
+
+  // Soumission du formulaire
+  document.getElementById('contact-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const motif   = document.getElementById('motif').value;
+    const message = textarea.value.trim();
+    const btn     = document.getElementById('btn-submit');
+
+    if (!motif) { app.toast('Choisissez un motif.', 'warning'); return; }
+    if (message.length < 10) { app.toast('Message trop court.', 'warning'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Envoi en cours…';
+
+    try {
+      const t = auth.getToken();
+      const res = await fetch('/api/contact.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${t}`,
+        },
+        body: JSON.stringify({ motif, message }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        app.toast(data.error || 'Erreur lors de l\'envoi.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Envoyer le message';
+      } else {
+        document.getElementById('contact-form').style.display = 'none';
+        document.getElementById('contact-success').style.display = 'block';
+      }
+    } catch (err) {
+      app.toast('Erreur réseau. Réessayez.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Envoyer le message';
+    }
+  });
+}
+</script>
+
+</body>
+</html>

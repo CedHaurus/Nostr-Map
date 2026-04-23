@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Proposez un utilisateur Nostr francophone pour l'annuaire Nostr Map. Saisie du npub, récupération automatique depuis les relais, soumission en un clic." />
+  <title>Soumettre un profil — Nostr Map</title>
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://nostrmap.fr/soumettre" />
+  <meta property="og:title"       content="Soumettre un profil — Nostr Map" />
+  <meta property="og:description" content="Proposez un profil Nostr francophone pour l'annuaire. Saisie du npub, aperçu du profil, soumission en un clic." />
+  <meta property="og:image"       content="https://nostrmap.fr/og-image.php?title=Soumettre+un+profil&sub=Rejoignez+l%27annuaire+Nostr+Map" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height"content="630" />
+  <meta property="og:image:alt"   content="Soumettre un profil Nostr à l'annuaire Nostr Map" />
+  <meta property="og:site_name"   content="Nostr Map" />
+  <meta property="og:locale"      content="fr_FR" />
+  <meta name="twitter:card"       content="summary_large_image" />
+  <meta name="twitter:title"      content="Soumettre un profil — Nostr Map" />
+  <meta name="twitter:description"content="Proposez un profil Nostr francophone pour l'annuaire." />
+  <meta name="twitter:image"      content="https://nostrmap.fr/og-image.php?title=Soumettre+un+profil&sub=Rejoignez+l%27annuaire+Nostr+Map" />
+  <meta name="twitter:image:alt"  content="Soumettre un profil Nostr à l'annuaire Nostr Map" />
+  <link rel="canonical"           href="https://nostrmap.fr/soumettre" />
+  <link rel="stylesheet" href="/assets/css/app.css?v=20260423-modal" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    .sub-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+    .sub-back {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      color: var(--text-muted);
+      font-size: .83rem;
+      margin-bottom: 1.75rem;
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .sub-back:hover { color: var(--text); }
+
+    .sub-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: .4rem;
+    }
+    .sub-subtitle {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      font-size: .95rem;
+    }
+
+    /* Card section */
+    .sub-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .sub-section-title {
+      font-size: .8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    /* Input npub */
+    .npub-input-wrap {
+      position: relative;
+    }
+    .npub-input {
+      width: 100%;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .7rem 3rem .7rem 1rem;
+      color: var(--text);
+      font-family: monospace;
+      font-size: .85rem;
+      outline: none;
+      transition: border-color .15s;
+      box-sizing: border-box;
+    }
+    .npub-input:focus { border-color: var(--primary); }
+    .npub-input.error { border-color: var(--danger); }
+    .npub-input.ok    { border-color: #22c55e; }
+    .npub-status-icon {
+      position: absolute;
+      right: .9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      display: none;
+    }
+
+    /* Profile preview */
+    #profile-preview {
+      display: none;
+      align-items: center;
+      gap: .9rem;
+      margin-top: 1rem;
+      padding: .9rem;
+      background: var(--surface-hover);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    #profile-preview .prev-avatar {
+      width: 46px; height: 46px; border-radius: 50%;
+      object-fit: cover; flex-shrink: 0;
+    }
+    #profile-preview .prev-placeholder {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: var(--gradient);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: #fff; font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    #profile-preview .prev-info { flex: 1; min-width: 0; }
+    #profile-preview .prev-name { font-weight: 600; font-size: .95rem; }
+    #profile-preview .prev-nip05 { font-size: .78rem; color: var(--text-muted); }
+    #profile-preview .prev-bio {
+      font-size: .8rem; color: var(--text-muted);
+      margin-top: .2rem;
+      overflow: hidden; text-overflow: ellipsis;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    }
+    #npub-error {
+      margin-top: .5rem;
+      font-size: .82rem;
+      color: var(--danger);
+      display: none;
+    }
+    #npub-loading {
+      margin-top: .5rem;
+      font-size: .82rem;
+      color: var(--text-muted);
+      display: none;
+    }
+
+    /* Liens sociaux */
+    .links-list { display: flex; flex-direction: column; gap: .6rem; }
+    .link-row {
+      display: grid;
+      grid-template-columns: 110px 1fr auto;
+      gap: .5rem;
+      align-items: center;
+    }
+    @media (max-width: 480px) {
+      .link-row { grid-template-columns: 1fr auto; }
+      .link-row select { grid-column: 1; }
+      .link-row input { grid-column: 1; }
+      .link-row button { grid-column: 2; grid-row: 1 / 3; }
+    }
+    .link-row select, .link-row input {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .55rem .75rem;
+      color: var(--text);
+      font-size: .85rem;
+      outline: none;
+    }
+    .link-row select:focus, .link-row input:focus { border-color: var(--primary); }
+    .link-row input { width: 100%; box-sizing: border-box; }
+    .btn-remove-link {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: .5rem .6rem;
+      font-size: .9rem;
+      line-height: 1;
+      transition: all .15s;
+      flex-shrink: 0;
+    }
+    .btn-remove-link:hover { background: var(--surface-hover); color: var(--danger); border-color: var(--danger); }
+    .btn-add-link {
+      margin-top: .5rem;
+      font-size: .82rem;
+    }
+
+    /* Message */
+    .sub-textarea {
+      width: 100%;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .7rem 1rem;
+      color: var(--text);
+      font-family: inherit;
+      font-size: .9rem;
+      resize: vertical;
+      min-height: 80px;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color .15s;
+    }
+    .sub-textarea:focus { border-color: var(--primary); }
+
+    /* Auth wall */
+    #auth-wall {
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+    #auth-wall .wall-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    #auth-wall h2 { font-size: 1.3rem; margin-bottom: .5rem; }
+    #auth-wall p { color: var(--text-muted); margin-bottom: 1.5rem; }
+
+    /* Submit */
+    .sub-submit {
+      margin-top: 1.5rem;
+    }
+    #submit-btn {
+      width: 100%;
+      justify-content: center;
+      font-size: 1rem;
+      padding: .85rem;
+    }
+    #submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* Success */
+    #success-state {
+      display: none;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    #success-state .ok-icon { font-size: 3rem; margin-bottom: 1rem; }
+    #success-state h2 { font-size: 1.3rem; margin-bottom: .5rem; }
+    #success-state p { color: var(--text-muted); }
+
+    .form-hint { font-size: .78rem; color: var(--text-muted); margin-top: .3rem; }
+
+    @media (max-width: 640px) {
+      .sub-section {
+        padding: 1.1rem;
+      }
+      #profile-preview {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Soumettre un profil — Nostr Map",
+    "url": "https://nostrmap.fr/soumettre",
+    "description": "Proposez un utilisateur Nostr francophone à l'annuaire Nostr Map.",
+    "inLanguage": "fr",
+    "isPartOf": { "@type": "WebSite", "name": "Nostr Map", "url": "https://nostrmap.fr/" }
+  }
+  </script>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <a href="/" class="logo">Nostr Map ✦</a>
+      <span class="tagline">Annuaire Nostr Francophone</span>
+    </div>
+    <div class="header-actions">
+      <a href="/faq.html" class="btn btn-ghost btn-sm header-desktop-only">FAQ</a>
+      <!-- Ajouter mon profil (non connecté) -->
+      <a href="/connexion?from=ajouter" class="btn btn-primary btn-sm header-desktop-only header-auth-out">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Ajouter mon profil
+      </a>
+      <div id="user-menu" class="header-user-menu hidden">
+        <a href="/mon-profil.html" class="nav-user-chip" id="user-menu-btn">
+          <span class="nav-user-avatar" id="user-avatar-mini">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+          </span>
+          <span id="user-slug-display"></span>
+        </a>
+        <button id="btn-logout" class="btn btn-danger btn-sm header-desktop-only">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Déconnexion
+        </button>
+      </div>
+      <button id="btn-login" class="btn btn-primary btn-sm header-login-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Se connecter
+      </button>
+
+      <!-- Hamburger mobile -->
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ MOBILE NAV ═══════════════════════════════════════════════════ -->
+<div class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-logo">Nostr Map ✦</span>
+      <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+    </div>
+
+    <a href="/" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Accueil
+    </a>
+    <a href="/faq.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      FAQ
+    </a>
+    <a href="/extension.html" class="mobile-nav-item" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Nostr Map Signer
+    </a>
+    <a href="/relay.html" class="mobile-nav-item" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M6.3 6.3a8 8 0 0 0 0 11.4M17.7 6.3a8 8 0 0 1 0 11.4M3.5 3.5a12 12 0 0 0 0 17M20.5 3.5a12 12 0 0 1 0 17"/></svg>
+      Relay Nostr Map
+    </a>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="/connexion?from=ajouter" class="mobile-nav-item mobile-nav-auth-out" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Ajouter mon profil
+    </a>
+    <a href="/soumettre.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Soumettre un profil
+    </a>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="/mon-profil.html" class="mobile-nav-item mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Mon profil
+    </a>
+    <button id="mobile-btn-logout" class="mobile-nav-item mobile-nav-btn-danger mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Déconnexion
+    </button>
+    <button id="mobile-btn-login" class="mobile-nav-item mobile-nav-btn-primary mobile-nav-auth-out">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Se connecter
+    </button>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="https://nostr.fr" class="mobile-nav-item mobile-nav-secondary" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Qu'est-ce que Nostr ?
+    </a>
+    <a href="/mentions-legales.html" class="mobile-nav-item mobile-nav-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Mentions légales
+    </a>
+    <a href="/contact.html" class="mobile-nav-item mobile-nav-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Contacter l’équipe
+    </a>
+    <a href="https://github.com/CedHaurus/Nostr-Map" class="mobile-nav-item mobile-nav-secondary" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      GitHub
+    </a>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<main class="sub-wrap">
+  <a href="/" class="sub-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Retour à l'annuaire
+  </a>
+
+  <h1 class="sub-title">Proposer un profil</h1>
+  <p class="sub-subtitle">Suggérez un utilisateur Nostr francophone à ajouter à l'annuaire. Un modérateur examinera la proposition.</p>
+
+  <!-- Mur d'auth (affiché si non connecté) -->
+  <div id="auth-wall">
+    <div class="wall-icon">🔐</div>
+    <h2>Connexion requise</h2>
+    <p>Vous devez être connecté avec votre compte Nostr pour soumettre une proposition.</p>
+    <button id="btn-login-wall" class="btn btn-primary btn-lg">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Se connecter
+    </button>
+  </div>
+
+  <!-- Formulaire (affiché si connecté) -->
+  <div id="sub-form" style="display:none;">
+
+    <!-- Succès -->
+    <div id="success-state">
+      <div class="ok-icon">✅</div>
+      <h2>Proposition envoyée !</h2>
+      <p>Merci. Un modérateur examinera ce profil et l'ajoutera à l'annuaire si tout est en ordre.</p>
+      <div style="margin-top:1.5rem;display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-outline" onclick="resetForm()">Proposer un autre profil</button>
+        <a href="/" class="btn btn-ghost">Retour à l'annuaire</a>
+      </div>
+    </div>
+
+    <!-- Formulaire actif -->
+    <div id="form-content">
+
+      <!-- Npub -->
+      <div class="sub-section">
+        <div class="sub-section-title">Profil à proposer</div>
+
+        <div class="npub-input-wrap">
+          <input type="text" id="npub-input" class="npub-input"
+            placeholder="npub1…"
+            maxlength="120"
+            autocomplete="off"
+            spellcheck="false" />
+          <span class="npub-status-icon" id="npub-icon"></span>
+        </div>
+        <div id="npub-loading">Recherche du profil…</div>
+        <div id="npub-error"></div>
+
+        <div id="profile-preview">
+          <div id="prev-avatar-wrap"></div>
+          <div class="prev-info">
+            <div class="prev-name" id="prev-name"></div>
+            <div class="prev-nip05" id="prev-nip05"></div>
+            <div class="prev-bio" id="prev-bio"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Liens sociaux -->
+      <div class="sub-section" id="links-section" style="display:none;">
+        <div class="sub-section-title">Liens réseaux sociaux <span style="font-weight:400;text-transform:none;">(optionnel)</span></div>
+        <p class="text-muted" style="font-size:.83rem;margin-bottom:1rem;">
+          Ces liens apparaîtront comme non vérifiés sur le profil. L'utilisateur pourra les vérifier plus tard.
+        </p>
+        <div class="links-list" id="links-list"></div>
+        <button type="button" class="btn btn-ghost btn-sm btn-add-link" id="btn-add-link" onclick="addLinkRow()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          Ajouter un lien
+        </button>
+      </div>
+
+      <!-- Message -->
+      <div class="sub-section" id="message-section" style="display:none;">
+        <div class="sub-section-title">Message pour les modérateurs <span style="font-weight:400;text-transform:none;">(optionnel)</span></div>
+        <textarea id="message-input" class="sub-textarea" maxlength="1000"
+          placeholder="Pourquoi proposez-vous ce profil ? Un contexte ou une précision à signaler ?"></textarea>
+        <div class="form-hint" id="msg-count">0 / 1000</div>
+      </div>
+
+      <!-- Bouton -->
+      <div class="sub-submit">
+        <button id="submit-btn" class="btn btn-primary" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          Envoyer la proposition
+        </button>
+      </div>
+
+    </div><!-- /form-content -->
+  </div><!-- /sub-form -->
+</main>
+
+<script type="module">
+import { auth } from '/assets/js/auth.js?v=20260423-modal';
+import { app }  from '/assets/js/app.js?v=20260423-modal';
+import { nostr } from '/assets/js/nostr.js';
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+
+auth.initUI({
+  loginBtn:  document.getElementById('btn-login'),
+  logoutBtn: document.getElementById('btn-logout'),
+  userMenu:  document.getElementById('user-menu'),
+  slugEl:    document.getElementById('user-slug-display'),
+});
+
+function checkAuth() {
+  if (auth.isLoggedIn()) {
+    document.getElementById('auth-wall').style.display = 'none';
+    document.getElementById('sub-form').style.display  = 'block';
+  } else {
+    document.getElementById('auth-wall').style.display = 'block';
+    document.getElementById('sub-form').style.display  = 'none';
+  }
+}
+checkAuth();
+
+document.getElementById('btn-login-wall').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-login-wall');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Connexion…';
+  const result = await auth.login();
+  if (result) {
+    checkAuth();
+    app.toast('Connecté !', 'success');
+  }
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg> Se connecter`;
+});
+
+// Aussi mettre à jour la vue si connexion via btn header
+document.getElementById('btn-login').addEventListener('click', () => {
+  setTimeout(checkAuth, 500);
+});
+document.getElementById('btn-logout').addEventListener('click', () => {
+  setTimeout(checkAuth, 100);
+});
+
+// ─── Npub input ───────────────────────────────────────────────────────────────
+
+const npubInput   = document.getElementById('npub-input');
+const npubError   = document.getElementById('npub-error');
+const npubLoading = document.getElementById('npub-loading');
+const npubIcon    = document.getElementById('npub-icon');
+const preview     = document.getElementById('profile-preview');
+const submitBtn   = document.getElementById('submit-btn');
+
+let _npubTimer = null;
+let _validNpub = null;       // npub validé et non existant
+let _profileData = null;     // données du profil fetché
+
+function npubToHex(npub) {
+  const CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+  const str = npub.toLowerCase();
+  const sep = str.lastIndexOf('1');
+  if (sep < 1) throw new Error('Invalid');
+  const dataStr = str.slice(sep + 1, -6);
+  const data5 = [];
+  for (const c of dataStr) {
+    const idx = CHARSET.indexOf(c);
+    if (idx < 0) throw new Error('Invalid char');
+    data5.push(idx);
+  }
+  let acc = 0, bits = 0;
+  const bytes = [];
+  for (const v of data5) {
+    acc = (acc << 5) | v;
+    bits += 5;
+    while (bits >= 8) { bits -= 8; bytes.push((acc >> bits) & 0xff); }
+  }
+  return bytes.map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function setNpubState(state, msg = '') {
+  npubInput.classList.remove('error', 'ok');
+  npubError.style.display   = 'none';
+  npubLoading.style.display = 'none';
+  npubIcon.style.display    = 'none';
+
+  if (state === 'loading') {
+    npubLoading.style.display = 'block';
+    npubLoading.textContent = msg || 'Vérification…';
+  } else if (state === 'error') {
+    npubInput.classList.add('error');
+    npubError.style.display   = 'block';
+    npubError.textContent     = msg;
+    npubIcon.style.display    = 'block';
+    npubIcon.textContent      = '✗';
+    npubIcon.style.color      = 'var(--danger)';
+  } else if (state === 'ok') {
+    npubInput.classList.add('ok');
+    npubIcon.style.display    = 'block';
+    npubIcon.textContent      = '✓';
+    npubIcon.style.color      = '#22c55e';
+  } else {
+    // idle
+  }
+}
+
+function showPreview(data) {
+  const name   = data.name || data.display_name || '';
+  const nip05  = data.nip05 || '';
+  const bio    = data.about || '';
+  const avatar = data.picture || '';
+
+  document.getElementById('prev-name').textContent  = name || '(sans nom)';
+  document.getElementById('prev-nip05').textContent = nip05 ? nip05 : '';
+  document.getElementById('prev-bio').textContent   = bio;
+  document.getElementById('prev-nip05').style.display = nip05 ? 'block' : 'none';
+  document.getElementById('prev-bio').style.display   = bio ? 'block' : 'none';
+
+  const wrap = document.getElementById('prev-avatar-wrap');
+  if (avatar) {
+    wrap.innerHTML = `<img class="prev-avatar" src="${app.esc(avatar)}" alt="" onerror="this.style.display='none'" />`;
+  } else {
+    const letter = (name || '?')[0].toUpperCase();
+    wrap.innerHTML = `<div class="prev-placeholder">${letter}</div>`;
+  }
+
+  preview.style.display = 'flex';
+  _profileData = data;
+}
+
+async function checkNpub(npub) {
+  setNpubState('loading', 'Vérification du profil…');
+  _validNpub  = null;
+  _profileData = null;
+  submitBtn.disabled = true;
+  preview.style.display = 'none';
+  document.getElementById('links-section').style.display   = 'none';
+  document.getElementById('message-section').style.display = 'none';
+
+  // Validation format
+  if (!npub || npub.length < 60 || !npub.startsWith('npub1')
+      || !/^npub1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/i.test(npub)) {
+    setNpubState('error', 'Format npub invalide.');
+    return;
+  }
+
+  // Vérifier si déjà dans l'annuaire
+  try {
+    // On utilise search.php pour un lookup rapide par npub
+    const r = await fetch('/api/search.php?q=' + encodeURIComponent(npub) + '&limit=1');
+    const d = await r.json();
+    // Chercher une correspondance exacte sur le npub
+    const found = (d.results || []).find(p => p.npub === npub);
+    if (found) {
+      setNpubState('error', `Ce profil est déjà dans l'annuaire (@${app.esc(found.slug)}).`);
+      return;
+    }
+  } catch {}
+
+  // Vérifier via l'API dédiée (pending proposals)
+  // On tente le submit pour avoir un retour précis — non, on vérifie juste le format pour l'instant
+  // Fetch du profil Nostr depuis les relais
+  setNpubState('loading', 'Récupération du profil Nostr…');
+  try {
+    let hex;
+    try { hex = npubToHex(npub); } catch {
+      setNpubState('error', 'npub invalide (erreur de décodage).');
+      return;
+    }
+
+    const profileData = await new Promise((resolve) => {
+      nostr.fetchProfile(npub, (data) => resolve(data));
+      setTimeout(() => resolve(null), 8000);
+    });
+
+    if (profileData) {
+      showPreview(profileData);
+    } else {
+      // Profil introuvable sur les relais — on accepte quand même
+      const letter = npub.slice(5, 6).toUpperCase();
+      showPreview({ name: '', display_name: '', about: 'Profil introuvable sur les relais.', picture: '' });
+    }
+
+    setNpubState('ok');
+    _validNpub = npub;
+    submitBtn.disabled = false;
+    document.getElementById('links-section').style.display   = 'block';
+    document.getElementById('message-section').style.display = 'block';
+
+  } catch (e) {
+    setNpubState('error', 'Erreur lors de la récupération du profil.');
+  }
+}
+
+npubInput.addEventListener('input', () => {
+  clearTimeout(_npubTimer);
+  const val = npubInput.value.trim();
+  if (!val) {
+    setNpubState('idle');
+    preview.style.display = 'none';
+    submitBtn.disabled = true;
+    document.getElementById('links-section').style.display   = 'none';
+    document.getElementById('message-section').style.display = 'none';
+    return;
+  }
+  _npubTimer = setTimeout(() => checkNpub(val), 600);
+});
+
+// ─── Liens sociaux ────────────────────────────────────────────────────────────
+
+const PLATFORMS = {
+  x:        'X / Twitter',
+  mastodon: 'Mastodon',
+  bluesky:  'Bluesky',
+  youtube:  'YouTube',
+};
+
+window.addLinkRow = function(platform = '', url = '') {
+  const list = document.getElementById('links-list');
+  if (list.children.length >= 6) {
+    app.toast('Maximum 6 liens.', 'warning');
+    return;
+  }
+
+  const row = document.createElement('div');
+  row.className = 'link-row';
+
+  const options = Object.entries(PLATFORMS).map(([v, l]) =>
+    `<option value="${v}"${platform === v ? ' selected' : ''}>${l}</option>`
+  ).join('');
+
+  row.innerHTML = `
+    <select class="link-platform">
+      <option value="">Plateforme…</option>
+      ${options}
+    </select>
+    <input type="url" class="link-url" placeholder="https://…" value="${app.esc(url)}" maxlength="500" />
+    <button type="button" class="btn-remove-link" title="Supprimer" onclick="this.closest('.link-row').remove()">✕</button>
+  `;
+  list.appendChild(row);
+};
+
+function getLinks() {
+  return Array.from(document.querySelectorAll('.link-row')).map(row => ({
+    platform: row.querySelector('.link-platform').value,
+    url:      row.querySelector('.link-url').value.trim(),
+    handle:   '',
+  })).filter(l => l.platform && l.url);
+}
+
+// ─── Message counter ──────────────────────────────────────────────────────────
+
+document.getElementById('message-input').addEventListener('input', function() {
+  document.getElementById('msg-count').textContent = this.value.length + ' / 1000';
+});
+
+// ─── Submit ───────────────────────────────────────────────────────────────────
+
+submitBtn.addEventListener('click', async () => {
+  if (!_validNpub) return;
+
+  const token = auth.getToken();
+  if (!token) { app.toast('Vous devez être connecté.', 'error'); checkAuth(); return; }
+
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="spinner"></span> Envoi…';
+
+  const payload = {
+    npub:          _validNpub,
+    message:       document.getElementById('message-input').value.trim() || null,
+    links:         getLinks(),
+    cached_name:   _profileData?.name || _profileData?.display_name || null,
+    cached_avatar: _profileData?.picture || null,
+  };
+
+  try {
+    const res  = await fetch('/api/propose.php', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body:    JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      app.toast(data.error || 'Erreur lors de l\'envoi.', 'error');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Envoyer la proposition`;
+      return;
+    }
+
+    // Succès
+    document.getElementById('form-content').style.display = 'none';
+    document.getElementById('success-state').style.display = 'block';
+
+  } catch (e) {
+    app.toast('Erreur réseau.', 'error');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Envoyer la proposition`;
+  }
+});
+
+// ─── Reset form ───────────────────────────────────────────────────────────────
+
+window.resetForm = function() {
+  npubInput.value = '';
+  document.getElementById('links-list').innerHTML = '';
+  document.getElementById('message-input').value  = '';
+  document.getElementById('msg-count').textContent = '0 / 1000';
+  preview.style.display = 'none';
+  document.getElementById('links-section').style.display   = 'none';
+  document.getElementById('message-section').style.display = 'none';
+  document.getElementById('success-state').style.display   = 'none';
+  document.getElementById('form-content').style.display    = 'block';
+  setNpubState('idle');
+  _validNpub  = null;
+  _profileData = null;
+  submitBtn.disabled = true;
+};
+
+</script>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <p>
+    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone <span class="footer-sep">|</span>
+    <a href="https://nostr.fr" target="_blank" rel="noopener">Qu'est-ce que Nostr ?</a>
+    <span class="footer-sep">|</span>
+    <a href="/mentions-legales.html">Mentions légales</a>
+    <span class="footer-sep">|</span>
+    <a href="/contact.html">Contacter l'équipe</a>
+    <span class="footer-sep">|</span>
+    <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noopener">Code source</a>
+  </p>
+</footer>
+
+</body>
+</html>

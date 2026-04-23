@@ -1,0 +1,74 @@
+version: '3.9'
+
+networks:
+  # Réseau interne nostrmap (php ↔ mysql, nginx ↔ php)
+  nostrmap_network:
+    driver: bridge
+
+  # Réseau edge partagé avec Caddy (reverse proxy du VPS)
+  edge:
+    external: true
+
+volumes:
+  mysql_data:
+    driver: local
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nostrmap_nginx
+    restart: unless-stopped
+    # Pas d'exposition de port sur l'hôte — Caddy passe par le réseau edge
+    volumes:
+      - ./public:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+    networks:
+      - nostrmap_network
+      - edge                 # ← accessible par Caddy sous le nom "nostrmap_nginx"
+
+  php:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: nostrmap_php
+    restart: unless-stopped
+    volumes:
+      - ./public:/var/www/html
+      - ./config:/var/www/config:ro
+      - ./cron:/var/www/cron
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - TOTP_ENCRYPTION_KEY=${TOTP_ENCRYPTION_KEY}
+      - APP_URL=${APP_URL}
+      - APP_ENV=${APP_ENV}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - nostrmap_network
+
+  mysql:
+    image: mysql:8
+    container_name: nostrmap_mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nostrmap_network

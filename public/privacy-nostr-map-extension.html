@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Politique de confidentialité de Nostr Map Signer : stockage local, permissions navigateur, données traitées et fonctionnement de l'extension."/>
+  <title>Confidentialité — Nostr Map Signer</title>
+  <meta name="robots" content="index, follow"/>
+  <meta property="og:type"        content="website"/>
+  <meta property="og:url"         content="https://nostrmap.fr/privacy-nostr-map-extension"/>
+  <meta property="og:title"       content="Confidentialité — Nostr Map Signer"/>
+  <meta property="og:description" content="Politique de confidentialité de l'extension Nostr Map Signer."/>
+  <meta property="og:image"       content="https://nostrmap.fr/og-image.php?title=Nostr+Map+Signer&sub=Politique+de+confidentialit%C3%A9"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height"content="630"/>
+  <meta property="og:site_name"   content="Nostr Map"/>
+  <meta property="og:locale"      content="fr_FR"/>
+  <meta name="twitter:card"       content="summary_large_image"/>
+  <meta name="twitter:title"      content="Confidentialité — Nostr Map Signer"/>
+  <meta name="twitter:description"content="Politique de confidentialité de l'extension Nostr Map Signer."/>
+  <meta name="twitter:image"      content="https://nostrmap.fr/og-image.php?title=Nostr+Map+Signer&sub=Politique+de+confidentialit%C3%A9"/>
+  <link rel="canonical"           href="https://nostrmap.fr/privacy-nostr-map-extension"/>
+  <style>
+    :root { --bg: #13131a; --text: #e2e8f0; --muted: #94a3b8; --accent: #8b5cf6; --card: #1e1e2e; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; padding: 40px 20px; }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    header { display: flex; align-items: center; gap: 14px; margin-bottom: 40px; }
+    .brand { font-size: 22px; font-weight: 800; }
+    .grad { background: linear-gradient(135deg, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .date { color: var(--muted); font-size: 14px; margin-bottom: 40px; }
+    section { background: var(--card); border-radius: 14px; padding: 28px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,.06); }
+    h2 { font-size: 16px; font-weight: 700; color: var(--accent); margin-bottom: 14px; }
+    p { color: var(--muted); margin-bottom: 10px; font-size: 15px; }
+    p:last-child { margin-bottom: 0; }
+    ul { color: var(--muted); font-size: 15px; padding-left: 20px; }
+    li { margin-bottom: 6px; }
+    strong { color: var(--text); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 40px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand"><span class="grad">Nostr Map ✦</span> Signer</div>
+  </header>
+
+  <h1>Politique de confidentialité</h1>
+  <p class="date">Dernière mise à jour : 18 avril 2026</p>
+
+  <section>
+    <h2>Résumé</h2>
+    <p><strong>Nostr Map Signer ne collecte, ne transmet et ne vend aucune donnée personnelle.</strong></p>
+    <p>Toutes les informations sensibles (clé privée Nostr, URI NWC) restent exclusivement sur votre appareil, chiffrées localement.</p>
+  </section>
+
+  <section>
+    <h2>Données stockées localement</h2>
+    <p>L'extension stocke les éléments suivants dans <code>chrome.storage.local</code>, uniquement sur votre appareil :</p>
+    <ul>
+      <li><strong>Coffre chiffré</strong> — votre clé privée Nostr chiffrée avec AES-256-GCM, dérivée par PBKDF2-SHA256 (250 000 itérations). La clé en clair n'est jamais persistée.</li>
+      <li><strong>URI NWC chiffrée</strong> — l'adresse de connexion à votre wallet Lightning, chiffrée au même titre que la clé Nostr.</li>
+      <li><strong>Solde en cache</strong> — le solde de votre wallet, stocké temporairement pour l'affichage.</li>
+      <li><strong>Historique des transactions</strong> — les 100 dernières transactions Lightning, stockées localement.</li>
+      <li><strong>Permissions par site</strong> — la liste des sites web auxquels vous avez accordé l'accès NIP-07.</li>
+    </ul>
+    <p>Ces données <strong>ne quittent jamais votre navigateur</strong> et ne sont accessibles par aucun serveur externe.</p>
+  </section>
+
+  <section>
+    <h2>Communications réseau</h2>
+    <p>L'extension établit des connexions réseau <strong>uniquement à votre demande explicite</strong> :</p>
+    <ul>
+      <li><strong>Relais Nostr</strong> — pour publier ou lire des événements signés (NIP-07), selon les sites que vous utilisez.</li>
+      <li><strong>Relais NWC</strong> — pour communiquer avec votre wallet Lightning via le protocole NIP-47, uniquement si vous avez configuré un URI NWC.</li>
+      <li><strong>LNURL / Adresses Lightning</strong> — pour résoudre une adresse <code>user@domaine.com</code> en facture BOLT-11, la requête HTTP va vers le serveur du domaine cible.</li>
+    </ul>
+    <p>L'extension <strong>n'envoie aucune donnée à nostrmap.fr ou à tout autre service tiers.</strong></p>
+  </section>
+
+  <section>
+    <h2>Permissions du navigateur</h2>
+    <ul>
+      <li><strong>storage</strong> — stocker le coffre chiffré localement.</li>
+      <li><strong>tabs / activeTab</strong> — injecter l'interface de confirmation sur la page active lors d'une demande de signature.</li>
+      <li><strong>alarms</strong> — déclencher le verrouillage automatique après 2 heures d'inactivité.</li>
+      <li><strong>&lt;all_urls&gt;</strong> — injecter le script NIP-07 (<code>window.nostr</code>) sur tous les sites web Nostr que vous visitez.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Clé privée</h2>
+    <p>Votre clé privée Nostr est <strong>chiffrée avant d'être stockée</strong> et n'est déchiffrée qu'en mémoire vive pendant la session active. Elle est automatiquement effacée de la mémoire après 2 heures d'inactivité (verrouillage automatique).</p>
+    <p><strong>Ni nostrmap.fr, ni les développeurs de cette extension n'ont accès à votre clé privée.</strong></p>
+  </section>
+
+  <section>
+    <h2>Données analytiques</h2>
+    <p>L'extension ne contient <strong>aucun tracker, aucun pixel analytique, aucun SDK tiers</strong>. Aucune statistique d'utilisation n'est collectée.</p>
+  </section>
+
+  <section>
+    <h2>Enfants</h2>
+    <p>Cette extension n'est pas destinée aux enfants de moins de 13 ans et ne collecte aucune information les concernant.</p>
+  </section>
+
+  <section>
+    <h2>Modifications</h2>
+    <p>Toute modification substantielle de cette politique sera annoncée via les notes de mise à jour de l'extension. La date de mise à jour en haut de cette page sera actualisée.</p>
+  </section>
+
+  <section>
+    <h2>Contact</h2>
+    <p>Pour toute question relative à la confidentialité : <a href="mailto:contact@christopheboutry.com">contact@christopheboutry.com</a></p>
+    <p>Code source disponible sur <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noreferrer">GitHub</a></p>
+  </section>
+
+</div>
+<footer>
+  <p>© 2026 Nostr Map — <a href="https://nostrmap.fr">nostrmap.fr</a></p>
+</footer>
+</body>
+</html>

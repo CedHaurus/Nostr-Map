@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Guide de connexion à Nostr Map via l'extension Nostr Map Signer. Sans mot de passe, sans email — juste votre clé publique Nostr." />
+  <title>Se connecter — Nostr Map</title>
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://nostrmap.fr/connexion" />
+  <meta property="og:title"       content="Se connecter — Nostr Map" />
+  <meta property="og:description" content="Connectez-vous à Nostr Map via l'extension Nostr Map Signer. Aucun mot de passe, aucun email." />
+  <meta property="og:image"       content="https://nostrmap.fr/og-image.php?title=Se+connecter&sub=Via+votre+extension+Nostr" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height"content="630" />
+  <meta property="og:image:alt"   content="Se connecter à Nostr Map via une extension Nostr" />
+  <meta property="og:site_name"   content="Nostr Map" />
+  <meta property="og:locale"      content="fr_FR" />
+  <meta name="twitter:card"       content="summary_large_image" />
+  <meta name="twitter:title"      content="Se connecter — Nostr Map" />
+  <meta name="twitter:description"content="Connectez-vous à Nostr Map via votre extension Nostr. Aucun mot de passe." />
+  <meta name="twitter:image"      content="https://nostrmap.fr/og-image.php?title=Se+connecter&sub=Via+votre+extension+Nostr" />
+  <meta name="twitter:image:alt"  content="Se connecter à Nostr Map via une extension Nostr" />
+  <link rel="canonical"           href="https://nostrmap.fr/connexion" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="/assets/css/app.css?v=20260423-modal" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    .cx-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+    .cx-back {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      color: var(--text-muted);
+      font-size: .83rem;
+      margin-bottom: 1.75rem;
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .cx-back:hover { color: var(--text); }
+    .cx-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .cx-icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 1rem;
+    }
+    .cx-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: .75rem;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .cx-header p {
+      color: var(--text-muted);
+      font-size: .95rem;
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .cx-why {
+      background: rgba(139,92,246,.07);
+      border: 1px solid rgba(139,92,246,.2);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 2.5rem;
+      font-size: .9rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .cx-why strong { color: var(--text); }
+    /* ─ Steps ─ */
+    .cx-steps { display: flex; flex-direction: column; gap: 2.5rem; margin-bottom: 2rem; }
+    .cx-step { display: flex; gap: 1.1rem; align-items: flex-start; }
+    .cx-step-num {
+      flex-shrink: 0;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--gradient);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 800; color: #fff;
+      box-shadow: 0 0 16px rgba(139,92,246,.4);
+      margin-top: .1rem;
+    }
+    .cx-step-body { flex: 1; min-width: 0; }
+    .cx-step-body > h2 {
+      font-size: 1.05rem; font-weight: 700; margin-bottom: .5rem;
+    }
+    .cx-step-body > p {
+      font-size: .875rem; color: var(--text-muted); line-height: 1.7; margin-bottom: .6rem;
+    }
+    /* ─ Boutons extension ─ */
+    .cx-ext-links { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .65rem; margin-bottom: 1.5rem; }
+    .cx-ext-btn {
+      display: inline-flex; align-items: center; gap: .45rem;
+      padding: .5rem 1rem; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: var(--surface-hover);
+      color: var(--text); font-size: .83rem; font-weight: 600;
+      text-decoration: none; transition: all .15s;
+    }
+    .cx-ext-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(139,92,246,.08); }
+    .cx-ext-btn-primary { background: var(--gradient) !important; border: none !important; color: #fff !important; }
+    .cx-ext-btn-primary:hover { opacity: .85; color: #fff !important; }
+    .cx-browser-badge {
+      font-size: .68rem; background: rgba(255,255,255,.15);
+      padding: .15rem .4rem; border-radius: 4px; font-weight: 500;
+    }
+    .cx-ext-btn-primary .cx-browser-badge { background: rgba(0,0,0,.2); }
+    /* ─ Guide illustré par extension ─ */
+    .cx-ext-guides { display: flex; flex-direction: column; gap: 1rem; }
+    .cx-ext-guide {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .cx-ext-guide-header {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .85rem 1.1rem;
+      background: var(--surface-hover);
+      cursor: pointer;
+      user-select: none;
+    }
+    .cx-ext-guide-header h3 { font-size: .9rem; font-weight: 700; flex: 1; }
+    .cx-ext-badge {
+      font-size: .7rem; font-weight: 600;
+      padding: .2rem .55rem; border-radius: 99px;
+      background: rgba(139,92,246,.15); color: var(--primary);
+    }
+    .cx-ext-badge.recommended {
+      background: rgba(139,92,246,.25); color: var(--primary);
+    }
+    .cx-ext-guide-chevron {
+      transition: transform .2s;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .cx-ext-guide.open .cx-ext-guide-chevron { transform: rotate(180deg); }
+    .cx-ext-guide-body {
+      display: none;
+      padding: 1.25rem 1.1rem;
+      border-top: 1px solid var(--border);
+    }
+    .cx-ext-guide.open .cx-ext-guide-body { display: block; }
+    /* ─ Sous-étapes illustrées ─ */
+    .cx-sub-steps { display: flex; flex-direction: column; gap: 1.25rem; }
+    .cx-sub-step { display: flex; gap: .75rem; align-items: flex-start; }
+    .cx-sub-num {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--surface-hover); border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; font-weight: 700; color: var(--text-muted);
+      margin-top: .15rem;
+    }
+    .cx-sub-body { flex: 1; min-width: 0; }
+    .cx-sub-body p {
+      font-size: .84rem; color: var(--text-muted); line-height: 1.65; margin-bottom: .5rem;
+    }
+    .cx-sub-body p strong { color: var(--text); }
+    .cx-sub-body p:last-child { margin-bottom: 0; }
+    /* ─ Screenshots ─ */
+    .cx-screenshot-wrap {
+      margin: .6rem 0 .25rem;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+    .cx-screenshot-wrap img {
+      display: block; width: 100%; height: auto;
+    }
+    .cx-screenshot-caption {
+      font-size: .75rem; color: var(--text-muted);
+      padding: .4rem .6rem;
+      background: var(--surface-hover);
+      border-top: 1px solid var(--border);
+      font-style: italic;
+    }
+    /* ─ Callout ─ */
+    .cx-callout {
+      background: rgba(139,92,246,.06);
+      border-left: 3px solid var(--primary);
+      padding: .55rem .85rem;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: .82rem; color: var(--text-muted); line-height: 1.6;
+      margin: .4rem 0;
+    }
+    .cx-callout strong { color: var(--text); }
+    /* ─ Nostr.fr ─ */
+    .cx-nostr-fr {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .5rem 1rem; border-radius: var(--radius-sm);
+      background: rgba(6,182,212,.1); border: 1px solid rgba(6,182,212,.25);
+      color: var(--accent); font-size: .85rem; font-weight: 600;
+      text-decoration: none; transition: all .15s; margin-top: .5rem;
+    }
+    .cx-nostr-fr:hover { background: rgba(6,182,212,.18); color: var(--accent); }
+    /* ─ Séparateur ─ */
+    .cx-separator { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    /* ─ Sécurité ─ */
+    .cx-security {
+      background: rgba(16,185,129,.05); border: 1px solid rgba(16,185,129,.2);
+      border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 2rem;
+    }
+    .cx-security h3 {
+      font-size: .85rem; font-weight: 700; color: var(--success);
+      margin-bottom: .6rem; display: flex; align-items: center; gap: .4rem;
+    }
+    .cx-security ul { list-style: none; display: flex; flex-direction: column; gap: .4rem; }
+    .cx-security li {
+      font-size: .83rem; color: var(--text-muted);
+      padding-left: 1.2rem; position: relative; line-height: 1.55;
+    }
+    .cx-security li::before { content: '✓'; position: absolute; left: 0; color: var(--success); font-weight: 700; }
+    /* ─ Bouton connexion ─ */
+    .cx-connect-btn { width: 100%; font-size: 1rem; padding: .9rem 1rem; }
+    .cx-no-ext-msg { margin-top: .85rem; font-size: .82rem; text-align: center; }
+    @media (max-width: 640px) {
+      .cx-step { gap: .85rem; }
+      .cx-ext-guide-header, .cx-ext-guide-body, .cx-why, .cx-security {
+        padding-left: .95rem; padding-right: .95rem;
+      }
+    }
+    /* ─ Tabs ─ */
+    .cx-tabs-nav {
+      display: flex;
+      gap: .4rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0;
+    }
+    .cx-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .6rem 1.15rem;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      border: none;
+      background: var(--surface-hover);
+      color: var(--text-muted);
+      font-size: .875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .18s;
+      position: relative;
+      bottom: -2px;
+      white-space: nowrap;
+      flex: 1;
+      justify-content: center;
+    }
+    .cx-tab-btn:hover:not(.active) { color: var(--text); background: rgba(139,92,246,.1); }
+    .cx-tab-btn.active { background: var(--gradient); color: #fff; }
+    .cx-tab-panel { display: none; }
+    .cx-tab-panel.active { display: block; }
+    /* ─ Badge sécurité extension ─ */
+    .cx-ext-badge-secure {
+      background: rgba(139,92,246,.07);
+      border: 1px solid rgba(139,92,246,.2);
+      border-radius: var(--radius);
+      padding: .8rem 1.1rem;
+      margin-bottom: 1.75rem;
+      font-size: .84rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: flex-start;
+      gap: .65rem;
+      line-height: 1.6;
+    }
+    .cx-ext-badge-secure strong { color: var(--text); }
+    /* ─ Info nsec (desktop tab) ─ */
+    .cx-nsec-info {
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+      margin-bottom: 1.75rem;
+      padding: 1rem 1.1rem;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .cx-nsec-info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: .55rem;
+      font-size: .84rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+    .cx-nsec-info-row strong { color: var(--text); }
+    /* ─ Avertissement nsec (mobile) ─ */
+    .cx-nsec-warning {
+      background: rgba(245,158,11,.06);
+      border: 1px solid rgba(245,158,11,.25);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .cx-nsec-warning h3 {
+      font-size: .875rem; font-weight: 700; color: #f59e0b;
+      margin-bottom: .4rem; display: flex; align-items: center; gap: .4rem;
+    }
+    .cx-nsec-warning p { font-size: .84rem; color: var(--text-muted); line-height: 1.65; margin: 0; }
+    /* ─ Champ nsec ─ */
+    .cx-nsec-label {
+      display: block; font-size: .83rem; font-weight: 600;
+      color: var(--text-muted); margin-bottom: .5rem;
+    }
+    .cx-nsec-input-wrap { position: relative; margin-bottom: 1rem; }
+    .cx-nsec-input {
+      width: 100%;
+      padding: .75rem 2.75rem .75rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: var(--surface-hover);
+      color: var(--text);
+      font-size: .88rem;
+      font-family: monospace;
+      transition: border-color .15s;
+      box-sizing: border-box;
+    }
+    .cx-nsec-input:focus { outline: none; border-color: var(--primary); }
+    .cx-nsec-input::placeholder { color: var(--text-muted); font-family: inherit; }
+    .cx-nsec-toggle {
+      position: absolute; right: .65rem; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--text-muted);
+      padding: .25rem; display: flex; align-items: center; line-height: 1;
+    }
+    .cx-nsec-toggle:hover { color: var(--text); }
+    @media (max-width: 480px) {
+      .cx-tab-btn { font-size: .8rem; padding: .55rem .75rem; gap: .3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <a href="/" class="logo">Nostr Map ✦</a>
+      <span class="tagline">Annuaire Nostr Francophone</span>
+    </div>
+    <div class="header-actions">
+      <a href="/faq.html" class="btn btn-ghost btn-sm header-desktop-only">FAQ</a>
+      <a href="/connexion?from=ajouter" class="btn btn-primary btn-sm header-desktop-only header-auth-out">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Ajouter mon profil
+      </a>
+      <a href="/soumettre.html" class="btn btn-outline btn-sm header-desktop-only">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Soumettre
+      </a>
+      <div id="user-menu" class="header-user-menu hidden">
+        <a href="/mon-profil.html" class="nav-user-chip" id="user-menu-btn">
+          <span class="nav-user-avatar" id="user-avatar-mini">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+          </span>
+          <span id="user-slug-display"></span>
+        </a>
+        <button id="btn-logout" class="btn btn-danger btn-sm header-desktop-only">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Déconnexion
+        </button>
+      </div>
+      <button id="btn-login-header" class="btn btn-primary btn-sm header-login-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Se connecter
+      </button>
+
+      <!-- Hamburger mobile -->
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ MOBILE NAV ═══════════════════════════════════════════════════ -->
+<div class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-logo">Nostr Map ✦</span>
+      <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+    </div>
+
+    <a href="/" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Accueil
+    </a>
+    <a href="/faq.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      FAQ
+    </a>
+    <a href="/extension.html" class="mobile-nav-item" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Nostr Map Signer
+    </a>
+    <a href="/relay.html" class="mobile-nav-item" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M6.3 6.3a8 8 0 0 0 0 11.4M17.7 6.3a8 8 0 0 1 0 11.4M3.5 3.5a12 12 0 0 0 0 17M20.5 3.5a12 12 0 0 1 0 17"/></svg>
+      Relay Nostr Map
+    </a>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="/connexion?from=ajouter" class="mobile-nav-item mobile-nav-auth-out" style="color:var(--primary);font-weight:600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Ajouter mon profil
+    </a>
+    <a href="/soumettre.html" class="mobile-nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Soumettre un profil
+    </a>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="/mon-profil.html" class="mobile-nav-item mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Mon profil
+    </a>
+    <button id="mobile-btn-logout" class="mobile-nav-item mobile-nav-btn-danger mobile-nav-auth-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Déconnexion
+    </button>
+    <button id="mobile-btn-login" class="mobile-nav-item mobile-nav-btn-primary mobile-nav-auth-out">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Se connecter
+    </button>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="https://nostr.fr" class="mobile-nav-item mobile-nav-secondary" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Qu'est-ce que Nostr ?
+    </a>
+    <a href="/mentions-legales.html" class="mobile-nav-item mobile-nav-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Mentions légales
+    </a>
+    <a href="/contact.html" class="mobile-nav-item mobile-nav-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Contacter l’équipe
+    </a>
+    <a href="https://github.com/CedHaurus/Nostr-Map" class="mobile-nav-item mobile-nav-secondary" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      GitHub
+    </a>
+  </div>
+</div>
+
+<!-- ══ CONTENU ═════════════════════════════════════════════════════ -->
+<div class="cx-wrap">
+
+  <a href="/" class="cx-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <path d="M19 12H5M12 5l-7 7 7 7"/>
+    </svg>
+    Retour à l'accueil
+  </a>
+
+  <!-- Bandeau contextuel "Ajouter mon profil" -->
+  <div id="cx-ajouter-banner" style="display:none;
+    background: rgba(139,92,246,.1);
+    border: 1px solid rgba(139,92,246,.3);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.75rem;
+    align-items: flex-start;
+    gap: .85rem;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="flex-shrink:0;margin-top:.1rem;">
+      <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+    </svg>
+    <div>
+      <strong style="font-size:.95rem;">Pour ajouter votre profil Nostr à l'annuaire</strong>
+      <p style="color:var(--text-muted);font-size:.875rem;margin:.25rem 0 0;line-height:1.6;">
+        Connectez-vous avec votre compte Nostr — votre profil sera automatiquement importé et visible dans l'annuaire.
+      </p>
+    </div>
+  </div>
+
+  <div class="cx-header">
+    <span class="cx-icon">⚡</span>
+    <h1>Se connecter avec Nostr</h1>
+    <p>Nostr est un protocole de réseau social décentralisé. Votre identité vous appartient entièrement — aucun mot de passe, aucun serveur central.</p>
+  </div>
+
+  <!-- ══ SECTION DESKTOP ════════════════════════════════════════════════════ -->
+  <div id="cx-desktop">
+
+    <!-- ─ Navigation par onglets ─ -->
+    <div class="cx-tabs-nav">
+      <button class="cx-tab-btn active" id="tab-btn-extension" onclick="switchTab('extension')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Nostr Map Signer
+      </button>
+      <button class="cx-tab-btn" id="tab-btn-nsec" onclick="switchTab('nsec')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="8" cy="15" r="4"/><path d="M12 15h8M16 11v8"/></svg>
+        Clé Nsec
+      </button>
+    </div>
+
+    <!-- ══ Onglet : Extension Nostr Map Signer ══ -->
+    <div class="cx-tab-panel active" id="tab-extension">
+
+      <div class="cx-ext-badge-secure">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="flex-shrink:0;margin-top:.1rem;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span><strong>Recommandé</strong> — Votre clé privée ne quitte jamais le navigateur. Elle est protégée par l'extension Nostr Map Signer et le <strong>code PIN de votre choix</strong>.</span>
+      </div>
+
+      <div class="cx-why">
+        Pour <strong>accéder à votre profil Nostr Map</strong>, gérer vos liens sociaux vérifiés ou <strong>proposer un utilisateur</strong> à l'annuaire, vous avez besoin d'un compte Nostr et de l'extension installée dans votre navigateur.
+      </div>
+
+      <div class="cx-steps">
+
+        <!-- ─ Étape 1 : Extension ──────────────────────────────────── -->
+        <div class="cx-step">
+          <div class="cx-step-num">1</div>
+          <div class="cx-step-body">
+            <h2>Installer l'extension Nostr Map Signer <span style="font-size:.75rem;font-weight:500;color:var(--text-muted);vertical-align:middle;">— développée par Nostr Map</span></h2>
+            <p>L'extension stocke votre clé privée localement dans votre navigateur. Elle signe les requêtes à votre place sans jamais transmettre votre clé à un site externe.</p>
+
+            <div class="cx-ext-links" id="ext-links"></div>
+
+            <!-- Guides illustrés par extension -->
+            <div class="cx-ext-guides" id="ext-guides">
+
+            <!-- Firefox : Nostr Map Signer -->
+            <div class="cx-ext-guide" id="guide-firefox">
+              <div class="cx-ext-guide-header" onclick="toggleGuide('guide-firefox')">
+                <h3>Nostr Map Signer <span style="font-weight:400;color:var(--text-muted)">— Firefox</span></h3>
+                <span class="cx-ext-badge" id="badge-firefox">Firefox</span>
+                <svg class="cx-ext-guide-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              <div class="cx-ext-guide-body">
+                <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:1rem;">Compatible avec : <strong style="color:var(--text)">Firefox</strong></p>
+                <div class="cx-sub-steps">
+
+                  <div class="cx-sub-step">
+                    <div class="cx-sub-num">1</div>
+                    <div class="cx-sub-body">
+                      <p>Installez <strong>Nostr Map Signer</strong> depuis le bouton ci-dessus, puis cliquez sur son icône dans la barre d'outils Firefox pour ouvrir l'extension.</p>
+                      <div class="cx-screenshot-wrap">
+                        <img src="/assets/img/ext-nostrmap-signer.png" alt="Nostr Map Signer — vue principale" loading="lazy" />
+                        <div class="cx-screenshot-caption">L'extension Nostr Map Signer affiche votre identité Nostr et votre portefeuille Lightning</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="cx-sub-step">
+                    <div class="cx-sub-num">2</div>
+                    <div class="cx-sub-body">
+                      <p>Si vous avez déjà un compte Nostr, importez votre clé privée (<code style="font-size:.8rem;background:var(--surface-hover);padding:.1rem .3rem;border-radius:4px;color:var(--primary)">nsec…</code>) dans la section <strong>Identité Nostr</strong>. Sinon, créez une nouvelle identité directement depuis l'extension.</p>
+                      <div class="cx-callout">
+                        Votre clé est stockée localement dans votre navigateur. Utilisez le bouton <strong>Verrouiller</strong> pour la protéger par un code PIN.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="cx-sub-step">
+                    <div class="cx-sub-num">3</div>
+                    <div class="cx-sub-body">
+                      <p>Une fois votre identité configurée, revenez sur cette page et cliquez sur <strong>Se connecter</strong>. L'extension vous demandera d'approuver la connexion.</p>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Chrome/Edge/Brave : Nostr Map Signer -->
+            <div class="cx-ext-guide" id="guide-chrome">
+              <div class="cx-ext-guide-header" onclick="toggleGuide('guide-chrome')">
+                <h3>Nostr Map Signer <span style="font-weight:400;color:var(--text-muted)">— Chrome / Edge / Brave</span></h3>
+                <span class="cx-ext-badge" id="badge-chrome">Chrome / Edge / Brave</span>
+                <svg class="cx-ext-guide-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              <div class="cx-ext-guide-body">
+                <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:1rem;">Compatible avec : <strong style="color:var(--text)">Chrome, Edge, Brave, Opera</strong> et tous les navigateurs basés sur Chromium</p>
+                <div class="cx-sub-steps">
+
+                  <div class="cx-sub-step">
+                    <div class="cx-sub-num">1</div>
+                    <div class="cx-sub-body">
+                      <p>Installez <strong>Nostr Map Signer</strong> depuis le bouton ci-dessus, puis cliquez sur son icône dans la barre d'outils pour ouvrir l'extension.</p>
+                      <div class="cx-screenshot-wrap">
+                        <img src="/assets/img/ext-nostrmap-signer.png" alt="Nostr Map Signer — vue principale" loading="lazy" />
+                        <div class="cx-screenshot-caption">L'extension Nostr Map Signer affiche votre identité Nostr et votre portefeuille Lightning</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="cx-sub-step">
+                    <div class="cx-sub-num">2</div>
+                    <div class="cx-sub-body">
+                      <p>Si vous avez déjà un compte Nostr, importez votre clé privée (<code style="font-size:.8rem;background:var(--surface-hover);padding:.1rem .3rem;border-radius:4px;color:var(--primary)">nsec…</code>) dans la section <strong>Identité Nostr</strong>. Sinon, créez une nouvelle identité directement depuis l'extension.</p>
+                      <div class="cx-callout">
+                        Votre clé est stockée localement dans votre navigateur. Utilisez le bouton <strong>Verrouiller</strong> pour la protéger par un code PIN.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="cx-sub-step">
+                    <div class="cx-sub-num">3</div>
+                    <div class="cx-sub-body">
+                      <p>Une fois votre identité configurée, revenez sur cette page et cliquez sur <strong>Se connecter</strong>. L'extension vous demandera d'approuver la connexion.</p>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            </div><!-- /cx-ext-guides -->
+          </div>
+        </div>
+
+        <!-- ─ Étape 2 : Compte Nostr ───────────────────────────────── -->
+        <div class="cx-step">
+          <div class="cx-step-num">2</div>
+          <div class="cx-step-body">
+            <h2>Vous n'avez pas encore de compte Nostr ?</h2>
+            <p>Rendez-vous sur <strong>nostr.fr</strong> — la meilleure ressource en français pour créer son identité Nostr et découvrir les applications disponibles.</p>
+            <p>Une fois votre compte créé, revenez ici et importez votre clé privée dans l'extension (étape 1).</p>
+            <a href="https://nostr.fr" target="_blank" rel="noopener" class="cx-nostr-fr">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+              Apprendre à utiliser Nostr sur nostr.fr
+            </a>
+          </div>
+        </div>
+
+        <!-- ─ Étape 3 : Connexion ──────────────────────────────────── -->
+        <div class="cx-step">
+          <div class="cx-step-num">3</div>
+          <div class="cx-step-body">
+            <h2>Se connecter sur Nostr Map</h2>
+            <p>Extension installée et configurée ? Cliquez sur le bouton ci-dessous. L'extension vous demandera d'approuver la connexion.</p>
+            <p>Votre profil Nostr existant est automatiquement importé sur Nostr Map.</p>
+          </div>
+        </div>
+
+      </div><!-- /cx-steps -->
+
+      <hr class="cx-separator" />
+
+      <div class="cx-security">
+        <h3>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Votre sécurité
+        </h3>
+        <ul>
+          <li>Votre clé privée ne quitte jamais votre appareil</li>
+          <li>Nostr Map ne stocke que votre clé publique, jamais votre clé privée</li>
+          <li>La connexion utilise une signature cryptographique (NIP-07/NIP-98) — aucun mot de passe transmis</li>
+          <li>Vous pouvez révoquer l'accès à tout moment depuis les paramètres de l'extension</li>
+        </ul>
+      </div>
+
+      <button id="btn-connect" class="btn btn-primary cx-connect-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Se connecter
+      </button>
+      <p class="cx-no-ext-msg text-muted" id="cx-status">
+        Extension installée ? Si le bouton ne répond pas, rechargez la page.
+      </p>
+
+    </div><!-- /tab-extension -->
+
+    <!-- ══ Onglet : Clé Nsec ══ -->
+    <div class="cx-tab-panel" id="tab-nsec">
+
+      <div class="cx-nsec-info">
+        <div class="cx-nsec-info-row">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" style="flex-shrink:0;margin-top:.1rem;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>Solution moins sécurisée — recommandé pour une utilisation ponctuelle. Préférez <strong>Nostr Map Signer</strong> au quotidien.</span>
+        </div>
+        <div class="cx-nsec-info-row">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" style="flex-shrink:0;margin-top:.1rem;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Votre clé sert une seule fois à prouver votre identité, puis est <strong>effacée</strong>. Un jeton de session prend le relais — comme un badge d'accès valable <strong>24h</strong>.</span>
+        </div>
+      </div>
+
+      <label class="cx-nsec-label" for="nsec-input">Votre clé privée Nsec</label>
+      <div class="cx-nsec-input-wrap">
+        <input
+          type="password"
+          id="nsec-input"
+          class="cx-nsec-input"
+          placeholder="nsec1…"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+        <button type="button" class="cx-nsec-toggle" id="nsec-toggle" aria-label="Afficher / masquer la clé">
+          <svg id="nsec-eye-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          <svg id="nsec-eye-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+
+      <button id="btn-connect-nsec" class="btn btn-primary cx-connect-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Se connecter
+      </button>
+      <p class="cx-no-ext-msg text-muted" id="cx-nsec-status"></p>
+
+      <hr class="cx-separator" />
+
+      <div class="cx-step" style="margin-bottom:0;">
+        <div class="cx-step-body">
+          <h2>Pas encore de compte Nostr ?</h2>
+          <p>Rendez-vous sur <strong>nostr.fr</strong> pour créer votre identité et obtenir votre clé nsec.</p>
+          <a href="https://nostr.fr" target="_blank" rel="noopener" class="cx-nostr-fr">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+            Apprendre à utiliser Nostr sur nostr.fr
+          </a>
+        </div>
+      </div>
+
+    </div><!-- /tab-nsec -->
+
+  </div><!-- /cx-desktop -->
+
+  <!-- ══ SECTION MOBILE ════════════════════════════════════════════════════ -->
+  <div id="cx-mobile" style="display:none;padding:0 0 3rem;">
+
+    <p style="color:var(--text-muted);font-size:.9rem;line-height:1.7;margin-bottom:1.75rem;">
+      Les extensions Nostr ne sont pas disponibles sur mobile et tablette. Connectez-vous directement avec votre clé nsec.
+    </p>
+
+    <div class="cx-nsec-warning">
+      <h3>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Clé nsec — utilisation ponctuelle
+      </h3>
+      <p>Votre clé est utilisée en mémoire pour signer la connexion, puis immédiatement effacée. Elle n'est ni stockée, ni transmise.</p>
+    </div>
+
+    <div class="cx-callout" style="margin-bottom:1.25rem;background:rgba(16,185,129,.05);border-left-color:var(--success);">
+      Une fois connecté, vous restez identifié <strong>pendant 24h</strong> ou jusqu'à la fermeture du navigateur.
+    </div>
+
+    <label class="cx-nsec-label" for="nsec-input-mobile">Votre clé privée Nsec</label>
+    <div class="cx-nsec-input-wrap">
+      <input
+        type="password"
+        id="nsec-input-mobile"
+        class="cx-nsec-input"
+        placeholder="nsec1…"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      />
+      <button type="button" class="cx-nsec-toggle" id="nsec-toggle-mobile" aria-label="Afficher / masquer la clé">
+        <svg id="nsec-eye-off-mobile" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        <svg id="nsec-eye-on-mobile" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+
+    <button id="btn-connect-nsec-mobile" class="btn btn-primary" style="width:100%;font-size:1rem;padding:.9rem 1rem;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Se connecter
+    </button>
+    <p class="cx-no-ext-msg text-muted" id="cx-nsec-status-mobile"></p>
+
+    <div style="margin-top:2rem;display:flex;align-items:flex-start;gap:.85rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="flex-shrink:0;margin-top:.1rem;"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <p style="font-size:.84rem;color:var(--text-muted);line-height:1.65;margin:0;">
+        Pour bénéficier de la protection par code PIN de <strong style="color:var(--text);">Nostr Map Signer</strong>, connectez-vous depuis Chrome, Firefox, Edge ou Brave sur un ordinateur.
+      </p>
+    </div>
+
+  </div><!-- /cx-mobile -->
+
+</div>
+
+<!-- ══ TOASTS ════════════════════════════════════════════════════════ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════ -->
+<script>
+  function toggleGuide(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
+
+  function switchTab(tab) {
+    ['extension', 'nsec'].forEach(t => {
+      document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
+      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    });
+  }
+
+  function initNsecToggle(toggleId, inputId, eyeOffId, eyeOnId) {
+    const btn   = document.getElementById(toggleId);
+    const input = document.getElementById(inputId);
+    if (!btn || !input) return;
+    btn.addEventListener('click', () => {
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      document.getElementById(eyeOffId).style.display = show ? 'none' : '';
+      document.getElementById(eyeOnId).style.display  = show ? ''     : 'none';
+    });
+  }
+</script>
+
+<script type="module">
+  import { auth } from '/assets/js/auth.js?v=20260423-modal';
+  import { app }  from '/assets/js/app.js?v=20260423-modal';
+
+  auth.initUI({
+    loginBtn:  document.getElementById('btn-login-header'),
+    logoutBtn: document.getElementById('btn-logout'),
+    userMenu:  document.getElementById('user-menu'),
+    slugEl:    document.getElementById('user-slug-display'),
+  });
+
+  function safeNext(raw) {
+    return (raw && /^\/[^/]/.test(raw)) ? raw : '/mon-profil.html';
+  }
+
+  if (auth.isLoggedIn()) {
+    location.href = safeNext(new URLSearchParams(location.search).get('next'));
+  }
+
+  if (new URLSearchParams(location.search).get('from') === 'ajouter') {
+    document.getElementById('cx-ajouter-banner').style.display = 'flex';
+  }
+
+  // ── Connexion via nsec (partagé desktop + mobile) ────────────────────────
+  const LOGIN_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>`;
+
+  function setupNsecForm(inputId, btnId, statusId) {
+    const input  = document.getElementById(inputId);
+    const btn    = document.getElementById(btnId);
+    const status = document.getElementById(statusId);
+    if (!input || !btn) return;
+
+    btn.addEventListener('click', async () => {
+      const nsec = input.value.trim();
+      if (!nsec) { status.innerHTML = '<strong style="color:var(--warning)">⚠ Entrez votre clé nsec.</strong>'; return; }
+      if (!nsec.startsWith('nsec1')) { status.innerHTML = '<strong style="color:var(--warning)">⚠ La clé doit commencer par nsec1…</strong>'; return; }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Connexion…';
+      status.textContent = '';
+
+      // Effacer le champ avant même l'envoi réseau
+      input.value = '';
+
+      const result = await auth.loginWithNsec(nsec);
+      if (result) {
+        app.toast('Connecté ! Bienvenue 🎉', 'success');
+        setTimeout(() => {
+          location.href = safeNext(new URLSearchParams(location.search).get('next'));
+        }, 800);
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = LOGIN_SVG + ' Se connecter';
+        status.innerHTML = '<strong style="color:var(--warning)">⚠ Connexion échouée.</strong> Vérifiez votre clé nsec et réessayez.';
+      }
+    });
+
+    // Connexion au Enter dans le champ
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
+  }
+
+  // ── Détection mobile / tablette (pas d'extension navigateur dispo) ──────────
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+                || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent))
+                || (window.innerWidth <= 1024 && navigator.maxTouchPoints > 0);
+
+  if (isMobile) {
+    document.getElementById('cx-mobile').style.display  = '';
+    document.getElementById('cx-desktop').style.display = 'none';
+
+    initNsecToggle('nsec-toggle-mobile', 'nsec-input-mobile', 'nsec-eye-off-mobile', 'nsec-eye-on-mobile');
+    setupNsecForm('nsec-input-mobile', 'btn-connect-nsec-mobile', 'cx-nsec-status-mobile');
+
+  } else {
+    document.getElementById('cx-desktop').style.display = '';
+    document.getElementById('cx-mobile').style.display  = 'none';
+
+    // ── Onglet Extension ─────────────────────────────────────────────────
+    const isFirefox = /Firefox\/\d/i.test(navigator.userAgent);
+    const isEdge    = /Edg\//i.test(navigator.userAgent);
+    const isBrave   = navigator.brave !== undefined;
+    const browser   = isFirefox ? 'Firefox' : isEdge ? 'Edge' : isBrave ? 'Brave' : 'Chrome';
+
+    const ffUrl  = 'https://addons.mozilla.org/fr/firefox/addon/nostr-map-signer/';
+    const chrUrl = 'https://chromewebstore.google.com/detail/nostr-map-signer/hceiololfodfnhcaehnfijplkhbepbhd';
+
+    const extLinks = document.getElementById('ext-links');
+    if (isFirefox) {
+      extLinks.innerHTML = `
+        <a href="${ffUrl}" target="_blank" rel="noopener" class="cx-ext-btn cx-ext-btn-primary">
+          Nostr Map Signer <span class="cx-browser-badge">Firefox</span> ↗
+        </a>
+        <a href="${chrUrl}" target="_blank" rel="noopener" class="cx-ext-btn">
+          Nostr Map Signer <span class="cx-browser-badge">Chrome / Edge / Brave</span> ↗
+        </a>`;
+    } else {
+      extLinks.innerHTML = `
+        <a href="${chrUrl}" target="_blank" rel="noopener" class="cx-ext-btn cx-ext-btn-primary">
+          Nostr Map Signer <span class="cx-browser-badge">${browser}</span> ↗
+        </a>
+        <a href="${ffUrl}" target="_blank" rel="noopener" class="cx-ext-btn">
+          Nostr Map Signer <span class="cx-browser-badge">Firefox</span> ↗
+        </a>`;
+    }
+
+    const detectedGuide = isFirefox ? 'guide-firefox' : 'guide-chrome';
+    const detectedBadge = isFirefox ? 'badge-firefox'  : 'badge-chrome';
+    document.getElementById(detectedGuide).classList.add('open');
+    document.getElementById(detectedBadge).textContent = (isFirefox ? 'Firefox' : browser) + ' — votre navigateur';
+    document.getElementById(detectedBadge).classList.add('recommended');
+
+    const btnExt    = document.getElementById('btn-connect');
+    const statusExt = document.getElementById('cx-status');
+
+    btnExt.addEventListener('click', async () => {
+      if (!window.nostr) {
+        statusExt.innerHTML = '<strong style="color:var(--warning)">⚠ Extension non détectée.</strong> Installez l\'extension (étape 1) puis rechargez cette page.';
+        return;
+      }
+      btnExt.disabled = true;
+      btnExt.innerHTML = '<span class="spinner"></span> Connexion…';
+      statusExt.textContent = '';
+
+      const result = await auth.login();
+      if (result) {
+        app.toast('Connecté ! Bienvenue 🎉', 'success');
+        setTimeout(() => {
+          location.href = safeNext(new URLSearchParams(location.search).get('next'));
+        }, 800);
+      } else {
+        btnExt.disabled = false;
+        btnExt.innerHTML = LOGIN_SVG + ' Se connecter';
+      }
+    });
+
+    window.addEventListener('nostr:no-extension', () => {
+      statusExt.innerHTML = '<strong style="color:var(--warning)">⚠ Extension non détectée.</strong> Installez l\'extension (étape 1) puis rechargez cette page.';
+    });
+
+    // ── Onglet Nsec ──────────────────────────────────────────────────────
+    initNsecToggle('nsec-toggle', 'nsec-input', 'nsec-eye-off', 'nsec-eye-on');
+    setupNsecForm('nsec-input', 'btn-connect-nsec', 'cx-nsec-status');
+  }
+</script>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <p>
+    © <span class="footer-year"></span> <strong>Nostr Map ✦</strong> — Annuaire Nostr Francophone <span class="footer-sep">|</span>
+    <a href="https://nostr.fr" target="_blank" rel="noopener">Qu'est-ce que Nostr ?</a>
+    <span class="footer-sep">|</span>
+    <a href="/mentions-legales.html">Mentions légales</a>
+    <span class="footer-sep">|</span>
+    <a href="/contact.html">Contacter l'équipe</a>
+    <span class="footer-sep">|</span>
+    <a href="https://github.com/CedHaurus/Nostr-Map" target="_blank" rel="noopener">Code source</a>
+  </p>
+</footer>
+
+</body>
+</html>

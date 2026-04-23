@@ -1,0 +1,4 @@
+Contact: mailto:contact@christopheboutry.com
+Expires: 2027-04-16T00:00:00.000Z
+Preferred-Languages: fr, en
+Canonical: https://nostrmap.fr/.well-known/security.txt
