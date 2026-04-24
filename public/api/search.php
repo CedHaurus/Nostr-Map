@@ -21,7 +21,7 @@ $sort   = $_GET['sort']   ?? 'recent';   // 'recent' | 'actifs' | 'populaires' |
 $offset = max(0, (int)($_GET['offset'] ?? 0));
 $seed   = preg_match('/^\d+$/', $_GET['seed'] ?? '') ? (int)$_GET['seed'] : null;
 
-const PAGE = 12;
+const PAGE = 100;
 
 // Mode grille sans recherche textuelle (accueil)
 if ($q === '' && in_array($sort, ['recent', 'actifs', 'populaires', 'random'], true)) {

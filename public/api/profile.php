@@ -59,15 +59,9 @@ if ($method === 'GET') {
     $stmt->execute([$profile['npub']]);
     $links = $stmt->fetchAll();
 
-    // En public : masquer l'URL des liens non vérifiés et infos sensibles
+    // En public : masquer uniquement les infos sensibles (pas l'URL — le badge "Non vérifié" suffit)
     if (!$isOwner) {
         unset($profile['display_name_updated_at']);
-        foreach ($links as &$link) {
-            if (!$link['verified']) {
-                $link['url'] = null;
-            }
-        }
-        unset($link);
     }
 
     jsonOk(['profile' => $profile, 'links' => $links]);

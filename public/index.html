@@ -527,7 +527,7 @@
       profiles.forEach((p, i) => {
         const links = (p.verified_platforms || []).map(pl => ({ platform: pl, verified: true }));
         const wrap  = document.createElement('div');
-        wrap.className = 'fade-in';
+        wrap.className = 'card-reveal';
         wrap.dataset.slug        = p.slug;
         wrap.dataset.livePosts     = p.nostr_posts     || 0;
         wrap.dataset.liveFollowers = p.nostr_followers || 0;
@@ -546,6 +546,7 @@
         }
 
         grid.appendChild(wrap);
+        cardRevealObserver.observe(wrap);
         if (!p.cached_name && !p.cached_avatar) liveUpdateCard(p.slug, p.npub);
       });
 
@@ -563,11 +564,21 @@
     s.loading = false;
   }
 
-  // Observer le sentinel
+  // Observer le sentinel (infinite scroll)
   const observer = new IntersectionObserver(entries => {
     if (entries[0].isIntersecting) loadPage(_currentSort, true);
   }, { rootMargin: '300px' });
   observer.observe(sentinel);
+
+  // Observer scroll-reveal pour les cartes
+  const cardRevealObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in-view');
+        cardRevealObserver.unobserve(e.target);
+      }
+    });
+  }, { rootMargin: '0px 0px -40px 0px', threshold: 0.05 });
 
   // Barre de filtres
   let _currentSort = 'recent';

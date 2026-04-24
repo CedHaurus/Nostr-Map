@@ -520,6 +520,7 @@
 
       <div class="cx-why">
         Pour <strong>accéder à votre profil Nostr Map</strong>, gérer vos liens sociaux vérifiés ou <strong>proposer un utilisateur</strong> à l'annuaire, vous avez besoin d'un compte Nostr et de l'extension installée dans votre navigateur.
+        <br><span style="font-size:.82rem;color:var(--text-muted);margin-top:.4rem;display:block;">Compatible avec toute extension <strong style="color:var(--text);">NIP-07</strong> : Nostr Map Signer, Alby, nos2x, Amber…</span>
       </div>
 
       <div class="cx-steps">
@@ -735,8 +736,22 @@
   <!-- ══ SECTION MOBILE ════════════════════════════════════════════════════ -->
   <div id="cx-mobile" style="display:none;padding:0 0 3rem;">
 
+    <!-- Popup NIP-07 détecté (affiché dynamiquement si window.nostr disponible) -->
+    <div id="cx-nip07-detected" style="display:none;margin-bottom:1.5rem;background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(6,182,212,.1));border:1px solid rgba(139,92,246,.4);border-radius:var(--radius);padding:1.1rem 1.1rem 1rem;position:relative;">
+      <button id="cx-nip07-dismiss" aria-label="Fermer" style="position:absolute;top:.6rem;right:.7rem;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.1rem;line-height:1;padding:.2rem .4rem;">✕</button>
+      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.65rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <strong style="font-size:.95rem;">Extension NIP-07 détectée</strong>
+      </div>
+      <p style="font-size:.83rem;color:var(--text-muted);margin:0 0 .9rem;line-height:1.55;">Une extension compatible est active dans votre navigateur. Vous pouvez vous connecter sans saisir votre clé.</p>
+      <button id="btn-connect-nip07-mobile" class="btn btn-primary" style="width:100%;font-size:.95rem;padding:.75rem 1rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Se connecter avec mon extension
+      </button>
+    </div>
+
     <p style="color:var(--text-muted);font-size:.9rem;line-height:1.7;margin-bottom:1.75rem;">
-      Les extensions Nostr ne sont pas disponibles sur mobile et tablette. Connectez-vous directement avec votre clé nsec.
+      Ou connectez-vous avec votre clé nsec :
     </p>
 
     <div class="cx-nsec-warning">
@@ -887,6 +902,45 @@
 
     initNsecToggle('nsec-toggle-mobile', 'nsec-input-mobile', 'nsec-eye-off-mobile', 'nsec-eye-on-mobile');
     setupNsecForm('nsec-input-mobile', 'btn-connect-nsec-mobile', 'cx-nsec-status-mobile');
+
+    // Détection NIP-07 mobile (ex: Nostash sur iOS Safari) — délai 400ms pour laisser l'extension s'injecter
+    const nip07Box    = document.getElementById('cx-nip07-detected');
+    const nip07Btn    = document.getElementById('btn-connect-nip07-mobile');
+    const nip07Status = document.getElementById('cx-nsec-status-mobile');
+
+    function checkNip07() {
+      if (window.nostr) {
+        nip07Box.style.display = '';
+        nip07Box.style.opacity = '0';
+        nip07Box.style.transform = 'translateY(-6px)';
+        nip07Box.style.transition = 'opacity .3s ease, transform .3s ease';
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          nip07Box.style.opacity = '1';
+          nip07Box.style.transform = 'translateY(0)';
+        }));
+      }
+    }
+    setTimeout(checkNip07, 400);
+
+    document.getElementById('cx-nip07-dismiss').addEventListener('click', () => {
+      nip07Box.style.opacity = '0';
+      setTimeout(() => { nip07Box.style.display = 'none'; }, 250);
+    });
+
+    nip07Btn.addEventListener('click', async () => {
+      nip07Btn.disabled = true;
+      nip07Btn.innerHTML = '<span class="spinner"></span> Connexion…';
+      const result = await auth.login();
+      if (result) {
+        app.toast('Connecté ! Bienvenue 🎉', 'success');
+        setTimeout(() => {
+          location.href = safeNext(new URLSearchParams(location.search).get('next'));
+        }, 800);
+      } else {
+        nip07Btn.disabled = false;
+        nip07Btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg> Se connecter avec mon extension';
+      }
+    });
 
   } else {
     document.getElementById('cx-desktop').style.display = '';

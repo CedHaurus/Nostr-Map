@@ -147,9 +147,23 @@ if ($isXHost) {
     if (strpos($tweetHtml, $challenge) !== false) {
         $db->prepare('UPDATE social_links SET verified = 1, verified_at = NOW() WHERE id = ?')->execute([$linkId]);
         // Remplacer l'URL du tweet par l'URL du profil
-        $tweetPath = parse_url($url, PHP_URL_PATH);
-        if (preg_match('#^/([^/]+)/status#i', $tweetPath, $m)) {
-            $profileUrl = 'https://x.com/' . $m[1];
+        // Priorité : author_url de l'oEmbed (fiable même pour les URLs /i/web/status/...)
+        $profileUrl = null;
+        $authorUrlRaw = $oembedData['author_url'] ?? '';
+        if ($authorUrlRaw) {
+            $authorPath = parse_url($authorUrlRaw, PHP_URL_PATH);
+            if (preg_match('#^/([^/]+)$#', $authorPath ?? '', $ma)) {
+                $profileUrl = 'https://x.com/' . $ma[1];
+            }
+        }
+        // Fallback : extraire depuis le chemin du tweet, en ignorant les segments internes X (/i/...)
+        if (!$profileUrl) {
+            $tweetPath = parse_url($url, PHP_URL_PATH);
+            if (preg_match('#^/([^/]+)/status#i', $tweetPath ?? '', $m) && $m[1] !== 'i') {
+                $profileUrl = 'https://x.com/' . $m[1];
+            }
+        }
+        if ($profileUrl) {
             $db->prepare('UPDATE social_links SET url = ? WHERE id = ?')->execute([$profileUrl, $linkId]);
         }
         logUserActivity($npub, 'verify_link', 'link', (string)$linkId, 'URL: ' . substr($url, 0, 100));

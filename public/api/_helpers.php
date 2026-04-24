@@ -81,6 +81,7 @@ function requireAuth(): array {
 
 function jsonOk(array $data): void {
     header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
@@ -88,6 +89,7 @@ function jsonOk(array $data): void {
 function jsonError(string $message, int $code = 400): void {
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
     echo json_encode(['error' => $message], JSON_UNESCAPED_UNICODE);
     exit;
 }

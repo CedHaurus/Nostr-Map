@@ -1084,6 +1084,14 @@ body.is-logged-in .header-auth-out { display: none !important; }
   border-color: var(--primary);
   transform: translateX(4px);
 }
+.link-item--pending {
+  cursor: default;
+  opacity: .75;
+}
+.link-item--pending:hover {
+  border-color: var(--border);
+  transform: none;
+}
 .link-platform-icon {
   width: 36px;
   height: 36px;
@@ -2029,6 +2037,17 @@ body.is-logged-in .header-auth-out { display: none !important; }
 .fade-in-delay-1 { animation-delay: .05s; }
 .fade-in-delay-2 { animation-delay: .1s; }
 .fade-in-delay-3 { animation-delay: .15s; }
+
+/* Scroll-reveal pour les cartes de la grille */
+.card-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity .45s ease, transform .45s ease;
+}
+.card-reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 
 /* ─── Auth gate ──────────────────────────────────────────────── */

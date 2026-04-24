@@ -135,11 +135,6 @@ $linksStmt = $db->prepare(
 $linksStmt->execute([$p['npub']]);
 $publicLinks = $linksStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Masquer l'URL des liens non vérifiés (même règle que l'API)
-foreach ($publicLinks as &$lnk) {
-    if (!$lnk['verified']) $lnk['url'] = null;
-}
-unset($lnk);
 
 $ssrData = json_encode([
     'profile' => [

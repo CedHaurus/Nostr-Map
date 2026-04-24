@@ -530,10 +530,10 @@
       avatarWrap.innerHTML = `
         <img src="${esc(p.cached_avatar)}" alt="Avatar" class="profile-hero-avatar" id="ph-avatar-img"
              onerror="this.style.display='none';document.getElementById('ph-avatar-placeholder').style.display='flex'" />
-        <div class="avatar-placeholder" id="ph-avatar-placeholder" style="display:none;width:96px;height:96px;font-size:2rem;">${initLetter}</div>`;
+        <div class="avatar-placeholder" id="ph-avatar-placeholder" style="display:none;width:96px;height:96px;margin:0 auto 1rem;font-size:2rem;">${initLetter}</div>`;
     } else {
       avatarWrap.innerHTML = `
-        <div class="avatar-placeholder" id="ph-avatar-placeholder" style="width:96px;height:96px;font-size:2rem;">${initLetter}</div>`;
+        <div class="avatar-placeholder" id="ph-avatar-placeholder" style="width:96px;height:96px;margin:0 auto 1rem;font-size:2rem;">${initLetter}</div>`;
     }
 
     // Nom / slug
@@ -579,8 +579,14 @@
     // Liens RS
     const linksContainer = document.getElementById('ph-links');
     if (links.length) {
-      linksContainer.innerHTML = links.map(l => `
-        <a class="link-item" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">
+      linksContainer.innerHTML = links.map(l => {
+        const handle = (l.display_handle || '').replace(/^@/, '');
+        const derivedUrl = l.url || (() => {
+          if (l.platform === 'x' && handle)       return 'https://x.com/' + handle;
+          if (l.platform === 'bluesky' && handle)  return 'https://bsky.app/profile/' + handle;
+          return null;
+        })();
+        const inner = `
           <span class="link-platform-icon platform-${esc(l.platform)}">${app.platformIcon(l.platform)}</span>
           <div class="link-info">
             <div class="link-platform-name">${esc(app.platformName(l.platform))}</div>
@@ -588,9 +594,11 @@
           </div>
           ${l.verified
             ? `<span class="link-verified-dot" title="Vérifié"></span>`
-            : `<span class="link-unverified-badge">Non vérifié</span>`}
-        </a>
-      `).join('');
+            : `<span class="link-unverified-badge">Non vérifié</span>`}`;
+        return derivedUrl
+          ? `<a class="link-item" href="${esc(derivedUrl)}" target="_blank" rel="noopener noreferrer">${inner}</a>`
+          : `<div class="link-item link-item--pending">${inner}</div>`;
+      }).join('');
     }
 
     // URL publique
