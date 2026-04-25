@@ -1,7 +1,8 @@
 <?php
 /**
  * GET /api/search.php?q=[terme]
- * Recherche dans : cached_name, slug, cached_nip05, display_handle (social_links)
+ * Recherche dans : cached_name, slug, cached_nip05, cached_bio,
+ * display_handle (social_links)
  * Retourne max 20 résultats.
  */
 
@@ -23,8 +24,24 @@ $seed   = preg_match('/^\d+$/', $_GET['seed'] ?? '') ? (int)$_GET['seed'] : null
 
 const PAGE = 100;
 
+function truncateCardBio(?string $bio, int $max = 180): ?string {
+    if ($bio === null) {
+        return null;
+    }
+
+    $bio = trim($bio);
+    if ($bio === '' || mb_strlen($bio) <= $max) {
+        return $bio;
+    }
+
+    $slice = rtrim(mb_substr($bio, 0, $max - 1));
+    $slice = preg_replace('/\s+\S*$/u', '', $slice) ?: $slice;
+
+    return rtrim($slice, " \t\n\r\0\x0B.,;:!?-") . '…';
+}
+
 // Mode grille sans recherche textuelle (accueil)
-if ($q === '' && in_array($sort, ['recent', 'actifs', 'populaires', 'random'], true)) {
+if ($q === '' && in_array($sort, ['recent', 'actifs', 'populaires', 'random', 'verified'], true)) {
     $db = getDB();
     $orderBy = match($sort) {
         'actifs'     => 'p.nostr_posts DESC',
@@ -32,12 +49,16 @@ if ($q === '' && in_array($sort, ['recent', 'actifs', 'populaires', 'random'], t
         'random'     => $seed !== null ? "RAND({$seed})" : 'RAND()',
         default      => 'p.registered_at DESC',
     };
+    $extraWhere = $sort === 'verified'
+        ? 'AND EXISTS (SELECT 1 FROM social_links sl WHERE sl.npub = p.npub AND sl.verified = 1)'
+        : '';
     $stmt = $db->prepare(
         "SELECT p.npub, p.slug, p.cached_name, p.cached_avatar, p.cached_bio, p.cached_nip05,
                 p.nostr_followers, p.nostr_posts,
                 (p.last_login IS NULL) AS community_added
          FROM profiles p
          WHERE p.status = 'active'
+         {$extraWhere}
          ORDER BY {$orderBy}
          LIMIT ? OFFSET ?"
     );
@@ -59,9 +80,7 @@ if ($q === '' && in_array($sort, ['recent', 'actifs', 'populaires', 'random'], t
     }
     foreach ($results as &$p) {
         $p['verified_platforms'] = $badges[$p['npub']] ?? [];
-        if ($p['cached_bio'] && mb_strlen($p['cached_bio']) > 100) {
-            $p['cached_bio'] = mb_substr($p['cached_bio'], 0, 97) . '…';
-        }
+        $p['cached_bio'] = truncateCardBio($p['cached_bio']);
     }
     unset($p);
     jsonOk(['results' => $results, 'has_more' => $hasMore]);
@@ -98,6 +117,7 @@ $sql = "
             OR p.slug       LIKE ? COLLATE utf8mb4_unicode_ci
             OR p.npub       LIKE ? COLLATE utf8mb4_unicode_ci
             OR p.cached_nip05 LIKE ? COLLATE utf8mb4_unicode_ci
+            OR p.cached_bio LIKE ? COLLATE utf8mb4_unicode_ci
             OR p.npub IN (
                 SELECT npub FROM social_links
                 WHERE display_handle LIKE ? COLLATE utf8mb4_unicode_ci
@@ -109,7 +129,7 @@ $sql = "
 ";
 
 $stmt = $db->prepare($sql);
-$stmt->execute([$like, $like, $like, $like, $like, $like, $like, $limit]);
+$stmt->execute([$like, $like, $like, $like, $like, $like, $like, $like, $limit]);
 $results = $stmt->fetchAll();
 
 // Pour chaque profil, récupérer les badges vérifiés
@@ -131,10 +151,7 @@ if (!empty($npubs)) {
 
 foreach ($results as &$p) {
     $p['verified_platforms'] = $badges[$p['npub']] ?? [];
-    // Tronquer la bio
-    if ($p['cached_bio'] && mb_strlen($p['cached_bio']) > 100) {
-        $p['cached_bio'] = mb_substr($p['cached_bio'], 0, 97) . '…';
-    }
+    $p['cached_bio'] = truncateCardBio($p['cached_bio']);
 }
 unset($p);
 

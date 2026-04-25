@@ -180,6 +180,15 @@
 <!-- ══ PROFIL PUBLIC ════════════════════════════════════════════════ -->
 <div id="profile-page" class="profile-page hidden">
 
+  <div style="max-width:640px;margin:0 auto;padding:.75rem 1.5rem 0;text-align:left;">
+    <button id="profile-back-btn" class="btn btn-ghost btn-sm" style="color:var(--text-muted);gap:.4rem;padding-left:.5rem;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Annuaire
+    </button>
+  </div>
+
   <div class="profile-hero fade-in">
     <!-- Avatar -->
     <div id="ph-avatar-wrap">
@@ -253,6 +262,13 @@
           <rect x="3" y="14" width="7" height="7"/><path d="M14 14h.01M14 17h.01M17 14h.01M17 17h.01M20 14h.01M20 17h.01M20 20h.01M17 20h.01M14 20h.01"/>
         </svg>
         QR Code
+      </button>
+      <button id="ph-share-btn" class="btn btn-lg" style="background:#0a0a0f;border:1.5px solid var(--primary);color:var(--primary);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+        Partager ma fiche
       </button>
     </div>
 
@@ -366,7 +382,7 @@
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
-  import { app }   from '/assets/js/app.js?v=20260423-modal';
+  import { app }   from '/assets/js/app.js?v=20260425-hamburgerfix';
   import { nostr } from '/assets/js/nostr.js';
   import { auth }  from '/assets/js/auth.js?v=20260423-modal';
 
@@ -389,6 +405,19 @@
     logoutBtn: document.getElementById('btn-logout'),
     userMenu:  document.getElementById('user-menu'),
     slugEl:    document.getElementById('user-slug-display'),
+  });
+
+  // Bouton retour : history.back() si on vient du site, sinon "/" direct.
+  // Déclenche le mécanisme de restauration de position dans index.html
+  // (sessionStorage nm_nav lu au retour par tryRestoreNavState).
+  document.getElementById('profile-back-btn').addEventListener('click', () => {
+    try {
+      if (document.referrer && new URL(document.referrer).origin === location.origin) {
+        history.back();
+        return;
+      }
+    } catch {}
+    location.href = '/';
   });
 
   // Récupérer le slug depuis l'URL (?slug=... via réécriture Nginx)
@@ -610,6 +639,10 @@
 
     document.getElementById('ph-copy-npub-btn').addEventListener('click', () => {
       navigator.clipboard.writeText(p.npub).then(() => app.toast('Npub copiée !', 'success'));
+    });
+
+    document.getElementById('ph-share-btn').addEventListener('click', () => {
+      navigator.clipboard.writeText(publicUrl).then(() => app.toast('Lien copié dans le presse-papier !', 'success'));
     });
 
     // ── Bouton "Modifier ma fiche" ───────────────────────────────────────────

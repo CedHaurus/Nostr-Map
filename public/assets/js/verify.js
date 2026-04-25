@@ -4,7 +4,7 @@
  */
 
 import { auth } from '/assets/js/auth.js?v=20260423-modal';
-import { app }  from '/assets/js/app.js?v=20260423-modal';
+import { app }  from '/assets/js/app.js?v=20260425-hamburgerfix';
 
 /**
  * Initialise les handlers de vérification.

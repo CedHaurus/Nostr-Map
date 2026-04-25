@@ -333,7 +333,7 @@
             <strong style="color:#fca5a5;">YouTube</strong> — Collez le code dans la description de votre chaîne, puis entrez l'URL (ex : <code style="color:var(--text);">https://youtube.com/@votre-chaine</code>).
           </div>
           <div style="padding:.6rem .9rem;background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.18);border-radius:.6rem;font-size:.8rem;color:var(--text-muted);line-height:1.6;">
-            <strong style="color:#a5b4fc;">Mastodon</strong> — Collez le code dans votre bio, puis entrez l'URL de votre profil (ex : <code style="color:var(--text);">https://mastodon.social/@vous</code>).
+            <strong style="color:#a5b4fc;">Mastodon</strong> — Collez le code dans votre bio, puis entrez l'URL de votre profil sur n'importe quelle instance publique (ex : <code style="color:var(--text);">https://mastodon.online/@vous</code>).
           </div>
         </div>
       </div>
@@ -375,9 +375,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
   import { auth }       from '/assets/js/auth.js?v=20260423-modal';
-  import { app }        from '/assets/js/app.js?v=20260423-modal';
+  import { app }        from '/assets/js/app.js?v=20260425-hamburgerfix';
   import { nostr }      from '/assets/js/nostr.js';
-  import { initVerify } from '/assets/js/verify.js?v=20260423-modal';
+  import { initVerify } from '/assets/js/verify.js?v=20260425-hamburgerfix';
 
   const token    = auth.getToken();
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -772,8 +772,8 @@
                      'Entre l\'URL de ton profil Bluesky :',
                      'https://bsky.app/profile/toi.bsky.social'],
           mastodon: ['Ton code challenge — colle-le temporairement dans ta bio Mastodon',
-                     'Entre l\'URL de ton profil Mastodon :',
-                     'https://mastodon.social/@toi'],
+                     'Entre l\'URL de ton profil Mastodon (n\'importe quelle instance publique) :',
+                     'https://mastodon.online/@toi'],
           youtube:  ['Ton code challenge — colle-le temporairement dans la description de ta chaîne',
                      'Entre l\'URL de ta chaîne YouTube :',
                      'https://youtube.com/@ta-chaine'],

@@ -4,7 +4,7 @@
  * La lib qrcode.js doit être chargée en CDN avant ce module.
  */
 
-import { app } from '/assets/js/app.js?v=20260423-modal';
+import { app } from '/assets/js/app.js?v=20260425-hamburgerfix';
 
 let _currentSlug  = null;
 let _currentNpub  = null;

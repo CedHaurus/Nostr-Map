@@ -9,6 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
     el.textContent = new Date().getFullYear();
   });
 
+  // Evite de binder deux fois les handlers UI si app.js est importe
+  // accidentellement avec deux URLs differentes.
+  if (document.body?.dataset.nmAppUiReady === '1') {
+    return;
+  }
+  if (document.body) {
+    document.body.dataset.nmAppUiReady = '1';
+  }
+
   // ── Header hide/show au scroll ─────────────────────────────────
   const header = document.querySelector('.header');
   if (header) {
@@ -721,8 +730,9 @@ function renderCard(profile, links = [], opts = {}) {
 
   const name   = esc(profile.cached_name || profile.slug || '?');
   const slug   = esc(profile.slug);
-  const bio    = profile.cached_bio
-    ? esc(profile.cached_bio.length > 100 ? profile.cached_bio.slice(0, 97) + '…' : profile.cached_bio)
+  const rawBio = String(profile.cached_bio || '').trim();
+  const bio    = rawBio
+    ? esc(rawBio.length > 220 ? rawBio.slice(0, 217) + '…' : rawBio)
     : '';
 
   // Avatar
@@ -780,23 +790,30 @@ function renderCard(profile, links = [], opts = {}) {
         QR
       </button>
     </div>`;
+  const bioHtml = !compact
+    ? `<p class="profile-bio${bio ? '' : ' is-empty'}" id="card-bio-${slug}">${bio}</p>`
+    : '';
 
   const hasCached = !!(profile.cached_name || profile.cached_avatar);
+  const noBioClass = !compact && !bio ? ' profile-card-no-bio' : '';
   return `
-    <div class="profile-card" data-npub="${esc(profile.npub)}" data-no-cache="${hasCached ? '' : '1'}"
+    <div class="profile-card${noBioClass}" data-npub="${esc(profile.npub)}" data-no-cache="${hasCached ? '' : '1'}"
          onclick="location.href='/p/${slug}'">
-      <a href="/p/${slug}" class="profile-card-body" onclick="event.stopPropagation()">
-        <div class="avatar-wrap" id="card-av-${slug}">${avatarHtml}</div>
-        <div class="profile-card-info">
-          <div class="profile-name-row">
-            <div class="profile-name" id="card-name-${slug}">${name}</div>
-            ${verifiedDot}
-            ${communityDot}
+      <div class="profile-card-content">
+        <a href="/p/${slug}" class="profile-card-body" onclick="event.stopPropagation()">
+          <div class="avatar-wrap" id="card-av-${slug}">${avatarHtml}</div>
+          <div class="profile-card-info">
+            <div class="profile-name-row">
+              <div class="profile-name" id="card-name-${slug}">${name}</div>
+              ${verifiedDot}
+              ${communityDot}
+            </div>
+            <div class="profile-slug">@${slug}</div>
+            ${statsHtml}
           </div>
-          <div class="profile-slug">@${slug}</div>
-          ${statsHtml}
-        </div>
-      </a>
+        </a>
+        ${bioHtml}
+      </div>
       ${actions}
     </div>`;
 }

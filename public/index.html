@@ -39,7 +39,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="/assets/css/app.css?v=20260423-modal" />
+  <link rel="stylesheet" href="/assets/css/app.css?v=20260425-verifiedfilter" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 </head>
 <body>
@@ -186,7 +186,7 @@
       type="text"
       id="search-input"
       class="search-input"
-      placeholder="Nom, @pseudo, npub, handle réseau social…"
+      placeholder="Nom, @pseudo, npub, mots-clés…"
       autocomplete="off"
       spellcheck="false"
     />
@@ -229,6 +229,10 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
         À découvrir
       </li>
+      <li class="mob-dropdown-option" data-sort="verified" role="option">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Vérifiés
+      </li>
     </ul>
   </div>
   <div class="filter-bar">
@@ -256,16 +260,22 @@
       </svg>
       À découvrir
     </button>
+    <button class="filter-btn" data-sort="verified" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      Vérifiés
+    </button>
   </div>
   <div class="profiles-grid" id="grid-main">
-    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
-    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
-    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
-    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
-    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
-    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
-    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
-    <div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:228px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:228px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:228px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:228px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:228px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:228px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:228px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
+    <div class="card" style="height:228px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>
   </div>
   <div id="grid-sentinel" style="height:1px;margin-top:1rem;"></div>
 </section>
@@ -319,9 +329,9 @@
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
-  import { app }    from '/assets/js/app.js?v=20260423-modal';
+  import { app }    from '/assets/js/app.js?v=20260425-hamburgerfix';
   import { auth }   from '/assets/js/auth.js?v=20260423-modal';
-  import { initQR } from '/assets/js/qr.js?v=20260423-modal';
+  import { initQR } from '/assets/js/qr.js?v=20260425-hamburgerfix';
   import { nostr }  from '/assets/js/nostr.js';
 
   // npub → hex (bech32 minimal)
@@ -353,6 +363,25 @@
         avEl.innerHTML = `<img class="avatar" src="${live.picture}" alt="" loading="lazy"
           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
           <div class="avatar-placeholder" style="display:none;">${letter}</div>`;
+      }
+      if (live.about) {
+        const bioText = live.about.length > 220 ? live.about.slice(0, 217) + '…' : live.about;
+        const card = document.querySelector(`.profile-card[data-npub="${npub}"]`);
+        let bioEl = document.getElementById('card-bio-' + slug);
+        if (!bioEl) {
+          const content = card?.querySelector('.profile-card-content');
+          if (content) {
+            bioEl = document.createElement('p');
+            bioEl.className = 'profile-bio';
+            bioEl.id = 'card-bio-' + slug;
+            content.appendChild(bioEl);
+          }
+        }
+        if (bioEl) {
+          bioEl.textContent = bioText;
+          bioEl.classList.remove('is-empty');
+        }
+        card?.classList.remove('profile-card-no-bio');
       }
 
       // Stats live (affichage seulement, pas de persistance côté public)
@@ -470,13 +499,13 @@
 
   function mkSkeletons(n) {
     return Array.from({length: n}, () =>
-      `<div class="card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>`
+      `<div class="card" style="height:228px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>`
     ).join('');
   }
 
   // État par onglet
   const tabState = {};
-  ['recent','actifs','populaires','random'].forEach(s => {
+  ['recent','actifs','populaires','random','verified'].forEach(s => {
     tabState[s] = { offset: 0, loading: false, done: false, seed: null };
   });
 
@@ -654,10 +683,7 @@
     });
   }
 
-  // Chargement initial
-  resetTab('recent');
-  syncFilterUI('recent');
-  loadPage('recent', false);
+  // Chargement initial — déclenché en fin de script après init recherche
 
   // ── Recherche pleine page ────────────────────────────────────────
   const searchInput   = document.getElementById('search-input');
@@ -682,7 +708,7 @@
   }
 
   async function runSearch(q) {
-    const skels = Array(6).fill('<div style="height:180px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>').join('');
+    const skels = Array(6).fill('<div style="height:228px;"><div class="skeleton" style="height:100%;border-radius:10px;"></div></div>').join('');
     searchGrid.innerHTML = skels;
     try {
       const res     = await fetch('/api/search.php?q=' + encodeURIComponent(q) + '&limit=40');
@@ -716,6 +742,110 @@
   });
 
   searchReset.addEventListener('click', function() { exitSearch(true); searchInput.focus(); });
+
+  // ── Retour arrière : sauvegarde / restauration de l'état ─────────────
+  //
+  // Problème : les fiches profil (/p/slug) sont des pages distinctes.
+  // Quand l'utilisateur fait "←", le navigateur recharge index.html et
+  // la liste repart de zéro (tri "Derniers inscrits", scroll en haut).
+  //
+  // Solution : sessionStorage.
+  //   • Avant de naviguer vers /p/slug, on sauvegarde :
+  //       - Pour la liste  : { type, sort, offset, scrollY }
+  //       - Pour la recherche : { type, query, scrollY }
+  //   • Au chargement suivant, si performance.navigation.type === 'back_forward',
+  //     on relit l'état et on restaure le tri + le scroll (liste) ou la
+  //     requête + le scroll (recherche).
+  //
+  // Note scroll : les cartes ont une hauteur fixe, donc scrollY est fiable.
+  // On attend 80 ms après le dernier rendu pour laisser le DOM se stabiliser.
+
+  function saveNavState() {
+    const inSearch = !sectionSearch.classList.contains('hidden');
+    if (inSearch) {
+      const q = searchInput.value.trim();
+      if (q.length >= 2) {
+        sessionStorage.setItem('nm_nav', JSON.stringify({
+          type: 'search', query: q, scrollY: window.scrollY
+        }));
+      }
+    } else {
+      sessionStorage.setItem('nm_nav', JSON.stringify({
+        type:   'browse',
+        sort:   _currentSort,
+        offset: tabState[_currentSort].offset,
+        scrollY: window.scrollY
+      }));
+    }
+  }
+
+  // Intercepte les clics sur les cartes (liste et résultats de recherche)
+  // en phase de capture pour s'exécuter avant location.href / suivi du <a>.
+  document.addEventListener('click', e => {
+    if (e.target.closest('.profile-card, .profile-card-body, .search-result-item')) {
+      saveNavState();
+    }
+  }, true);
+
+  async function tryRestoreNavState() {
+    const nav = performance.getEntriesByType('navigation')[0];
+    if (!nav || nav.type !== 'back_forward') {
+      sessionStorage.removeItem('nm_nav');
+      return false;
+    }
+    const raw = sessionStorage.getItem('nm_nav');
+    if (!raw) return false;
+    sessionStorage.removeItem('nm_nav');
+
+    let state;
+    try { state = JSON.parse(raw); } catch { return false; }
+
+    if (state.type === 'browse') {
+      _currentSort = state.sort;
+      syncFilterUI(state.sort);
+      resetTab(state.sort);
+      // Recharge page par page jusqu'à l'offset mémorisé.
+      // Chaque appel loadPage() incrémente tabState[sort].offset de PAGE items.
+      // La sortie de secours (prevOffset === offset) prévient toute boucle infinie
+      // si l'API retourne moins d'items qu'attendu (profils supprimés, etc.).
+      let first = true;
+      while (
+        tabState[state.sort].offset < (state.offset || 0) &&
+        !tabState[state.sort].done
+      ) {
+        const prev = tabState[state.sort].offset;
+        await loadPage(state.sort, !first);
+        first = false;
+        if (tabState[state.sort].offset === prev) break;
+      }
+      setTimeout(() => window.scrollTo({ top: state.scrollY, behavior: 'instant' }), 80);
+      return true;
+    }
+
+    if (state.type === 'search') {
+      searchInput.value = state.query;
+      searchReset.classList.remove('hidden');
+      enterSearch();
+      await runSearch(state.query);
+      setTimeout(() => window.scrollTo({ top: state.scrollY, behavior: 'instant' }), 80);
+      return true;
+    }
+
+    return false;
+  }
+
+  // Chargement initial — ou restauration si retour depuis une fiche profil.
+  // L'IIFE async permet d'await tryRestoreNavState() sans top-level await
+  // et garantit que tous les const (searchInput, sectionSearch…) sont déjà
+  // initialisés avant l'exécution.
+  (async () => {
+    const restored = await tryRestoreNavState();
+    if (!restored) {
+      resetTab('recent');
+      syncFilterUI('recent');
+      loadPage('recent', false);
+    }
+  })();
 
 </script>
 
