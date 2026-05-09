@@ -12,8 +12,9 @@ require_once __DIR__ . '/_totp.php';
 // ─── Configuration session sécurisée ─────────────────────────────────────────
 
 if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.gc_maxlifetime', 172800); // 48h — évite le GC PHP (défaut 24 min)
     session_set_cookie_params([
-        'lifetime' => 0,
+        'lifetime' => 172800, // 48h
         'path'     => '/admin',
         'secure'   => true,
         'httponly' => true,
@@ -24,8 +25,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
 define('ADMIN_SESSION_KEY', 'nm_admin');
 define('MAX_LOGIN_ATTEMPTS', 5);
-define('LOCKOUT_SECONDS',    900); // 15 min
-define('ADMIN_SESSION_SECONDS', 28800); // 8h
+define('LOCKOUT_SECONDS',    900);   // 15 min
+define('ADMIN_SESSION_SECONDS', 172800); // 48h
 
 function maintenanceBypassToken(): string
 {
