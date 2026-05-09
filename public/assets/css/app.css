@@ -1055,6 +1055,8 @@ body.is-logged-in .header-auth-out { display: none !important; }
   font-size: .9rem;
   max-width: 480px;
   margin: 0 auto 1.5rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .community-tag {
   display: inline-flex;
@@ -1897,7 +1899,6 @@ body.is-logged-in .header-auth-out { display: none !important; }
   }
 
   .challenge-code,
-  .profile-hero-bio,
   .profile-hero-slug,
   .link-handle {
     overflow-wrap: anywhere;
