@@ -94,6 +94,87 @@ function jsonError(string $message, int $code = 400): void {
     exit;
 }
 
+// ─── NOTIFICATIONS DISCORD ──────────────────────────────────────────────────
+
+/**
+ * Notifie l'administration via le webhook Discord configuré.
+ *
+ * Cet envoi est volontairement « best effort » : une indisponibilité de Discord
+ * ne doit jamais empêcher l'enregistrement d'un contact, d'une proposition ou
+ * d'un signalement en base.
+ */
+function sendDiscordNotification(string $title, string $description, string $level = 'info'): bool {
+    $webhookUrl = trim((string) getenv('DISCORD_WEBHOOK_URL'));
+    $userId     = trim((string) getenv('DISCORD_USER_ID'));
+
+    if ($webhookUrl === '' || $userId === '') {
+        error_log('NostrMap Discord: configuration absente.');
+        return false;
+    }
+
+    $webhookHost = strtolower((string) parse_url($webhookUrl, PHP_URL_HOST));
+    $webhookPath = (string) parse_url($webhookUrl, PHP_URL_PATH);
+    $validHost   = in_array($webhookHost, ['discord.com', 'discordapp.com'], true);
+    if (!$validHost || !str_starts_with($webhookPath, '/api/webhooks/')
+        || !preg_match('/^\d{17,20}$/', $userId)) {
+        error_log('NostrMap Discord: configuration invalide.');
+        return false;
+    }
+
+    $colors = [
+        'warning' => 0xF5A524,
+        'danger'  => 0xE5484D,
+        'success' => 0x30A46C,
+        'info'    => 0x3B82F6,
+    ];
+    $description = mb_substr($description, 0, 3900);
+    if (mb_strlen($description) >= 3900) $description .= "\n[tronqué]";
+
+    $payload = [
+        'content'          => "<@{$userId}>",
+        'allowed_mentions' => ['users' => [$userId]],
+        'embeds'           => [[
+            'title'       => mb_substr($title, 0, 256),
+            'description' => $description,
+            'color'       => $colors[$level] ?? $colors['info'],
+            'timestamp'   => gmdate('c'),
+            'footer'      => ['text' => 'nostrmap.fr'],
+        ]],
+    ];
+    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($json === false) {
+        error_log('NostrMap Discord: encodage JSON impossible.');
+        return false;
+    }
+
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL               => $webhookUrl,
+        CURLOPT_POST              => true,
+        CURLOPT_POSTFIELDS        => $json,
+        CURLOPT_RETURNTRANSFER    => true,
+        CURLOPT_CONNECTTIMEOUT_MS => 1000,
+        CURLOPT_TIMEOUT_MS        => 2500,
+        CURLOPT_FOLLOWLOCATION    => false,
+        CURLOPT_PROTOCOLS         => CURLPROTO_HTTPS,
+        CURLOPT_HTTPHEADER        => [
+            'Content-Type: application/json',
+            'User-Agent: NostrMap-Admin-Notifier/1.0',
+        ],
+    ]);
+    $response = curl_exec($ch);
+    $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr  = curl_error($ch);
+    curl_close($ch);
+
+    if ($response === false || $curlErr !== '' || $httpCode < 200 || $httpCode >= 300) {
+        error_log("NostrMap Discord: échec d'envoi (HTTP {$httpCode}).");
+        return false;
+    }
+
+    return true;
+}
+
 // ─── CORS / HEADERS ──────────────────────────────────────────────────────────
 
 function setCorsHeaders(): void {
@@ -112,6 +193,66 @@ function setCorsHeaders(): void {
         http_response_code(204);
         exit;
     }
+}
+
+// ─── RATE LIMIT ──────────────────────────────────────────────────────────────
+
+/**
+ * IP réelle du client.
+ * nostrmap.fr est derrière Cloudflare : REMOTE_ADDR = conteneur Caddy,
+ * X-Real-IP = edge Cloudflare. La vraie IP visiteur est dans CF-Connecting-IP.
+ */
+function clientIp(): string {
+    foreach (['HTTP_CF_CONNECTING_IP', 'HTTP_X_REAL_IP', 'REMOTE_ADDR'] as $k) {
+        $v = $_SERVER[$k] ?? '';
+        if ($v === '') continue;
+        $ip = trim(explode(',', $v)[0]);
+        if (filter_var($ip, FILTER_VALIDATE_IP)) return $ip;
+    }
+    return '0.0.0.0';
+}
+
+/**
+ * Limiteur glissant par IP, basé fichier (pas d'APCu/redis sur cette stack).
+ * Répond 429 si l'IP dépasse $max requêtes sur $window secondes pour ce $bucket.
+ * Fail-open : si le storage est inaccessible, on laisse passer (jamais casser le site).
+ */
+function rateLimit(string $bucket, int $max, int $window): void {
+    $ip  = clientIp();
+    $dir = '/var/www/html/storage/ratelimit';
+    if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) return;
+
+    // GC probabiliste (~1 %) : purge les fichiers plus vieux que 2 fenêtres.
+    if (random_int(1, 100) === 1) {
+        foreach (glob($dir . '/*.json') ?: [] as $f) {
+            if (@filemtime($f) < time() - ($window * 2)) @unlink($f);
+        }
+    }
+
+    $file = $dir . '/' . preg_replace('/[^a-z0-9_]/i', '', $bucket) . '_' . md5($ip) . '.json';
+    $fp   = @fopen($file, 'c+');
+    if ($fp === false) return; // fail-open
+
+    if (!flock($fp, LOCK_EX)) { fclose($fp); return; }
+    $now  = time();
+    $raw  = stream_get_contents($fp);
+    $hits = $raw !== '' ? (json_decode($raw, true) ?: []) : [];
+    $hits = array_values(array_filter($hits, static fn($t) => $t > $now - $window));
+
+    if (count($hits) >= $max) {
+        flock($fp, LOCK_UN);
+        fclose($fp);
+        header('Retry-After: ' . $window);
+        jsonError('Trop de requêtes, réessayez dans un instant.', 429);
+    }
+
+    $hits[] = $now;
+    rewind($fp);
+    ftruncate($fp, 0);
+    fwrite($fp, json_encode($hits));
+    fflush($fp);
+    flock($fp, LOCK_UN);
+    fclose($fp);
 }
 
 // ─── NOSTR EVENT ─────────────────────────────────────────────────────────────

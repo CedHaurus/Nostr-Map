@@ -59,5 +59,22 @@ $db->prepare(
     $ipHash,
     $reporterNpub ?: null,
 ]);
+$reportId = (int) $db->lastInsertId();
+
+$reasonLabels = [
+    'usurpation' => 'Usurpation d’identité',
+    'retrait'    => 'Demande de retrait',
+    'doublon'    => 'Doublon',
+];
+$profileUrl = $slug ? 'https://nostrmap.fr/p/' . rawurlencode((string) $slug) : null;
+sendDiscordNotification(
+    'Nouveau signalement',
+    '**Motif :** ' . $reasonLabels[$reason] . "\n"
+    . "**Profil signalé :** {$npub}"
+    . ($profileUrl ? "\n[Voir le profil]({$profileUrl})" : '')
+    . ($details ? "\n\n**Détails :**\n{$details}" : '')
+    . "\n\n[Ouvrir les signalements](https://nostrmap.fr/admin/reports.php?tab=reports&status=pending#report-{$reportId})",
+    'warning',
+);
 
 jsonOk(['success' => true]);

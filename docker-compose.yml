@@ -47,6 +47,9 @@ services:
       - TOTP_ENCRYPTION_KEY=${TOTP_ENCRYPTION_KEY}
       - APP_URL=${APP_URL}
       - APP_ENV=${APP_ENV}
+      - PALANTAR_TRUST_TOKEN=${PALANTAR_TRUST_TOKEN}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - DISCORD_USER_ID=${DISCORD_USER_ID}
     depends_on:
       mysql:
         condition: service_healthy

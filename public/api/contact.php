@@ -55,7 +55,18 @@ if ((int)$countStmt->fetchColumn() >= 3) {
 $db->prepare(
     'INSERT INTO contact_messages (npub, cached_name, motif, message) VALUES (?, ?, ?, ?)'
 )->execute([$npub, $name, $motif, $message]);
+$contactId = (int) $db->lastInsertId();
 
 logUserActivity($npub, 'contact', 'message', null, "Motif: {$motif}");
+
+sendDiscordNotification(
+    'Nouveau message de contact',
+    "**Motif :** {$motif}\n"
+    . '**Expéditeur :** ' . ($name ?: 'Profil sans nom') . "\n"
+    . "**npub :** {$npub}\n\n"
+    . "{$message}\n\n"
+    . "[Ouvrir les messages](https://nostrmap.fr/admin/contacts.php?status=new#contact-{$contactId})",
+    'info',
+);
 
 jsonOk(['ok' => true, 'message' => "Message envoyé. L'équipe vous répondra via Nostr."]);

@@ -78,8 +78,20 @@ $db->prepare(
     'INSERT INTO proposals (npub_proposed, proposed_by, message, links_json, cached_name, cached_avatar)
      VALUES (?, ?, ?, ?, ?, ?)'
 )->execute([$npub, $proposedBy, $message, $linksJson, $cachedName, $cachedAvatar]);
+$proposalId = (int) $db->lastInsertId();
 
 logUserActivity($proposedBy, 'propose_profile', 'proposal', $npub,
     'Proposé: ' . ($cachedName ?: $npub) . ', liens: ' . count($links));
+
+sendDiscordNotification(
+    'Nouvelle soumission de profil',
+    '**Profil proposé :** ' . ($cachedName ?: 'Sans nom') . "\n"
+    . "**npub :** {$npub}\n"
+    . "**Proposé par :** {$proposedBy}\n"
+    . '**Liens renseignés :** ' . count($links)
+    . ($message ? "\n\n**Message :**\n{$message}" : '')
+    . "\n\n[Ouvrir les soumissions](https://nostrmap.fr/admin/proposals.php?status=pending#proposal-{$proposalId})",
+    'info',
+);
 
 jsonOk(['success' => true, 'message' => 'Proposition envoyée. Elle sera examinée par un modérateur.']);
