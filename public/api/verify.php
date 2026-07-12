@@ -117,8 +117,10 @@ if ($isXHost) {
         ]);
     }
 
-    // Fetch via oEmbed (API publique, pas d'auth requise)
-    $oembedUrl = 'https://publish.twitter.com/oembed?url=' . urlencode($url) . '&omit_script=true';
+    // Fetch via oEmbed (API publique, pas d'auth requise).
+    // publish.twitter.com redirige désormais vers publish.x.com. On appelle
+    // directement le point d'entrée canonique et on ne suit aucune redirection.
+    $oembedUrl = 'https://publish.x.com/oembed?url=' . urlencode($url) . '&omit_script=true';
     $ch = curl_init();
     curl_setopt_array($ch, [
         CURLOPT_URL            => $oembedUrl,
@@ -137,12 +139,24 @@ if ($isXHost) {
 
     $db->prepare('UPDATE social_links SET last_check = NOW() WHERE id = ?')->execute([$linkId]);
 
-    if ($oembedErr || $oembedCode < 200 || $oembedCode >= 400) {
-        jsonOk(['verified' => false, 'message' => 'Impossible de récupérer le tweet via oEmbed. Vérifiez que le tweet est public.']);
+    // Une redirection n'est pas une réponse oEmbed exploitable : le corps est
+    // généralement vide et ne doit jamais être interprété comme un challenge absent.
+    if ($oembedErr || !is_string($oembedBody) || $oembedCode < 200 || $oembedCode >= 300) {
+        jsonOk([
+            'verified' => false,
+            'message'  => 'Impossible de récupérer le tweet via X. Réessayez dans quelques instants.',
+        ]);
     }
 
     $oembedData = json_decode($oembedBody, true);
-    $tweetHtml  = $oembedData['html'] ?? '';
+    $tweetHtml  = is_array($oembedData) ? ($oembedData['html'] ?? '') : '';
+
+    if (!is_string($tweetHtml) || $tweetHtml === '') {
+        jsonOk([
+            'verified' => false,
+            'message'  => 'X ne fournit pas le contenu de ce tweet. Réessayez dans quelques instants.',
+        ]);
+    }
 
     if (strpos($tweetHtml, $challenge) !== false) {
         $db->prepare('UPDATE social_links SET verified = 1, verified_at = NOW() WHERE id = ?')->execute([$linkId]);
