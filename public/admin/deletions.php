@@ -76,7 +76,7 @@ ob_start(); ?>
                 <td>
                     <div class="td-avatar">
                         <?php if ($p['cached_avatar']): ?>
-                            <img src="<?= h($p['cached_avatar']) ?>" class="avatar-sm" alt="" onerror="this.style.display='none'">
+                            <img src="<?= h($p['cached_avatar']) ?>" class="avatar-sm" alt="" data-fallback="hide">
                         <?php else: ?>
                             <div class="avatar-placeholder-sm"><?= strtoupper(substr($p['cached_name'] ?: $p['slug'], 0, 1)) ?></div>
                         <?php endif; ?>
@@ -120,7 +120,7 @@ ob_start(); ?>
 
                         <!-- Approuver (supprimer définitivement) -->
                         <form method="POST" style="display:inline;"
-                              onsubmit="return confirm('Supprimer définitivement @<?= h(addslashes($p['slug'])) ?> ? Action irréversible.')">
+                              data-confirm="Supprimer définitivement @<?= h($p['slug']) ?> ? Action irréversible.">
                             <?= csrfField() ?>
                             <input type="hidden" name="action" value="approve">
                             <input type="hidden" name="npub" value="<?= h($p['npub']) ?>">

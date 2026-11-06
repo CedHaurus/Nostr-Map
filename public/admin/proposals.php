@@ -154,7 +154,7 @@ ob_start(); ?>
                     <div class="td-avatar">
                         <?php if ($avatar): ?>
                             <img src="<?= h($avatar) ?>" class="avatar-sm" alt=""
-                                 onerror="this.style.display='none'">
+                                 data-fallback="hide">
                         <?php else: ?>
                             <div class="avatar-placeholder-sm"><?= strtoupper(substr($name ?: '?', 0, 1)) ?></div>
                         <?php endif; ?>
@@ -223,7 +223,7 @@ ob_start(); ?>
                 <?php if ($statusFilter === 'pending'): ?>
                 <td style="white-space:nowrap;">
                     <div class="actions">
-                        <form method="POST" style="display:inline;" onsubmit="return confirm('Accepter et créer la fiche ?')">
+                        <form method="POST" style="display:inline;" data-confirm="Accepter et créer la fiche ?">
                             <?= csrfField() ?>
                             <input type="hidden" name="id" value="<?= (int)$pr['id'] ?>">
                             <input type="hidden" name="action" value="accept">

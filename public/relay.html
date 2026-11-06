@@ -276,6 +276,7 @@
       .relay-client-name { width: auto; }
     }
   </style>
+<script src="/assets/js/csp-compat.js?v=20261106-csp"></script>
 </head>
 <body>
 
@@ -408,7 +409,7 @@
         <div class="relay-url-label">Adresse du relay</div>
         <div class="relay-url-value" id="relay-url-display">wss://relay.nostrmap.net</div>
       </div>
-      <button class="relay-copy-btn" id="btn-copy-relay" onclick="copyRelay()">
+      <button class="relay-copy-btn" id="btn-copy-relay" data-action="copyRelay">
         <svg id="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         <svg id="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:none;"><polyline points="20 6 9 17 4 12"/></svg>
         <span id="copy-label">Copier</span>
@@ -530,7 +531,7 @@
   <div class="relay-cta">
     <h2>Ajoutez le relay dès maintenant</h2>
     <p>Gratuit, ouvert, francophone. Chaque relay supplémentaire renforce la résilience du réseau Nostr.</p>
-    <button class="relay-copy-btn" style="margin:0 auto;" onclick="copyRelay()">
+    <button class="relay-copy-btn" style="margin:0 auto;" data-action="copyRelay">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       Copier wss://relay.nostrmap.net
     </button>
@@ -547,38 +548,8 @@
 <div class="toast-container" id="toast-container"></div>
 
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════ -->
-<script>
-function copyRelay() {
-  navigator.clipboard.writeText('wss://relay.nostrmap.net').then(() => {
-    const btn   = document.getElementById('btn-copy-relay');
-    const label = document.getElementById('copy-label');
-    const copyI = document.getElementById('copy-icon');
-    const checkI= document.getElementById('check-icon');
-    if (btn) {
-      btn.classList.add('copied');
-      if (label)  label.textContent = 'Copié !';
-      if (copyI)  copyI.style.display = 'none';
-      if (checkI) checkI.style.display = '';
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        if (label)  label.textContent = 'Copier';
-        if (copyI)  copyI.style.display = '';
-        if (checkI) checkI.style.display = 'none';
-      }, 2000);
-    }
-  });
-}
-</script>
-<script type="module">
-  import { auth } from '/assets/js/auth.js?v=20260423-modal';
-  import { app }  from '/assets/js/app.js?v=20260425-hamburgerfix';
-  auth.initUI({
-    loginBtn:  document.getElementById('btn-login'),
-    logoutBtn: document.getElementById('btn-logout'),
-    userMenu:  document.getElementById('user-menu'),
-    slugEl:    document.getElementById('user-slug-display'),
-  });
-</script>
+<script src="/assets/js/pages/relay-1.js?v=20261106-csp"></script>
+<script type="module" src="/assets/js/pages/relay-2.js?v=20261106-csp"></script>
 
 <!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
 <footer class="footer">

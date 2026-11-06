@@ -513,69 +513,18 @@ function adminLayout(string $title, string $content, bool $withNav = true): stri
                     if ($isAdmin) {
                         // Widget complet avec bouton toggle (admin uniquement)
                         return '
-                <div class="maintenance-widget" id="maint-widget">
+                <div class="maintenance-widget" id="maint-widget" data-active="' . ($maintActive ? '1' : '0') . '" data-csrf="' . h(csrfToken()) . '">
                     <div class="maint-status">
                         <span class="maint-dot" id="maint-dot"></span>
                         <span id="maint-label">Chargement…</span>
                     </div>
-                    <button class="maint-toggle-btn" id="maint-btn" onclick="toggleMaintenance()">
+                    <button class="maint-toggle-btn" id="maint-btn" data-action="toggleMaintenance">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                         </svg>
                         <span id="maint-btn-label">…</span>
                     </button>
-                </div>
-                <script>
-                (function() {
-                    const flag = ' . json_encode($maintActive) . ';
-                    function render(active) {
-                        const dot   = document.getElementById("maint-dot");
-                        const label = document.getElementById("maint-label");
-                        const btn   = document.getElementById("maint-btn");
-                        const bl    = document.getElementById("maint-btn-label");
-                        if (active) {
-                            dot.style.background   = "#ef4444";
-                            dot.style.boxShadow    = "0 0 6px #ef4444";
-                            label.textContent      = "Maintenance ON";
-                            label.style.color      = "#ef4444";
-                            btn.style.background   = "rgba(239,68,68,.15)";
-                            btn.style.borderColor  = "rgba(239,68,68,.4)";
-                            btn.style.color        = "#ef4444";
-                            bl.textContent         = "Désactiver";
-                        } else {
-                            dot.style.background   = "#10b981";
-                            dot.style.boxShadow    = "0 0 6px #10b981";
-                            label.textContent      = "Site en ligne";
-                            label.style.color      = "#10b981";
-                            btn.style.background   = "rgba(16,185,129,.1)";
-                            btn.style.borderColor  = "rgba(16,185,129,.3)";
-                            btn.style.color        = "#10b981";
-                            bl.textContent         = "Maintenance";
-                        }
-                    }
-                    window._maintActive = flag;
-                    render(flag);
-                    window.toggleMaintenance = function() {
-                        const btn = document.getElementById("maint-btn");
-                        btn.disabled = true;
-                        fetch("/admin/maintenance-toggle.php", {
-                            method: "POST",
-                            headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                            body: "csrf_token=" + encodeURIComponent(' . json_encode(csrfToken()) . ')
-                        })
-                        .then(r => r.json())
-                        .then(d => { window._maintActive = d.active; render(d.active); })
-                        .catch(() => {
-                            const label = document.getElementById("maint-label");
-                            if (label) {
-                                label.textContent = "Erreur maintenance";
-                                label.style.color = "#f59e0b";
-                            }
-                        })
-                        .finally(() => { btn.disabled = false; });
-                    };
-                })();
-                </script>';
+                </div>';
                     } elseif ($maintActive) {
                         // Indicateur lecture seule pour les modos (uniquement si maintenance active)
                         return '
@@ -608,7 +557,7 @@ function adminLayout(string $title, string $content, bool $withNav = true): stri
     if ($hasSidebar) {
         $mobileTopbar = '
 <div class="mobile-topbar">
-  <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu" onclick="toggleSidebar()">
+  <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu" data-action="toggleSidebar">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
       <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
     </svg>
@@ -618,24 +567,8 @@ function adminLayout(string $title, string $content, bool $withNav = true): stri
     <a href="/admin/logout.php" class="btn-logout" title="Déconnexion" style="font-size:1.2rem;">⏻</a>
   </div>
 </div>';
-        $backdrop = '<div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>';
-        $sidebarJs = '
-<script>
-function toggleSidebar() {
-  const s = document.querySelector(".sidebar");
-  const b = document.getElementById("sidebar-backdrop");
-  const open = s.classList.toggle("open");
-  b.classList.toggle("visible", open);
-  document.body.style.overflow = open ? "hidden" : "";
-}
-function closeSidebar() {
-  document.querySelector(".sidebar")?.classList.remove("open");
-  document.getElementById("sidebar-backdrop")?.classList.remove("visible");
-  document.body.style.overflow = "";
-}
-// Fermer sur navigation (clic sur un lien de la sidebar)
-document.querySelectorAll(".nav-link").forEach(a => a.addEventListener("click", closeSidebar));
-</script>';
+        $backdrop = '<div class="sidebar-backdrop" id="sidebar-backdrop" data-action="closeSidebar"></div>';
+        $sidebarJs = '';
     }
 
     return '<!DOCTYPE html>
@@ -648,6 +581,8 @@ document.querySelectorAll(".nav-link").forEach(a => a.addEventListener("click", 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/admin/assets/admin.css">
+<script src="/assets/js/csp-compat.js?v=20261106-csp"></script>
+<script src="/admin/assets/admin-layout.js?v=20261106-csp" defer></script>
 <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="' . ($hasSidebar ? 'has-sidebar' : 'login-page') . '">

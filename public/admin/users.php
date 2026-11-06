@@ -168,18 +168,18 @@ ob_start(); ?>
                     <div class="actions">
                         <!-- Changer rôle -->
                         <button type="button" class="btn btn-ghost btn-sm"
-                            onclick="showRoleModal(<?= $u['id'] ?>, '<?= h($u['username']) ?>', '<?= h($u['role']) ?>')">
+                            data-action="showRoleModal" data-args="<?= h(json_encode([(int) $u['id'], $u['username'], $u['role']], JSON_UNESCAPED_UNICODE)) ?>">
                             🔄 Rôle
                         </button>
                         <!-- Reset MDP -->
                         <button type="button" class="btn btn-warning btn-sm"
-                            onclick="showPasswordModal(<?= $u['id'] ?>, '<?= h($u['username']) ?>')">
+                            data-action="showPasswordModal" data-args="<?= h(json_encode([(int) $u['id'], $u['username']], JSON_UNESCAPED_UNICODE)) ?>">
                             🔑 MDP
                         </button>
                         <!-- Reset 2FA -->
                         <?php if ($u['totp_enabled']): ?>
                         <form method="POST" style="display:inline;"
-                              onsubmit="return confirm('Réinitialiser la 2FA de <?= h(addslashes($u['username'])) ?> ? La personne devra la reconfigurer à sa prochaine connexion.')">
+                              data-confirm="Réinitialiser la 2FA de <?= h($u['username']) ?> ? La personne devra la reconfigurer à sa prochaine connexion.">
                             <?= csrfField() ?>
                             <input type="hidden" name="action" value="reset_totp">
                             <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
@@ -200,7 +200,7 @@ ob_start(); ?>
                         </form>
                         <!-- Supprimer -->
                         <form method="POST" style="display:inline;"
-                              onsubmit="return confirm('Supprimer l\'utilisateur <?= h(addslashes($u['username'])) ?> ?')">
+                              data-confirm="Supprimer l'utilisateur <?= h($u['username']) ?> ?">
                             <?= csrfField() ?>
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
@@ -280,7 +280,7 @@ ob_start(); ?>
                 </select>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" onclick="document.getElementById('role-modal').style.display='none'">Annuler</button>
+                <button type="button" class="btn btn-ghost" data-hide="role-modal">Annuler</button>
                 <button type="submit" class="btn btn-primary">Confirmer</button>
             </div>
         </form>
@@ -303,31 +303,14 @@ ob_start(); ?>
                 <div class="form-hint" style="margin-top:.25rem;">Maj · Min · Chiffre · Caractère spécial</div>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" onclick="document.getElementById('password-modal').style.display='none'">Annuler</button>
+                <button type="button" class="btn btn-ghost" data-hide="password-modal">Annuler</button>
                 <button type="submit" class="btn btn-warning">🔑 Réinitialiser</button>
             </div>
         </form>
     </div>
 </div>
 
-<script>
-function showRoleModal(id, username, currentRole) {
-    document.getElementById('role-user-id').value = id;
-    document.getElementById('role-username').textContent = username;
-    document.getElementById('role-select').value = currentRole;
-    document.getElementById('role-modal').style.display = 'flex';
-}
-function showPasswordModal(id, username) {
-    document.getElementById('pw-user-id').value = id;
-    document.getElementById('pw-username').textContent = username;
-    document.getElementById('password-modal').style.display = 'flex';
-}
-['role-modal','password-modal'].forEach(id => {
-    document.getElementById(id).addEventListener('click', e => {
-        if (e.target.id === id) document.getElementById(id).style.display = 'none';
-    });
-});
-</script>
+<script src="/admin/assets/users.js?v=20261106-csp"></script>
 
 <?php
 $content = ob_get_clean();

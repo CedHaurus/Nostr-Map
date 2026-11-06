@@ -55,6 +55,7 @@
       flex-wrap: wrap;
     }
   </style>
+<script src="/assets/js/csp-compat.js?v=20261106-csp"></script>
 </head>
 <body>
 
@@ -193,17 +194,7 @@
   </p>
 </footer>
 
-<script type="module">
-  import { auth } from '/assets/js/auth.js?v=20260423-modal';
-  import '/assets/js/app.js?v=20260425-hamburgerfix';
-
-  auth.initUI({
-    loginBtn:  document.getElementById('btn-login'),
-    logoutBtn: document.getElementById('btn-logout'),
-    userMenu:  document.getElementById('user-menu'),
-    slugEl:    document.getElementById('user-slug-display'),
-  });
-</script>
+<script type="module" src="/assets/js/pages/404-1.js?v=20261106-csp"></script>
 
 </body>
 </html>

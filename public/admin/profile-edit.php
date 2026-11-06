@@ -141,7 +141,7 @@ ob_start(); ?>
 <div class="panel" style="margin-bottom:1.5rem;">
     <div class="profile-detail-header">
         <?php if ($p['cached_avatar']): ?>
-            <img src="<?= h($p['cached_avatar']) ?>" class="avatar-lg" alt="" onerror="this.style.display='none'">
+            <img src="<?= h($p['cached_avatar']) ?>" class="avatar-lg" alt="" data-fallback="hide">
         <?php else: ?>
             <div class="avatar-placeholder-lg"><?= strtoupper(substr($p['cached_name'] ?: $p['slug'], 0, 1)) ?></div>
         <?php endif; ?>
@@ -235,7 +235,7 @@ ob_start(); ?>
                 Récupère nom, avatar, bio, stats… depuis les relais Nostr et met à jour le cache.
             </p>
             <button type="button" id="btn-nostr-refresh" class="btn btn-info w-full" style="justify-content:center;"
-                    onclick="startNostrRefresh()">
+                    data-action="startNostrRefresh">
                 🔄 Rafraîchir depuis Nostr
             </button>
         </div>
@@ -245,13 +245,10 @@ ob_start(); ?>
         <?php if (isRole('admin')): ?>
         <div>
             <p class="text-sm text-muted" style="margin-bottom:.75rem;">Chaque suppression est validée par un admin. Le profil est retiré temporairement de l'annuaire en attendant.</p>
-            <button type="button" class="btn btn-danger w-full" style="justify-content:center;"
-                onclick="if(confirm('Supprimer définitivement ce profil et tous ses liens ?')) {
-                    document.getElementById('delete-profile-form').submit();
-                }">
+            <button type="submit" form="delete-profile-form" class="btn btn-danger w-full" style="justify-content:center;">
                 🗑️ Supprimer ce profil définitivement
             </button>
-            <form id="delete-profile-form" method="POST" action="/admin/profiles.php">
+            <form id="delete-profile-form" method="POST" action="/admin/profiles.php" data-confirm="Supprimer définitivement ce profil et tous ses liens ?">
                 <input type="hidden" name="csrf_token" value="<?= h($csrf) ?>">
                 <input type="hidden" name="action" value="delete">
                 <input type="hidden" name="npub" value="<?= h($npub) ?>">
@@ -260,13 +257,10 @@ ob_start(); ?>
         <?php else: ?>
         <div>
             <p class="text-sm text-muted" style="margin-bottom:.75rem;">Demander la suppression — l'admin validera ou restaurera.</p>
-            <button type="button" class="btn btn-danger w-full" style="justify-content:center;"
-                onclick="if(confirm('Envoyer une demande de suppression pour ce profil ?')) {
-                    document.getElementById('reqdelete-profile-form').submit();
-                }">
+            <button type="submit" form="reqdelete-profile-form" class="btn btn-danger w-full" style="justify-content:center;">
                 🗑️ Demander la suppression
             </button>
-            <form id="reqdelete-profile-form" method="POST" action="/admin/profiles.php">
+            <form id="reqdelete-profile-form" method="POST" action="/admin/profiles.php" data-confirm="Envoyer une demande de suppression pour ce profil ?">
                 <input type="hidden" name="csrf_token" value="<?= h($csrf) ?>">
                 <input type="hidden" name="action" value="request_delete">
                 <input type="hidden" name="npub" value="<?= h($npub) ?>">
@@ -332,7 +326,7 @@ ob_start(); ?>
                         </form>
                         <!-- Supprimer lien -->
                         <form method="POST" style="display:inline;"
-                              onsubmit="return confirm('Supprimer ce lien ?')">
+                              data-confirm="Supprimer ce lien ?">
                             <?= csrfField() ?>
                             <input type="hidden" name="action" value="delete_link">
                             <input type="hidden" name="link_id" value="<?= (int)$l['id'] ?>">
@@ -412,100 +406,7 @@ $content .= '
 </div>';
 
 // ── Script module Nostr ────────────────────────────────────────────────────
-$content .= '<script type="module">
-import { nostr } from "/assets/js/nostr.js";
-
-const _npub  = ' . json_encode($p['npub']) . ';
-const _csrf  = ' . json_encode(csrfToken()) . ';
-const _autoR = ' . json_encode($autoRefresh) . ';
-
-function npubToHex(npub) {
-  const C = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
-  const s = npub.toLowerCase(), sep = s.lastIndexOf("1");
-  if (sep < 1) throw new Error("bad npub");
-  let acc = 0, bits = 0; const bytes = [];
-  for (const c of s.slice(sep + 1, -6)) {
-    const i = C.indexOf(c); if (i < 0) throw new Error("bad char");
-    acc = (acc << 5) | i; bits += 5;
-    while (bits >= 8) { bits -= 8; bytes.push((acc >> bits) & 0xff); }
-  }
-  return bytes.map(b => b.toString(16).padStart(2,"0")).join("");
-}
-
-function setLabel(msg) {
-  const el = document.getElementById("refresh-label");
-  if (el) el.textContent = msg;
-}
-
-window.startNostrRefresh = async function() {
-  const overlay = document.getElementById("nostr-refresh-overlay");
-  overlay.style.display = "flex";
-  const btn = document.getElementById("btn-nostr-refresh");
-  if (btn) btn.disabled = true;
-
-  const data = { npub: _npub, csrf_token: _csrf };
-  let pubHex;
-  try { pubHex = npubToHex(_npub); } catch {}
-
-  setLabel("Connexion aux relais Nostr…");
-
-  await new Promise(resolve => {
-    let profileDone = false;
-
-    // Timeout global 10s
-    const gTimeout = setTimeout(() => { profileDone = true; resolve(); }, 10000);
-
-    nostr.fetchProfile(_npub, (live) => {
-      if (profileDone) return;
-
-      if (!live) {
-        // Relay timeout avec null = plus rien à attendre
-        clearTimeout(gTimeout);
-        profileDone = true;
-        resolve();
-        return;
-      }
-
-      setLabel("Profil trouvé — récupération des stats…");
-      if (live.name || live.display_name) data.cached_name   = live.name || live.display_name;
-      if (live.picture)                   data.cached_avatar = live.picture;
-      if (live.about)                     data.cached_bio    = live.about;
-      if (live.nip05)                     data.cached_nip05  = live.nip05;
-
-      if (pubHex && !profileDone) {
-        profileDone = true;
-        clearTimeout(gTimeout); // éviter race condition : gTimeout ne doit pas résoudre avant fetchStats
-        nostr.fetchStats(pubHex, null, (stats) => {
-          if (stats.followers != null)  data.nostr_followers  = stats.followers;
-          if (stats.posts != null)      data.nostr_posts      = stats.posts;
-          if (stats.createdAt)          data.nostr_created_at = stats.createdAt;
-          resolve();
-        });
-      }
-    });
-  });
-
-  setLabel("Enregistrement…");
-
-  try {
-    await fetch("/admin/nostr-refresh.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-  } catch (e) { console.error("[nostr-refresh]", e); }
-
-  // Recharger sans le param nostr_refresh
-  const url = new URL(window.location.href);
-  url.searchParams.delete("nostr_refresh");
-  url.searchParams.set("refreshed", "1");
-  window.location.href = url.toString();
-};
-
-// Auto-refresh si redirigé depuis profile-create
-if (_autoR) {
-  window.startNostrRefresh();
-}
-</script>';
+$content .= '<div id="profile-edit-data" hidden data-npub="' . h($p['npub']) . '" data-csrf="' . h(csrfToken()) . '" data-auto-refresh="' . ($autoRefresh ? '1' : '0') . '"></div>'
+          . '<script type="module" src="/admin/assets/profile-edit.js?v=20261106-csp"></script>';
 
 echo adminLayout('Modifier le profil : @' . h($p['slug']), $content);

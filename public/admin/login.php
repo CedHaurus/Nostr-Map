@@ -38,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/admin/assets/admin.css">
 <meta name="robots" content="noindex, nofollow">
+<script src="/assets/js/csp-compat.js?v=20261106-csp"></script>
 </head>
 <body class="login-page">
 

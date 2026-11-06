@@ -737,7 +737,7 @@ function renderCard(profile, links = [], opts = {}) {
 
   // Avatar
   const avatarHtml = profile.cached_avatar
-    ? `<img class="avatar" src="${esc(profile.cached_avatar)}" alt="${name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="avatar-placeholder" style="display:none;">${name[0].toUpperCase()}</div>`
+    ? `<img class="avatar" src="${esc(profile.cached_avatar)}" alt="${name}" loading="lazy" data-fallback="placeholder" /><div class="avatar-placeholder" style="display:none;">${name[0].toUpperCase()}</div>`
     : `<div class="avatar-placeholder">${name[0].toUpperCase()}</div>`;
 
   // Coche verte si au moins un lien vérifié
@@ -776,13 +776,13 @@ function renderCard(profile, links = [], opts = {}) {
 
   const actions = compact ? '' : `
     <div class="profile-card-actions">
-      <a class="card-action-btn" href="${followHref}"${followAttrs} onclick="event.stopPropagation()">
+      <a class="card-action-btn" href="${followHref}"${followAttrs} data-stop>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75M9 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/>
         </svg>
         Suivre
       </a>
-      <button class="card-action-btn" onclick="event.stopPropagation();window._openQR('${esc(profile.slug)}','${esc(profile.npub)}')">
+      <button class="card-action-btn" data-action="_openQR" data-args="${esc(JSON.stringify([profile.slug, profile.npub]))}" data-stop>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
           <rect x="3" y="14" width="7" height="7"/>
@@ -798,9 +798,9 @@ function renderCard(profile, links = [], opts = {}) {
   const noBioClass = !compact && !bio ? ' profile-card-no-bio' : '';
   return `
     <div class="profile-card${noBioClass}" data-npub="${esc(profile.npub)}" data-no-cache="${hasCached ? '' : '1'}"
-         onclick="location.href='/p/${slug}'">
+         data-href="/p/${esc(slug)}">
       <div class="profile-card-content">
-        <a href="/p/${slug}" class="profile-card-body" onclick="event.stopPropagation()">
+        <a href="/p/${slug}" class="profile-card-body" data-stop>
           <div class="avatar-wrap" id="card-av-${slug}">${avatarHtml}</div>
           <div class="profile-card-info">
             <div class="profile-name-row">
@@ -904,7 +904,7 @@ async function doSearch(q, resultsEl) {
 
     resultsEl.innerHTML = results.map(p => {
       const avatar = p.cached_avatar
-        ? `<img src="${esc(p.cached_avatar)}" alt="" onerror="this.src=''" />`
+        ? `<img src="${esc(p.cached_avatar)}" alt="" data-fallback="clear" />`
         : `<div style="width:36px;height:36px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:.9rem;">${(p.cached_name||p.slug||'?')[0].toUpperCase()}</div>`;
 
       return `

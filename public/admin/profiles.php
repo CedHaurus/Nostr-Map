@@ -157,7 +157,7 @@ ob_start(); ?>
                 <td>
                     <div class="td-avatar">
                         <?php if ($p['cached_avatar']): ?>
-                            <img src="<?= h($p['cached_avatar']) ?>" class="avatar-sm" alt="" onerror="this.style.display='none'">
+                            <img src="<?= h($p['cached_avatar']) ?>" class="avatar-sm" alt="" data-fallback="hide">
                         <?php else: ?>
                             <div class="avatar-placeholder-sm"><?= strtoupper(substr($p['cached_name'] ?: $p['slug'], 0, 1)) ?></div>
                         <?php endif; ?>
@@ -193,7 +193,7 @@ ob_start(); ?>
 
                         <?php if ($p['status'] !== 'banned'): ?>
                         <button type="button" class="btn btn-warning btn-sm"
-                            onclick="showBanModal('<?= h(addslashes($p['npub'])) ?>', '<?= h(addslashes($p['cached_name'] ?: $p['slug'])) ?>')">
+                            data-action="showBanModal" data-args="<?= h(json_encode([$p['npub'], $p['cached_name'] ?: $p['slug']], JSON_UNESCAPED_UNICODE)) ?>">
                             🚫 Bannir
                         </button>
                         <?php else: ?>
@@ -207,12 +207,12 @@ ob_start(); ?>
 
                         <?php if (isRole('admin')): ?>
                         <button type="button" class="btn btn-danger btn-sm"
-                            onclick="confirmDelete('<?= h(addslashes($p['npub'])) ?>', '<?= h(addslashes($p['cached_name'] ?: $p['slug'])) ?>')">
+                            data-action="confirmDelete" data-args="<?= h(json_encode([$p['npub'], $p['cached_name'] ?: $p['slug']], JSON_UNESCAPED_UNICODE)) ?>">
                             🗑️
                         </button>
                         <?php else: ?>
                         <button type="button" class="btn btn-danger btn-sm" title="Demander la suppression"
-                            onclick="confirmRequestDelete('<?= h(addslashes($p['npub'])) ?>', '<?= h(addslashes($p['cached_name'] ?: $p['slug'])) ?>')">
+                            data-action="confirmRequestDelete" data-args="<?= h(json_encode([$p['npub'], $p['cached_name'] ?: $p['slug']], JSON_UNESCAPED_UNICODE)) ?>">
                             🗑️
                         </button>
                         <?php endif; ?>
@@ -257,7 +257,7 @@ ob_start(); ?>
                 <input type="text" name="reason" class="form-control" placeholder="Raison du bannissement…" required>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" onclick="closeBanModal()">Annuler</button>
+                <button type="button" class="btn btn-ghost" data-action="closeBanModal">Annuler</button>
                 <button type="submit" class="btn btn-danger">🚫 Confirmer le bannissement</button>
             </div>
         </form>
@@ -277,7 +277,7 @@ ob_start(); ?>
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="npub" id="delete-npub">
             <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" onclick="closeDeleteModal()">Annuler</button>
+                <button type="button" class="btn btn-ghost" data-action="closeDeleteModal">Annuler</button>
                 <button type="submit" class="btn btn-danger">🗑️ Supprimer définitivement</button>
             </div>
         </form>
@@ -296,41 +296,14 @@ ob_start(); ?>
             <input type="hidden" name="action" value="request_delete">
             <input type="hidden" name="npub" id="reqdelete-npub">
             <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" onclick="document.getElementById('reqdelete-modal').style.display='none'">Annuler</button>
+                <button type="button" class="btn btn-ghost" data-hide="reqdelete-modal">Annuler</button>
                 <button type="submit" class="btn btn-danger">Envoyer la demande</button>
             </div>
         </form>
     </div>
 </div>
 
-<script>
-function showBanModal(npub, name) {
-    document.getElementById('ban-npub').value = npub;
-    document.getElementById('ban-name').textContent = name;
-    document.getElementById('ban-modal').style.display = 'flex';
-}
-function closeBanModal() { document.getElementById('ban-modal').style.display = 'none'; }
-
-function confirmDelete(npub, name) {
-    document.getElementById('delete-npub').value = npub;
-    document.getElementById('delete-name').textContent = name;
-    document.getElementById('delete-modal').style.display = 'flex';
-}
-function closeDeleteModal() { document.getElementById('delete-modal').style.display = 'none'; }
-
-function confirmRequestDelete(npub, name) {
-    document.getElementById('reqdelete-npub').value = npub;
-    document.getElementById('reqdelete-name').textContent = name;
-    document.getElementById('reqdelete-modal').style.display = 'flex';
-}
-
-// Fermer sur clic hors modal
-['ban-modal','delete-modal','reqdelete-modal'].forEach(id => {
-    document.getElementById(id).addEventListener('click', function(e) {
-        if (e.target === this) this.style.display = 'none';
-    });
-});
-</script>
+<script src="/admin/assets/profiles.js?v=20261106-csp"></script>
 
 <?php
 $content = ob_get_clean();

@@ -108,6 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     gap: .5rem;
 }
 </style>
+<script src="/assets/js/csp-compat.js?v=20261106-csp"></script>
 </head>
 <body style="background:var(--bg-dark,#0d0d1a);min-height:100vh;">
 
@@ -152,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="secret-box">
                     <span id="secret-text"><?= h(implode(' ', str_split($secret, 4))) ?></span>
-                    <button type="button" onclick="copySecret()" class="btn btn-ghost btn-sm" id="copy-btn" style="flex-shrink:0;">
+                    <button type="button" data-action="copySecret" class="btn btn-ghost btn-sm" id="copy-btn" style="flex-shrink:0;">
                         📋 Copier
                     </button>
                 </div>
@@ -197,42 +198,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<script>
-// Générer le QR code côté client
-new QRCode(document.getElementById('qr-code'), {
-    text:   <?= json_encode($uri) ?>,
-    width:  180,
-    height: 180,
-    colorDark:  '#000000',
-    colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.M
-});
-
-// Copier la clé secrète
-function copySecret() {
-    const raw = <?= json_encode($secret) ?>;
-    navigator.clipboard.writeText(raw).then(() => {
-        const btn = document.getElementById('copy-btn');
-        btn.textContent = '✓ Copié';
-        setTimeout(() => btn.textContent = '📋 Copier', 2000);
-    });
-}
-
-// Auto-submit sur 6 chiffres
-const input = document.getElementById('totp-input');
-input.addEventListener('input', function() {
-    const digits = this.value.replace(/\D/g, '');
-    if (digits.length === 6) {
-        this.value = digits;
-        document.getElementById('verify-form').submit();
-    }
-});
-input.addEventListener('keyup', function() {
-    let v = this.value.replace(/\D/g, '');
-    if (v.length > 3) v = v.slice(0,3) + ' ' + v.slice(3,6);
-    this.value = v;
-});
-</script>
+<div id="totp-data" hidden data-uri="<?= h($uri) ?>" data-secret="<?= h($secret) ?>"></div>
+<script src="/admin/assets/totp-setup.js?v=20261106-csp"></script>
 
 </body>
 </html>

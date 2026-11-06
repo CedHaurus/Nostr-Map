@@ -102,6 +102,7 @@
       }
     }
   </style>
+<script src="/assets/js/csp-compat.js?v=20261106-csp"></script>
 </head>
 <body>
 
@@ -243,7 +244,7 @@
       <a href="https://christopheboutry.com" target="_blank" rel="noopener">christopheboutry.com</a>
     </p>
     <p><strong>Contact :</strong></p>
-    <button class="ml-contact-link" id="reveal-email" onclick="revealEmail(this)">
+    <button class="ml-contact-link" id="reveal-email" data-action="revealEmail" data-args='["$this"]'>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
         <polyline points="22,6 12,13 2,6"/>
@@ -333,28 +334,9 @@
   </p>
 </footer>
 
-<script src="/assets/js/app.js?v=20260425-hamburgerfix" type="module"></script>
-<script type="module">
-import { auth } from '/assets/js/auth.js?v=20260423-modal';
-auth.initUI({
-  loginBtn:  document.getElementById('btn-login'),
-  logoutBtn: document.getElementById('btn-logout'),
-  userMenu:  document.getElementById('user-menu'),
-  slugEl:    document.getElementById('user-slug-display'),
-});
-</script>
-<script>
-// Révélation progressive de l'e-mail — résistant au scraping
-function revealEmail(btn) {
-  const u = ['contact', 'christopheboutry', 'com'];
-  const addr = u[0] + '\u0040' + u[1] + '\u002E' + u[2];
-  const a = document.createElement('a');
-  a.href = 'mailto:' + addr;
-  a.textContent = addr;
-  a.style.cssText = 'color:var(--primary);font-size:.9rem;';
-  btn.replaceWith(a);
-}
-</script>
+<script src="/assets/js/app.js?v=20261106-csp" type="module"></script>
+<script type="module" src="/assets/js/pages/mentions-legales-1.js?v=20261106-csp"></script>
+<script src="/assets/js/pages/mentions-legales-2.js?v=20261106-csp"></script>
 
 </body>
 </html>

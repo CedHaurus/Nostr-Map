@@ -172,7 +172,7 @@ ob_start(); ?>
         <!-- Profil signalé -->
         <div style="display:flex;align-items:center;gap:.65rem;min-width:160px;">
             <?php if ($r['cached_avatar']): ?>
-                <img src="<?= h($r['cached_avatar']) ?>" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;" onerror="this.style.display='none'">
+                <img src="<?= h($r['cached_avatar']) ?>" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;" data-fallback="hide">
             <?php else: ?>
                 <div style="width:36px;height:36px;border-radius:50%;background:var(--surface-hover);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:.85rem;">
                     <?= strtoupper(substr($r['cached_name'] ?: $r['slug'] ?: '?', 0, 1)) ?>
