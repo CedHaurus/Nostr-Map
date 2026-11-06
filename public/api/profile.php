@@ -246,8 +246,10 @@ if ($method === 'POST') {
     }
 
     // Mise à jour du cache profil (appelé depuis nostr.js après fetch des relais)
-    $allowed = ['cached_name', 'cached_avatar', 'cached_bio', 'cached_nip05',
-                'nostr_created_at', 'nostr_followers', 'nostr_posts'];
+    // Les statistiques (nostr_followers, nostr_posts, nostr_created_at) ne sont
+    // plus acceptées d'un navigateur : elles pilotent le classement et sont
+    // tenues par la tâche horaire (source Primal).
+    $allowed = ['cached_name', 'cached_avatar', 'cached_bio', 'cached_nip05'];
     $update  = [];
     $params  = [];
     $statsFields = ['nostr_created_at', 'nostr_followers', 'nostr_posts'];
@@ -261,6 +263,8 @@ if ($method === 'POST') {
             if (in_array($field, $statsFields, true)) {
                 $val = max(0, (int)$val);
                 $hasStatsUpdate = true;
+            } elseif ($field === 'cached_avatar' && $val !== '' && !preg_match('#^https?://#i', (string)$val)) {
+                continue; // avatar : adresse http(s) seulement
             } else {
                 $val = mb_substr((string)$val, 0, match($field) {
                     'cached_name'   => 100,
@@ -288,6 +292,25 @@ if ($method === 'POST') {
             $newSlug = generateSlug($npub, $body['cached_nip05']);
             $update[] = 'slug = ?';
             $params[]  = $newSlug;
+        }
+    }
+
+    // Le propriétaire demande un rafraîchissement : le serveur lit lui-même les
+    // statistiques chez Primal (jamais les valeurs envoyées par le navigateur),
+    // au plus une fois toutes les 10 minutes.
+    if (array_intersect(array_keys($body), $statsFields)) {
+        $st = $db->prepare('SELECT last_stats_fetch FROM profiles WHERE npub = ?');
+        $st->execute([$npub]);
+        $lastStats = $st->fetchColumn();
+        $hex = npubToHex($npub);
+        if ($hex && (!$lastStats || time() - strtotime((string)$lastStats) >= 600)) {
+            [, $primalStats] = fetchPrimalData($hex);
+            if ($primalStats) {
+                if (!empty($primalStats['joined_at'])) { $update[] = 'nostr_created_at = ?'; $params[] = $primalStats['joined_at']; }
+                $update[] = 'nostr_followers = ?'; $params[] = $primalStats['followers'];
+                $update[] = 'nostr_posts = ?';     $params[] = $primalStats['posts'];
+                $hasStatsUpdate = true;
+            }
         }
     }
 

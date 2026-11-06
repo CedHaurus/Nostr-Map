@@ -20,8 +20,16 @@ $metaFields  = ['cached_name', 'cached_avatar', 'cached_bio', 'cached_nip05'];
 $hasStats = !empty(array_intersect(array_keys($body), $statsFields));
 $hasMeta  = !empty(array_intersect(array_keys($body), $metaFields));
 
-// Les métadonnées (nom, avatar, bio) sont réservées au propriétaire du profil.
-// Les stats (followers, notes) sont publiques : n'importe quel visiteur peut les persister.
+// Statistiques (abonnés, notes) : jamais écrites depuis un navigateur. Elles
+// pilotent le classement et le podium ; seule la tâche horaire
+// (cron/update_nostr_cache.php, source Primal) les écrit. Les valeurs reçues
+// sont ignorées (ancien code navigateur encore en cache : réponse neutre).
+$hasStats = false;
+if (!$hasMeta) {
+    jsonOk(['skipped' => true]);
+}
+
+// Métadonnées (nom, avatar, bio) : réservées au propriétaire du profil.
 if ($hasMeta) {
     $auth     = requireAuth();
     $authNpub = $auth['sub'] ?? '';
@@ -69,6 +77,7 @@ if ($statsAllowed) {
 if ($metaAllowed) {
     foreach ($metaFields as $f) {
         if (!array_key_exists($f, $body) || $body[$f] === null || $body[$f] === '') continue;
+        if ($f === 'cached_avatar' && !preg_match('#^https?://#i', (string)$body[$f])) continue;
         $val      = mb_substr((string)$body[$f], 0, match($f) {
             'cached_name'   => 100,
             'cached_avatar' => 500,

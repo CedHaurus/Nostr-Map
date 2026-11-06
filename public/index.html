@@ -347,6 +347,15 @@
     return bytes.map(b => b.toString(16).padStart(2,'0')).join('');
   }
 
+  // N'accepte qu'une adresse d'image http(s) absolue ; tout le reste est écarté.
+  function safeImageUrl(value) {
+    if (typeof value !== 'string' || value.length > 2000) return '';
+    try {
+      const u = new URL(value.trim());
+      return (u.protocol === 'https:' || u.protocol === 'http:') ? u.href : '';
+    } catch { return ''; }
+  }
+
   // Met à jour une carte sans cache depuis les relais Nostr + sauvegarde en DB
   function liveUpdateCard(slug, npub) {
     let pubHex;
@@ -358,11 +367,25 @@
       const avEl   = document.getElementById('card-av-' + slug);
       if (nameEl && (live.display_name || live.name))
         nameEl.textContent = live.display_name || live.name;
-      if (avEl && live.picture) {
-        const letter = (live.display_name || live.name || slug)[0].toUpperCase();
-        avEl.innerHTML = `<img class="avatar" src="${live.picture}" alt="" loading="lazy"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-          <div class="avatar-placeholder" style="display:none;">${letter}</div>`;
+      const pictureUrl = safeImageUrl(live.picture);
+      if (avEl && pictureUrl) {
+        // Construction par le DOM : la valeur vient des relais Nostr (non fiable),
+        // elle ne doit jamais être interprétée comme du HTML.
+        const letter = String(live.display_name || live.name || slug || '?').charAt(0).toUpperCase();
+        const img = document.createElement('img');
+        img.className = 'avatar';
+        img.alt = '';
+        img.loading = 'lazy';
+        const placeholder = document.createElement('div');
+        placeholder.className = 'avatar-placeholder';
+        placeholder.style.display = 'none';
+        placeholder.textContent = letter;
+        img.addEventListener('error', () => {
+          img.style.display = 'none';
+          placeholder.style.display = 'flex';
+        });
+        img.src = pictureUrl;
+        avEl.replaceChildren(img, placeholder);
       }
       if (live.about) {
         const bioText = live.about.length > 220 ? live.about.slice(0, 217) + '…' : live.about;
@@ -451,12 +474,8 @@
           wrap.dataset.liveFollowers = followers;
           wrap.dataset.livePosts     = posts;
         }
-        // Persister en DB — stats publiques, pas d'auth requise
-        fetch('/api/nostr-cache.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ npub: p.npub, nostr_followers: followers, nostr_posts: posts })
-        }).catch(() => {});
+        // Les statistiques en base sont tenues par le serveur (tâche horaire) :
+        // un visiteur ne les écrit plus, il ne fait que les afficher.
       } catch {}
     }));
 

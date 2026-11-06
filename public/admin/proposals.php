@@ -54,6 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $url      = $link['url'] ?? '';
                         $handle   = $link['handle'] ?? '';
                         if (!$platform || !$url) continue;
+                        // Revalidation : une proposition stockée avant le correctif
+                        // peut contenir un lien javascript: ou hors plateforme.
+                        if (!isSafeHttpsUrl($url) || !platformHostAllowed($platform, $url)) continue;
                         // Générer un challenge factice (sera mis à jour lors de la vérification)
                         $challenge = bin2hex(random_bytes(16));
                         $db->prepare(
@@ -191,10 +194,16 @@ ob_start(); ?>
                         <?php foreach ($links as $link): ?>
                             <div style="font-size:.78rem;">
                                 <span><?= $platformIcons[$link['platform']] ?? '🔗' ?></span>
-                                <a href="<?= h($link['url']) ?>" target="_blank" rel="noopener"
+                                <?php if (isSafeHttpsUrl((string)($link['url'] ?? ''))): ?>
+                                <a href="<?= h($link['url']) ?>" target="_blank" rel="noopener noreferrer"
                                    style="color:var(--text-muted);text-decoration:underline;word-break:break-all;">
                                     <?= h(parse_url($link['url'], PHP_URL_HOST) . (parse_url($link['url'], PHP_URL_PATH) ?: '')) ?>
                                 </a>
+                                <?php else: ?>
+                                <span style="color:var(--danger,#ef4444);word-break:break-all;" title="Lien refusé : adresse non https">
+                                    ⚠ <?= h(mb_substr((string)($link['url'] ?? ''), 0, 120)) ?>
+                                </span>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
                         </div>

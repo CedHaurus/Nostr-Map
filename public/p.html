@@ -498,18 +498,8 @@
             nostr_followers:  stats.followers  != null ? stats.followers : p.nostr_followers,
             nostr_posts:      stats.posts      != null ? stats.posts     : p.nostr_posts,
           });
-          // Persister les stats en DB — publiques, pas d'auth requise
-          if (stats.followers != null || stats.posts != null) {
-            const body = { npub: p.npub };
-            if (stats.followers != null) body.nostr_followers = stats.followers;
-            if (stats.posts     != null) body.nostr_posts     = stats.posts;
-            if (stats.createdAt)         body.nostr_created_at = stats.createdAt;
-            fetch('/api/nostr-cache.php', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(body)
-            }).catch(() => {});
-          }
+          // Les statistiques en base sont tenues par le serveur (tâche horaire) :
+          // un visiteur ne les écrit plus, il ne fait que les afficher.
         } catch(e) { console.error('[renderStats]', e); }
       });
     }
@@ -624,8 +614,9 @@
           ${l.verified
             ? `<span class="link-verified-dot" title="Vérifié"></span>`
             : `<span class="link-unverified-badge">Non vérifié</span>`}`;
-        return derivedUrl
-          ? `<a class="link-item" href="${esc(derivedUrl)}" target="_blank" rel="noopener noreferrer">${inner}</a>`
+        const safeHref = safeLinkUrl(derivedUrl);
+        return safeHref
+          ? `<a class="link-item" href="${esc(safeHref)}" target="_blank" rel="noopener noreferrer">${inner}</a>`
           : `<div class="link-item link-item--pending">${inner}</div>`;
       }).join('');
     }
@@ -822,6 +813,15 @@
     document.getElementById('page-loader').style.display = 'none';
     document.getElementById('profile-404').classList.remove('hidden');
     document.title = 'Profil introuvable — Nostr Map';
+  }
+
+  // Lien cliquable : uniquement https:// (jamais javascript:, data:, etc.).
+  function safeLinkUrl(value) {
+    if (typeof value !== 'string' || !value) return '';
+    try {
+      const u = new URL(value.trim());
+      return u.protocol === 'https:' ? u.href : '';
+    } catch { return ''; }
   }
 
   function esc(str) {

@@ -255,6 +255,38 @@ function rateLimit(string $bucket, int $max, int $window): void {
     fclose($fp);
 }
 
+// ─── URLS SAISIES PAR LES UTILISATEURS ───────────────────────────────────────
+
+/**
+ * Vrai si $url est une adresse https:// absolue avec un hôte, sans caractère
+ * de contrôle ni espace. FILTER_VALIDATE_URL seul accepte javascript:, data:…
+ */
+function isSafeHttpsUrl(string $url): bool {
+    if ($url === '' || strlen($url) > 500) return false;
+    if (preg_match('/[\x00-\x20\x7f]/', $url)) return false;
+    if (!filter_var($url, FILTER_VALIDATE_URL)) return false;
+    if (strtolower((string) parse_url($url, PHP_URL_SCHEME)) !== 'https') return false;
+    $host = parse_url($url, PHP_URL_HOST);
+    return is_string($host) && $host !== '';
+}
+
+/**
+ * Domaines attendus par plateforme. null = instances multiples (https seul).
+ * false = plateforme inconnue.
+ */
+function platformHostAllowed(string $platform, string $url): bool {
+    $patterns = [
+        'x'        => '/^(www\.)?(x\.com|twitter\.com)$/',
+        'bluesky'  => '/^(www\.)?bsky\.app$/',
+        'youtube'  => '/^(www\.)?(youtube\.com|youtu\.be)$/',
+        'mastodon' => null,
+    ];
+    if (!array_key_exists($platform, $patterns)) return false;
+    if ($patterns[$platform] === null) return true;
+    $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+    return (bool) preg_match($patterns[$platform], $host);
+}
+
 // ─── NOSTR EVENT ─────────────────────────────────────────────────────────────
 
 /**

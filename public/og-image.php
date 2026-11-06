@@ -105,11 +105,14 @@ if ($isProfile) {
     $avY    = $cy - (int)($avSize / 2);
 
     $avatarSafe = false;
-    if ($avatar && filter_var($avatar, FILTER_VALIDATE_URL)) {
-        // SSRF protection : HTTPS only, résolution DNS, blocage IP privées
-        $avScheme = parse_url($avatar, PHP_URL_SCHEME);
-        $avHost   = parse_url($avatar, PHP_URL_HOST);
-        if ($avScheme === 'https' && $avHost) {
+    $avHost     = '';
+    $avPinnedIp = '';
+    if ($avatar && strlen($avatar) <= 500 && filter_var($avatar, FILTER_VALIDATE_URL)) {
+        // SSRF : HTTPS seulement, port 443, résolution DNS, blocage IP privées
+        $avScheme = strtolower((string) parse_url($avatar, PHP_URL_SCHEME));
+        $avHost   = (string) parse_url($avatar, PHP_URL_HOST);
+        $avPort   = parse_url($avatar, PHP_URL_PORT);
+        if ($avScheme === 'https' && $avHost !== '' && ($avPort === null || $avPort === 443)) {
             $avIps = @gethostbynamel($avHost);
             if ($avIps) {
                 $avatarSafe = true;
@@ -119,15 +122,52 @@ if ($isProfile) {
                         break;
                     }
                 }
+                $avPinnedIp = $avIps[0];
+            }
+        }
+    }
+    $avData = '';
+    if ($avatarSafe) {
+        // Limite de débit des récupérations d'avatar (par adresse)
+        require_once __DIR__ . '/api/_helpers.php';
+        rateLimit('og_avatar', 30, 60);
+
+        // Récupération sans redirection, sur l'IP déjà validée (pas de seconde
+        // résolution DNS : ferme la fenêtre de rebinding), 2 Mo maximum.
+        $maxBytes = 2 * 1024 * 1024;
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL            => $avatar,
+            CURLOPT_TIMEOUT        => 4,
+            CURLOPT_CONNECTTIMEOUT => 3,
+            CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_PROTOCOLS      => CURLPROTO_HTTPS,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_RESOLVE        => ["{$avHost}:443:{$avPinnedIp}"],
+            CURLOPT_USERAGENT      => 'NostrMap-OG/1.0 (+https://nostrmap.fr)',
+            CURLOPT_WRITEFUNCTION  => function ($c, $chunk) use (&$avData, $maxBytes) {
+                if (strlen($avData) + strlen($chunk) > $maxBytes) return -1;
+                $avData .= $chunk;
+                return strlen($chunk);
+            },
+        ]);
+        $ok   = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if (!$ok || $code !== 200) $avData = '';
+
+        // Anti « bombe de décompression » : dimensions lues dans l'en-tête avant
+        // tout décodage ; refus au-delà de 4096 px de côté ou 16 Mpx.
+        if ($avData !== '') {
+            $dims = @getimagesizefromstring($avData);
+            if (!$dims || $dims[0] < 1 || $dims[1] < 1 || $dims[0] > 4096 || $dims[1] > 4096
+                || $dims[0] * $dims[1] > 16_000_000) {
+                $avData = '';
             }
         }
     }
     if ($avatarSafe) {
-        $ctx    = stream_context_create([
-            'http' => ['timeout' => 3, 'ignore_errors' => true],
-            'ssl'  => ['verify_peer' => true, 'verify_peer_name' => true],
-        ]);
-        $avData = @file_get_contents($avatar, false, $ctx, 0, 2 * 1024 * 1024);
         if ($avData) {
             $avSrc = @imagecreatefromstring($avData);
             if ($avSrc) {

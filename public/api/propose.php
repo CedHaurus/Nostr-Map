@@ -57,8 +57,8 @@ foreach ((array)$linksRaw as $link) {
     $url      = trim($link['url'] ?? '');
 
     if (!in_array($platform, $allowedPlatforms)) continue;
-    if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) continue;
-    if (strlen($url) > 500) continue;
+    if (!isSafeHttpsUrl($url)) continue;                  // https:// uniquement
+    if (!platformHostAllowed($platform, $url)) continue;   // domaine de la plateforme
 
     $links[] = [
         'platform' => $platform,
@@ -72,6 +72,7 @@ foreach ((array)$linksRaw as $link) {
 $message     = mb_substr(trim($body['message'] ?? ''), 0, 1000) ?: null;
 $cachedName  = mb_substr(trim($body['cached_name'] ?? ''), 0, 100) ?: null;
 $cachedAvatar= mb_substr(trim($body['cached_avatar'] ?? ''), 0, 500) ?: null;
+if ($cachedAvatar !== null && !isSafeHttpsUrl($cachedAvatar)) $cachedAvatar = null;
 $linksJson   = !empty($links) ? json_encode($links, JSON_UNESCAPED_UNICODE) : null;
 
 $db->prepare(

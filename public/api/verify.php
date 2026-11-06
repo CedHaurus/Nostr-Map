@@ -28,7 +28,7 @@ $db = getDB();
 
 // Vérifier que le lien appartient à l'utilisateur
 $stmt = $db->prepare(
-    'SELECT id, url, challenge, verified FROM social_links WHERE id = ? AND npub = ?'
+    'SELECT id, platform, url, challenge, verified FROM social_links WHERE id = ? AND npub = ?'
 );
 $stmt->execute([$linkId, $npub]);
 $link = $stmt->fetch();
@@ -178,7 +178,9 @@ if ($isXHost) {
             }
         }
         if ($profileUrl) {
-            $db->prepare('UPDATE social_links SET url = ? WHERE id = ?')->execute([$profileUrl, $linkId]);
+            // Le pseudo affiché est celui du compte vérifié, jamais une saisie libre.
+            $db->prepare('UPDATE social_links SET url = ?, display_handle = ? WHERE id = ?')
+               ->execute([$profileUrl, '@' . substr($profileUrl, strlen('https://x.com/')), $linkId]);
         }
         logUserActivity($npub, 'verify_link', 'link', (string)$linkId, 'URL: ' . substr($url, 0, 100));
         jsonOk(['verified' => true, 'message' => 'Lien X vérifié avec succès !']);
@@ -233,8 +235,10 @@ if ($isBskyHost) {
     $bskyData    = json_decode($bskyBody, true);
     $description = $bskyData['description'] ?? '';
 
-    if (strpos($description, $challenge) !== false) {
-        $db->prepare('UPDATE social_links SET verified = 1, verified_at = NOW() WHERE id = ?')->execute([$linkId]);
+    if (is_string($description) && strpos($description, $challenge) !== false) {
+        $bskyHandle = is_string($bskyData['handle'] ?? null) && $bskyData['handle'] !== '' ? $bskyData['handle'] : $actor;
+        $db->prepare('UPDATE social_links SET verified = 1, verified_at = NOW(), display_handle = ? WHERE id = ?')
+           ->execute(['@' . mb_substr($bskyHandle, 0, 99), $linkId]);
         logUserActivity($npub, 'verify_link', 'link', (string)$linkId, 'URL: ' . substr($url, 0, 100));
         jsonOk(['verified' => true, 'message' => 'Lien Bluesky vérifié avec succès !']);
     }
@@ -251,6 +255,35 @@ if ($isBskyHost) {
 
 $isYouTubeHost = preg_match('/^(www\.)?(youtube\.com|youtu\.be)$/i', $host);
 $maxSize       = $isYouTubeHost ? 1536 * 1024 : 512 * 1024; // 1.5 Mo / 512 Ko
+
+// Formes d'URL strictes : seule une page de compte est acceptée. Une page qui
+// recopie ce qu'on lui envoie (recherche, paramètres, chemin libre) ferait
+// apparaître le code sans que le compte le porte.
+$path     = (string) parse_url($url, PHP_URL_PATH);
+$query    = parse_url($url, PHP_URL_QUERY);
+$fragment = parse_url($url, PHP_URL_FRAGMENT);
+$verifiedHandle = null;
+
+if (($query !== null && $query !== '') || ($fragment !== null && $fragment !== '')
+    || stripos(rawurldecode($url), $challenge) !== false) {
+    jsonOk(['verified' => false, 'message' => "Collez l'adresse de la page de votre compte, sans paramètre (rien après « ? » ou « # »)."]);
+}
+
+$platform = (string) ($link['platform'] ?? '');
+if ($platform === 'youtube' || $isYouTubeHost) {
+    if (!preg_match('/^(www\.)?youtube\.com$/i', $host)
+        || !preg_match('#^/(@[A-Za-z0-9._-]{1,100}|channel/UC[A-Za-z0-9_-]{22}|c/[A-Za-z0-9._-]{1,100}|user/[A-Za-z0-9._-]{1,100})(/(about|featured))?/?$#', $path, $ym)) {
+        jsonOk(['verified' => false, 'message' => 'URL YouTube invalide — format attendu : https://www.youtube.com/@votrechaine']);
+    }
+    $verifiedHandle = $ym[1]; // @chaine, channel/UC…, c/… ou user/…
+} elseif ($platform === 'mastodon') {
+    if (!preg_match('#^/@([A-Za-z0-9_]{1,30})/?$#', $path, $mm)) {
+        jsonOk(['verified' => false, 'message' => 'URL Mastodon invalide — format attendu : https://instance.exemple/@pseudo']);
+    }
+    $verifiedHandle = '@' . $mm[1] . '@' . strtolower($host);
+} else {
+    jsonOk(['verified' => false, 'message' => 'Plateforme non vérifiable automatiquement.']);
+}
 
 // Anti TOCTOU/DNS rebinding : forcer cURL à utiliser l'IP déjà validée
 // plutôt que de relancer une résolution DNS (qui pourrait pointer ailleurs entre-temps)
@@ -302,9 +335,10 @@ if ($httpCode < 200 || $httpCode >= 400) {
 // ─── Chercher le challenge ───────────────────────────────────────────────────
 
 if (strpos($content, $challenge) !== false) {
+    // Le pseudo affiché devient celui du compte vérifié (lié à l'URL).
     $db->prepare(
-        'UPDATE social_links SET verified = 1, verified_at = NOW() WHERE id = ?'
-    )->execute([$linkId]);
+        'UPDATE social_links SET verified = 1, verified_at = NOW(), display_handle = ? WHERE id = ?'
+    )->execute([mb_substr((string) $verifiedHandle, 0, 100), $linkId]);
 
     logUserActivity($npub, 'verify_link', 'link', (string)$linkId, "URL: " . substr($url, 0, 100));
     jsonOk(['verified' => true, 'message' => 'Lien vérifié avec succès !']);

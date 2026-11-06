@@ -36,7 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $verified = isset($_POST['verified']) ? 1 : 0;
 
         $allowed = ['x', 'mastodon', 'bluesky', 'youtube', 'website', 'relay'];
-        if (!in_array($platform, $allowed, true) || !$url) {
+        $scheme  = strtolower((string) parse_url($url, PHP_URL_SCHEME));
+        $okScheme = $platform === 'relay' ? in_array($scheme, ['wss', 'ws'], true) : $scheme === 'https';
+        if (!in_array($platform, $allowed, true) || !$url
+            || !filter_var($url, FILTER_VALIDATE_URL) || !$okScheme
+            || preg_match('/[\x00-\x20\x7f]/', $url)) {
             flash('Plateforme ou URL invalide.', 'danger');
             redirect('/admin/profile-edit.php?npub=' . urlencode($npub));
         }
@@ -297,7 +301,7 @@ ob_start(); ?>
                 <td>
                     <div><?= h($l['display_handle'] ?: '—') ?></div>
                     <div class="cell-muted truncate" style="max-width:180px;">
-                        <a href="<?= h($l['url']) ?>" target="_blank" rel="noopener"><?= h($l['url']) ?></a>
+                        <?php if (in_array(strtolower((string) parse_url((string) $l['url'], PHP_URL_SCHEME)), ['https', 'wss', 'ws'], true)): ?><a href="<?= h($l['url']) ?>" target="_blank" rel="noopener noreferrer"><?= h($l['url']) ?></a><?php else: ?><span title="Lien non https : non cliquable">⚠ <?= h($l['url']) ?></span><?php endif; ?>
                     </div>
                     <div class="cell-muted" style="font-family:monospace;font-size:.72rem;">
                         Challenge : <?= h($l['challenge']) ?>
