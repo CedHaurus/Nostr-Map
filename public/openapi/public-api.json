@@ -1,0 +1,332 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Nostr Map Public Read API",
+    "version": "1.0.0",
+    "description": "Public read-only endpoints for profile discovery and public profile retrieval on nostrmap.fr."
+  },
+  "servers": [
+    {
+      "url": "https://nostrmap.fr"
+    }
+  ],
+  "paths": {
+    "/api/search.php": {
+      "get": {
+        "summary": "Search public profiles",
+        "description": "Returns public profiles matching a query, or paginated homepage grid results when q is omitted.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "description": "Text query. If omitted, the endpoint can return homepage grid results depending on sort."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 40,
+              "default": 20
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["recent", "actifs", "populaires", "random"],
+              "default": "recent"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "seed",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Optional numeric seed for stable random ordering."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search or grid results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/profile.php": {
+      "get": {
+        "summary": "Get a public profile by slug",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public profile and links",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid slug",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Profile not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/status.php": {
+      "get": {
+        "summary": "Application status",
+        "description": "Minimal status endpoint for lightweight discovery and health checks.",
+        "responses": {
+          "200": {
+            "description": "Application and database check passed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Application unavailable or database check failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "StatusResponse": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["ok", "error"]
+          }
+        }
+      },
+      "SearchResult": {
+        "type": "object",
+        "properties": {
+          "npub": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "cached_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "cached_avatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "cached_bio": {
+            "type": "string",
+            "nullable": true
+          },
+          "cached_nip05": {
+            "type": "string",
+            "nullable": true
+          },
+          "nostr_followers": {
+            "type": "integer",
+            "nullable": true
+          },
+          "nostr_posts": {
+            "type": "integer",
+            "nullable": true
+          },
+          "community_added": {
+            "type": "boolean"
+          },
+          "verified_platforms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SearchResponse": {
+        "type": "object",
+        "required": ["results"],
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchResult"
+            }
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicProfile": {
+        "type": "object",
+        "properties": {
+          "npub": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "cached_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "cached_avatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "cached_bio": {
+            "type": "string",
+            "nullable": true
+          },
+          "cached_nip05": {
+            "type": "string",
+            "nullable": true
+          },
+          "nostr_created_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "nostr_followers": {
+            "type": "integer",
+            "nullable": true
+          },
+          "nostr_posts": {
+            "type": "integer",
+            "nullable": true
+          },
+          "community_added": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicLink": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "display_handle": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "verified_at": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ProfileResponse": {
+        "type": "object",
+        "required": ["profile", "links"],
+        "properties": {
+          "profile": {
+            "$ref": "#/components/schemas/PublicProfile"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicLink"
+            }
+          }
+        }
+      }
+    }
+  }
+}

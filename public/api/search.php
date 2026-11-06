@@ -12,6 +12,10 @@ require_once __DIR__ . '/_helpers.php';
 
 setCorsHeaders();
 
+// Anti-abus : 120 req / 60 s par IP. Invisible pour un visiteur (le front ne
+// pagine pas), mais casse le hammering / l'énumération en boucle.
+rateLimit('search', 120, 60);
+
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     jsonError('Méthode non autorisée', 405);
 }

@@ -9,12 +9,33 @@ declare(strict_types=1);
 require_once '/var/www/config/db.php';
 require_once __DIR__ . '/_totp.php';
 
+// ─── Trust Palantar (proxy admin interne) ───────────────────────────────────
+// Si le proxy SvelteKit de Palantar injecte le header X-Palantar-Trust avec le
+// bon secret partagé (env PALANTAR_TRUST_TOKEN), on étend la durée de session
+// à 30j au lieu de 48h. Le lien public https://nostrmap.fr/admin/ reste sur
+// 48h car le header n'est jamais ajouté par les browsers.
+
+function isPalantarTrusted(): bool {
+    $expected = getenv('PALANTAR_TRUST_TOKEN') ?: '';
+    if ($expected === '') return false;
+    $provided = $_SERVER['HTTP_X_PALANTAR_TRUST'] ?? '';
+    if ($provided === '') return false;
+    return hash_equals($expected, $provided);
+}
+
+function palantarSessionSeconds(): int {
+    return isPalantarTrusted() ? 2592000 : 172800;
+}
+
 // ─── Configuration session sécurisée ─────────────────────────────────────────
 
 if (session_status() === PHP_SESSION_NONE) {
-    ini_set('session.gc_maxlifetime', 172800); // 48h — évite le GC PHP (défaut 24 min)
+    // gc_maxlifetime toujours à 30j : sinon une requête sans header trust
+    // (lien externe public) pourrait déclencher le GC PHP qui nettoie les
+    // fichiers session > 48h, et la session Palantar longue serait perdue.
+    ini_set('session.gc_maxlifetime', 2592000);
     session_set_cookie_params([
-        'lifetime' => 172800, // 48h
+        'lifetime' => palantarSessionSeconds(),
         'path'     => '/admin',
         'secure'   => true,
         'httponly' => true,
@@ -26,7 +47,7 @@ if (session_status() === PHP_SESSION_NONE) {
 define('ADMIN_SESSION_KEY', 'nm_admin');
 define('MAX_LOGIN_ATTEMPTS', 5);
 define('LOCKOUT_SECONDS',    900);   // 15 min
-define('ADMIN_SESSION_SECONDS', 172800); // 48h
+define('ADMIN_SESSION_SECONDS', 172800); // 48h — fallback / lien public
 
 function maintenanceBypassToken(): string
 {
@@ -49,7 +70,7 @@ function setMaintenanceBypassCookie(): void
     if (headers_sent()) return;
 
     $token = maintenanceBypassToken();
-    setcookie('nm_preview', $token, maintenanceBypassCookieOptions(time() + ADMIN_SESSION_SECONDS));
+    setcookie('nm_preview', $token, maintenanceBypassCookieOptions(time() + palantarSessionSeconds()));
     $_COOKIE['nm_preview'] = $token;
 }
 
@@ -223,8 +244,8 @@ function isAdminLoggedIn(): bool {
         return false;
     }
 
-    // Timeout session : 8h
-    if ((time() - $s['login_at']) > ADMIN_SESSION_SECONDS) {
+    // Timeout session : 48h (ou 30j via header X-Palantar-Trust valide)
+    if ((time() - $s['login_at']) > palantarSessionSeconds()) {
         session_destroy();
         clearMaintenanceBypassCookie();
         return false;

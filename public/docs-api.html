@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API publique - Nostr Map</title>
+  <meta name="description" content="Documentation de l'API publique en lecture seule de Nostr Map pour recherche de profils et consultation de fiches publiques." />
+  <link rel="canonical" href="https://nostrmap.fr/docs-api" />
+  <link rel="stylesheet" href="/assets/css/app.css?v=20260423-clean" />
+  <style>
+    .api-doc-page { max-width: 920px; margin: 0 auto; padding: 48px 20px 72px; }
+    .api-doc-page h1,
+    .api-doc-page h2,
+    .api-doc-page h3 { margin-top: 0; }
+    .api-doc-lead { max-width: 72ch; color: var(--text-muted); }
+    .api-doc-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px;
+      margin-top: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+    .api-doc-grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      margin-top: 18px;
+    }
+    .api-doc-card pre {
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: rgba(15, 23, 42, 0.92);
+      color: #e2e8f0;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .api-doc-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 18px 0 0;
+    }
+    .api-doc-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    .api-doc-note {
+      border-left: 4px solid var(--primary);
+      padding: 14px 16px;
+      background: rgba(59, 130, 246, 0.08);
+      border-radius: 14px;
+      margin-top: 18px;
+    }
+    .api-doc-list {
+      margin: 14px 0 0;
+      padding-left: 18px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="api-doc-page">
+    <p class="eyebrow">Documentation API</p>
+    <h1>API publique de Nostr Map</h1>
+    <p class="api-doc-lead">
+      Cette documentation décrit la partie publique en lecture seule de l'API de Nostr Map.
+      Elle est pensée pour la recherche de profils, la consultation de fiches publiques et la découverte automatisée.
+    </p>
+
+    <div class="api-doc-badges">
+      <span class="api-doc-badge"><strong>Base URL</strong> <code>https://nostrmap.fr</code></span>
+      <span class="api-doc-badge"><strong>Catalogue</strong> <code>/.well-known/api-catalog</code></span>
+      <span class="api-doc-badge"><strong>Spec</strong> <code>/openapi/public-api.json</code></span>
+    </div>
+
+    <section class="api-doc-card">
+      <h2>Portée</h2>
+      <p>
+        La version publique agents v1 expose uniquement des endpoints de lecture. Les opérations
+        d'écriture ou d'administration ne font pas partie de ce catalogue.
+      </p>
+      <div class="api-doc-note">
+        L'authentification applicative actuelle de Nostr Map repose sur des signatures Nostr
+        (NIP-98) et un JWT interne. Le site ne publie pas actuellement de découverte OAuth/OIDC.
+      </div>
+    </section>
+
+    <section class="api-doc-grid">
+      <article class="api-doc-card">
+        <h2><code>GET /api/search.php</code></h2>
+        <p>Recherche de profils publics ou chargement de la grille d'accueil.</p>
+        <h3>Paramètres utiles</h3>
+        <ul class="api-doc-list">
+          <li><code>q</code> : texte de recherche, optionnel</li>
+          <li><code>limit</code> : nombre maximum de résultats, optionnel</li>
+          <li><code>sort</code> : <code>recent</code>, <code>actifs</code>, <code>populaires</code>, <code>random</code></li>
+          <li><code>offset</code> : pagination pour la grille</li>
+          <li><code>seed</code> : graine numérique pour <code>sort=random</code></li>
+        </ul>
+        <h3>Exemple</h3>
+        <pre><code>GET /api/search.php?q=alice&amp;limit=5</code></pre>
+        <h3>Réponse type</h3>
+        <pre><code>{
+  "results": [
+    {
+      "npub": "npub1...",
+      "slug": "alice",
+      "cached_name": "Alice",
+      "cached_nip05": "alice@example.com",
+      "verified_platforms": ["mastodon"]
+    }
+  ]
+}</code></pre>
+      </article>
+
+      <article class="api-doc-card">
+        <h2><code>GET /api/profile.php</code></h2>
+        <p>Retourne un profil public et ses liens associés à partir d'un slug.</p>
+        <h3>Paramètre requis</h3>
+        <ul class="api-doc-list">
+          <li><code>slug</code> : identifiant public du profil</li>
+        </ul>
+        <h3>Exemple</h3>
+        <pre><code>GET /api/profile.php?slug=alice</code></pre>
+        <h3>Réponse type</h3>
+        <pre><code>{
+  "profile": {
+    "npub": "npub1...",
+    "slug": "alice",
+    "cached_name": "Alice"
+  },
+  "links": [
+    {
+      "platform": "mastodon",
+      "verified": true,
+      "url": "https://example.social/@alice"
+    }
+  ]
+}</code></pre>
+      </article>
+    </section>
+
+    <section class="api-doc-card">
+      <h2><code>GET /api/status.php</code></h2>
+      <p>
+        Endpoint de statut minimal pour la découverte et la supervision légère. Il confirme que
+        l'application répond et que le check base de données passe.
+      </p>
+      <pre><code>{
+  "status": "ok"
+}</code></pre>
+    </section>
+
+    <section class="api-doc-card">
+      <h2>Hors périmètre de cette v1</h2>
+      <ul class="api-doc-list">
+        <li>Authentification et émission de JWT</li>
+        <li>Ajout ou vérification de liens sociaux</li>
+        <li>Contact, proposition de profil et signalement</li>
+        <li>Administration et modération</li>
+        <li>OAuth/OIDC, OAuth Protected Resource Metadata, MCP, WebMCP</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

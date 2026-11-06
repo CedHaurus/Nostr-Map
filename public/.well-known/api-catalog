@@ -1,0 +1,46 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://nostrmap.fr/api/search.php",
+      "service-desc": [
+        {
+          "href": "https://nostrmap.fr/openapi/public-api.json",
+          "type": "application/json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://nostrmap.fr/docs-api",
+          "type": "text/html"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://nostrmap.fr/api/status.php",
+          "type": "application/json"
+        }
+      ]
+    },
+    {
+      "anchor": "https://nostrmap.fr/api/profile.php",
+      "service-desc": [
+        {
+          "href": "https://nostrmap.fr/openapi/public-api.json",
+          "type": "application/json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://nostrmap.fr/docs-api",
+          "type": "text/html"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://nostrmap.fr/api/status.php",
+          "type": "application/json"
+        }
+      ]
+    }
+  ]
+}
